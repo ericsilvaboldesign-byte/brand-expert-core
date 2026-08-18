@@ -8,7 +8,17 @@ its **status**: *established* (within limits), *framework* (coherent and
 teachable, not a tested finding), *craft* (professional consensus about
 process), *contested* (credible sources disagree), or *unsupported*.
 
-Summary table:
+**Verification caveat (access audit, 2026-08-18).** No full text behind these
+claims was read in this project; journal-article findings were checked at
+abstract level and book content is attributed, not read (see the access audit
+in [`SOURCES.md`](SOURCES.md)). Every status below is therefore **as
+attributed**: it grades what the cited literature is documented to say, not a
+first-hand reading. "Established" claims resting only on books
+(§1 penetration/availability, §2 60/40) are one notch weaker than the same
+label on abstract-checked articles (§1 double jeopardy, §2 Lodish, §5–§8
+mechanisms). A full-content audit is the outstanding upgrade path.
+
+Summary table (statuses pending full-content audit):
 
 | # | Domain | Best-supported claim | Highest authority | Status |
 |---|--------|---------------------|-------------------|--------|

@@ -13,15 +13,29 @@ code here. The corpus is two documents:
 | [`SOURCES.md`](SOURCES.md) | The verified source register: every source that backs a claim in this corpus, with full citation, the evidence used to verify it exists as described, its authority level, and its known limits. |
 | [`KNOWLEDGE-MAP.md`](KNOWLEDGE-MAP.md) | The substance: branding knowledge organized by domain, each claim mapped to the sources that support it, graded by authority, with limits and live contradictions stated rather than smoothed over. |
 
-## How sources were verified
+## How sources were verified — two distinct levels
 
-Every source in the register was checked against a real-world reference —
-publisher catalog, journal record / DOI resolver, WorldCat or library records —
-for exact title, authors, publisher/venue, and year. Identifiers (ISBN-13, DOI)
-are recorded only where read from such a reference, never from memory. Each
-entry lists the verification URL used. Claims about a source's *limits* cite
-published critiques where they exist and are marked as analyst judgment where
-they do not.
+Verification claims in this corpus use two levels, and the distinction is
+strict:
+
+- **METADATA-VERIFIED** — the source's existence and citation (author, title,
+  edition, publisher/venue, date, identifiers) were checked against a
+  real-world reference: publisher catalog, journal record / DOI resolver,
+  WorldCat or library records. This verifies *that the work is what we say it
+  is*. It does **not** verify any substantive claim about what the work says.
+- **CONTENT-ACCESSED** — the actual content supporting a recorded claim was
+  read in this project (a fetched page, article abstract, or primary document).
+  Only claims at this level may be called directly verified. Where only an
+  abstract was read, entries say **abstract-accessed** — sufficient for the
+  work's headline finding, not for its details.
+
+Every register entry states its access level. Where a "Supports" or "Limits"
+summary rests on a work's widely documented content rather than content
+accessed in this project, it is an **attribution** — analyst synthesis of what
+the work is known to argue: reliable as a map, but ranked below verified
+knowledge until the underlying text is read. Claims about a source's *limits*
+cite published critiques where they exist and are marked as analyst judgment
+where they do not.
 
 ## Authority levels
 
