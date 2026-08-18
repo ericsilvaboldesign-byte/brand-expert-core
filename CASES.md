@@ -22,7 +22,7 @@ from this environment); wording is the source's but coverage may be
 incomplete, so absence of a component is weaker evidence than on a fetched
 page.
 
-**Reserved brands.** Airbnb, Mailchimp, The Met, FedEx, IBM, and NASA appear
+**Reserved brands.** Airbnb, Mailchimp, The Met, FedEx, McDonald's, and NASA appear
 nowhere below — they are holdouts (see [`HOLDOUT-CASES.md`](HOLDOUT-CASES.md)).
 
 ---

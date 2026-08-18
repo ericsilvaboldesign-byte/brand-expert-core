@@ -247,3 +247,51 @@ literature but were not independently verified here:
 - Hu, Lodish & Krieger (2007), TV-experiment update, *JAR*
 - Guild (BBH Labs), selection-bias critique of the IPA databank
 - Ritson, *Marketing Week* columns on differentiation, purpose, and the Sharp debate
+
+---
+
+## Phase 1 completion additions — practice-corpus sources
+
+New substantive sources verified during the practice-corpus expansion. Full
+context, per-claim usage, and complete accessed-URL lists live in the domain
+documents (DISTINCTIVE-ASSETS, TYPOGRAPHY, COLOR-IMAGERY, MOTION-DIGITAL,
+SEMIOTICS, CASES); this section registers the load-bearing citations with
+authority and access levels. (Access levels per README; "excerpt" = the named
+page's content via search excerpts, direct fetch blocked.)
+
+### A1 — peer-reviewed empirical (all abstract/excerpt-accessed)
+- Romaniuk & Nenycz-Thiel (2014), "Measuring the Strength of Color Brand-Name Links", *Journal of Advertising Research* 54(3), 313–319, DOI `10.2501/JAR-54-3-313-319`
+- Ward, Yang, Romaniuk & Beal (2020), "Building a unique brand identity: measuring the relative ownership potential of brand identity element types", *Journal of Brand Management* 27(4), 393–407, DOI `10.1057/s41262-020-00187-6`
+- Romaniuk, Sharp & Ehrenberg (2007), "Evidence concerning the importance of perceived brand differentiation", *Australasian Marketing Journal* 15(2), 42–54, DOI `10.1016/S1441-3582(07)70042-3`
+- "Shape-based assets are strongest: benchmarking distinctive brand asset performance across industries", *International Journal of Advertising*, online 2026, DOI `10.1080/02650487.2026.2637295` — abstract verified; **author list unconfirmed**
+- Brasel & Hagtvedt (2016), "Living brands: consumer responses to animated brand logos", *Journal of the Academy of Marketing Science* 44, 639–653, DOI `10.1007/s11747-015-0449-2`
+- Elliot & Maier (2014), "Color Psychology…", *Annual Review of Psychology* 65, 95–120, DOI `10.1146/annurev-psych-010213-115035`
+- Labrecque & Milne (2012), "Exciting red and competent blue", *JAMS* 40(5), 711–727, DOI `10.1007/s11747-010-0245-y`
+- Beier & Larson (2010), *Information Design Journal* 18(2), 118–137; Beier & Larson (2013), *IDJ* 20(1), 16–31 (typeface familiarity increases reading speed)
+- Rello & Baeza-Yates (2013), "Good Fonts for Dyslexia", ASSETS 2013 (ext. *ACM TACCESS* 2016, DOI `10.1145/2897736` metadata-only)
+- Wery & Diliberto (2017), *Annals of Dyslexia* (OpenDyslexic: no improvement); Kuster et al. (2017), *Annals of Dyslexia* (metadata-only)
+- Hoadley (1990), "Investigating the effects of color", *Communications of the ACM* 33(2), 120–125 — registered as the plausible root of the misattributed "80% color recognition" claim, which its content does not support
+
+### A2 — scholarly conceptual (metadata/excerpt-accessed)
+- Chandler, *Semiotics: The Basics*, Routledge (eds. 2002–2022; 4th ed. ISBN `9780367726539`, DOI `10.4324/9781003155744`); plus *Semiotics for Beginners* (online, incl. the "Criticisms" chapter — excerpt-accessed)
+- Oswald, *Marketing Semiotics*, Oxford University Press, 2012 (ISBN `9780199566495`)
+- Barthes, "Rhétorique de l'image", *Communications* 4 (1964), 40–51; English in *Image-Music-Text* (Fontana, 1977)
+
+### B / primary legal / standards (access as stated)
+- *Qualitex Co. v. Jacobson Products Co.*, 514 U.S. 159 (1995) — **full opinion read** (Library of Congress U.S. Reports mirror)
+- WCAG 2.x SC 1.4.3 Contrast (Minimum) — **full understanding doc read** (`w3c/wcag` source repository)
+- IBM Design Language & Carbon Design System (color, 2x Grid, photography, motion) — **FULL PRIMARY** (official site-source repositories); `@carbon/motion` token file — **FULL PRIMARY** (npm)
+- Material `@material/animation`, Shopify `@shopify/polaris-tokens`, Atlassian `@atlaskit/motion` — **FULL PRIMARY** (npm packages)
+- Material Design 3 motion docs, Microsoft Fluent 2 motion, Salesforce Kinetics — excerpt-accessed
+- Google Fonts Knowledge; Butterick's *Practical Typography*; MDN variable-fonts guide; web.dev font best practices; Google Noto / Monotype documentation — excerpt-accessed
+
+### C — practitioner (metadata/excerpt-accessed)
+- Romaniuk, *Building Distinctive Brand Assets*, OUP 2018 (registered above in the main register; practice detail excerpt-verified via EBI pages and interviews)
+- van Nes, *Dynamic Identities: How to Create a Living Brand*, BIS Publishers (ISBN `9789063692858`) — metadata-verified
+- Beier, *Reading Letters: Designing for Legibility*, BIS 2012 (ISBN `9789063692711`) — metadata-verified
+- Agency case pages used in `CASES.md` (Pentagram, Wolff Olins, Landor, COLLINS, DesignStudio/Further, Chermayeff & Geismar & Haviv) — all excerpt-accessed; access recorded per case
+
+### Registered refutations (do not cite as knowledge)
+- "Color increases brand recognition by 80%" — unsupported at its alleged source (see COLOR-IMAGERY §1)
+- "62–90% of judgment is based on color" (Singh 2006 chain of weak secondary citations)
+- "Consistent branding increases revenue by 33%" (vendor report, not peer-reviewed)

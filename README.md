@@ -6,12 +6,20 @@ Phase 1 answers one question:
 > which real sources, at what level of authority, and with what limits?**
 
 It is a knowledge-acquisition and source-verification deliverable. There is no
-code here. The corpus is two documents:
+code here. The corpus:
 
 | Document | What it contains |
 |----------|------------------|
-| [`SOURCES.md`](SOURCES.md) | The verified source register: every source that backs a claim in this corpus, with full citation, the evidence used to verify it exists as described, its authority level, and its known limits. |
-| [`KNOWLEDGE-MAP.md`](KNOWLEDGE-MAP.md) | The substance: branding knowledge organized by domain, each claim mapped to the sources that support it, graded by authority, with limits and live contradictions stated rather than smoothed over. |
+| [`SOURCES.md`](SOURCES.md) | The verified source register: theory/marketing-science sources with citation, verification evidence, authority level, known limits, and an access audit. |
+| [`KNOWLEDGE-MAP.md`](KNOWLEDGE-MAP.md) | Branding knowledge by domain, each claim mapped to sources, graded by authority, with limits and live contradictions stated rather than smoothed over. |
+| [`DISTINCTIVE-ASSETS.md`](DISTINCTIVE-ASSETS.md) | Deep primary-evidence briefing on distinctive brand assets (Romaniuk / Ehrenberg-Bass): definitions, Fame, Uniqueness, the grid, ownership, types, palette cohesion, what "distinctive" does not mean, what the research can and cannot tell a designer. |
+| [`CASES.md`](CASES.md) | 15 brand-design training cases from official agency case material, each separating agency-stated strategy / observable design system / our inference. |
+| [`HOLDOUT-CASES.md`](HOLDOUT-CASES.md) | Six identity systems reserved unanalyzed for later evaluation. |
+| [`TYPOGRAPHY.md`](TYPOGRAPHY.md) | Source-backed typography knowledge: function, identity, recognizability, range, multilingual, screen, accessibility, custom vs retail, type as asset. |
+| [`COLOR-IMAGERY.md`](COLOR-IMAGERY.md) | Color (empirical vs practice vs legal ownership), graphic language, and imagery systems — with color-psychology folklore explicitly refuted. |
+| [`MOTION-DIGITAL.md`](MOTION-DIGITAL.md) | Motion as brand behavior, motion signatures, dynamic identity, UI/product expression, static-to-motion coherence, and the (thin) empirical base. |
+| [`SEMIOTICS.md`](SEMIOTICS.md) | What semiotic analysis can legitimately do; observation vs interpretation vs strategic inference; limits. |
+| [`PHASE-1-COMPLETION-REPORT.md`](PHASE-1-COMPLETION-REPORT.md) | Coverage, downgrades, gaps, and Phase 1 status. |
 
 ## How sources were verified — two distinct levels
 
@@ -27,7 +35,13 @@ strict:
   read in this project (a fetched page, article abstract, or primary document).
   Only claims at this level may be called directly verified. Where only an
   abstract was read, entries say **abstract-accessed** — sufficient for the
-  work's headline finding, not for its details.
+  work's headline finding, not for its details. Where full primary files were
+  read (e.g., official source repositories), entries say **FULL PRIMARY**.
+- **EXCERPT-ACCESSED** (intermediate) — the named page's own content was
+  retrieved through search excerpts of that exact URL, used where this
+  environment blocks direct fetching. The wording is the source's, but
+  coverage may be incomplete: absence of something in an excerpt is weak
+  evidence, and quotes are excerpt-verified, not full-text-verified.
 
 Every register entry states its access level. Where a "Supports" or "Limits"
 summary rests on a work's widely documented content rather than content
