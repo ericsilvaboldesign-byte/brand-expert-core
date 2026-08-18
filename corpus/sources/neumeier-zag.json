@@ -1,0 +1,30 @@
+{
+  "id": "neumeier-zag",
+  "type": "book",
+  "title": "Zag",
+  "subtitle": "The Number One Strategy of High-Performance Brands",
+  "authors": [
+    "Marty Neumeier"
+  ],
+  "publisher": "New Riders",
+  "first_published_year": 2006,
+  "latest_edition": null,
+  "identifiers": {
+    "isbn_13": "9780321426772",
+    "doi": null,
+    "url": null
+  },
+  "topics": [
+    "positioning",
+    "brand-strategy"
+  ],
+  "tier": "standard",
+  "verification": {
+    "status": "verified",
+    "verified_on": "2026-08-18",
+    "method": "Web check of title/author/publisher/year against publisher or library records",
+    "evidence_url": "https://www.peachpit.com/store/zag-the-1-strategy-of-high-performance-brands-9780321426772",
+    "notes": "Verified via Peachpit, the publisher-group (Pearson/New Riders) store page. Cover styles the subtitle as 'The #1 Strategy of High-Performance Brands'."
+  },
+  "summary": "Radical differentiation as brand strategy: a 17-step process for finding and committing to the 'zag' — the market position competitors cannot or will not occupy."
+}

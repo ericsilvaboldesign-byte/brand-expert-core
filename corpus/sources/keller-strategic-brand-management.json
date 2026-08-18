@@ -1,0 +1,32 @@
+{
+  "id": "keller-strategic-brand-management",
+  "type": "book",
+  "title": "Strategic Brand Management",
+  "subtitle": "Building, Measuring, and Managing Brand Equity",
+  "authors": [
+    "Kevin Lane Keller",
+    "Vanitha Swaminathan"
+  ],
+  "publisher": "Prentice Hall",
+  "first_published_year": 1998,
+  "latest_edition": "5th edition (Pearson, 2019), with co-author Vanitha Swaminathan",
+  "identifiers": {
+    "isbn_13": "9780134892498",
+    "doi": null,
+    "url": null
+  },
+  "topics": [
+    "brand-equity",
+    "brand-management",
+    "brand-strategy"
+  ],
+  "tier": "canonical",
+  "verification": {
+    "status": "verified",
+    "verified_on": "2026-08-18",
+    "method": "Web check of title/author/publisher/year against publisher or library records",
+    "evidence_url": "https://www.pearson.com/en-us/subject-catalog/p/strategic-brand-management-building-measuring-and-managing-brand-equity/P200000005947/9780135641316",
+    "notes": "First edition by Keller alone (Prentice Hall, 1998); Swaminathan joined on the 5th edition. ISBN-13 is the 5th US edition (Pearson, 2019); the 5th global edition is 9781292314969."
+  },
+  "summary": "The dominant graduate textbook on brand management: customer-based brand equity, brand resonance pyramid, brand value chain, and measurement systems, with extensive case grounding."
+}

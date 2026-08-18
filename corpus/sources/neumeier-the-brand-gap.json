@@ -1,0 +1,31 @@
+{
+  "id": "neumeier-the-brand-gap",
+  "type": "book",
+  "title": "The Brand Gap",
+  "subtitle": "How to Bridge the Distance Between Business Strategy and Design",
+  "authors": [
+    "Marty Neumeier"
+  ],
+  "publisher": "New Riders",
+  "first_published_year": 2003,
+  "latest_edition": "Revised edition (New Riders, 2005)",
+  "identifiers": {
+    "isbn_13": "9780735713307",
+    "doi": null,
+    "url": null
+  },
+  "topics": [
+    "brand-identity",
+    "brand-strategy",
+    "design-process"
+  ],
+  "tier": "standard",
+  "verification": {
+    "status": "verified",
+    "verified_on": "2026-08-18",
+    "method": "Web check of title/author/publisher/year against publisher or library records",
+    "evidence_url": "https://www.abebooks.com/9780735713307/Brand-Gap-Bridge-Distance-Business-0735713308/plp",
+    "notes": "ISBN-13 is the original 2003 New Riders edition; the 2005 revised edition is 9780321348104. Also confirmed via Open Library and Internet Archive."
+  },
+  "summary": "A compact argument that brand is 'a person's gut feeling about a product, service, or company,' bridged from strategy to design through five disciplines: differentiate, collaborate, innovate, validate, cultivate."
+}

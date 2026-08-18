@@ -1,0 +1,30 @@
+{
+  "id": "johnson-branding-in-five-and-a-half-steps",
+  "type": "book",
+  "title": "Branding",
+  "subtitle": "In Five and a Half Steps",
+  "authors": [
+    "Michael Johnson"
+  ],
+  "publisher": "Thames & Hudson",
+  "first_published_year": 2016,
+  "latest_edition": null,
+  "identifiers": {
+    "isbn_13": "9780500518960",
+    "doi": null,
+    "url": null
+  },
+  "topics": [
+    "brand-identity",
+    "design-process"
+  ],
+  "tier": "standard",
+  "verification": {
+    "status": "verified",
+    "verified_on": "2026-08-18",
+    "method": "Web check of title/author/publisher/year against publisher or library records",
+    "evidence_url": "https://www.thamesandhudsonusa.com/books/branding-in-five-and-a-half-steps-hardcover",
+    "notes": "Hardcover published November 2016; verified on the Thames & Hudson USA publisher page."
+  },
+  "summary": "A working designer's method for brand development — investigation, strategy and narrative, design, implementation, engagement — with the 'half step' bridging strategy into design."
+}

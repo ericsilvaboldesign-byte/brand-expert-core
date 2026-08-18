@@ -1,0 +1,30 @@
+{
+  "id": "keller-customer-based-brand-equity",
+  "type": "journal_article",
+  "title": "Conceptualizing, Measuring, and Managing Customer-Based Brand Equity",
+  "subtitle": null,
+  "authors": [
+    "Kevin Lane Keller"
+  ],
+  "publisher": "Journal of Marketing (American Marketing Association)",
+  "first_published_year": 1993,
+  "latest_edition": null,
+  "identifiers": {
+    "isbn_13": null,
+    "doi": "10.1177/002224299305700101",
+    "url": null
+  },
+  "topics": [
+    "brand-equity",
+    "consumer-behavior"
+  ],
+  "tier": "canonical",
+  "verification": {
+    "status": "verified",
+    "verified_on": "2026-08-18",
+    "method": "Web check of title/author/publisher/year against publisher or library records",
+    "evidence_url": "https://journals.sagepub.com/doi/10.1177/002224299305700101",
+    "notes": "Journal of Marketing, Vol. 57, No. 1 (January 1993), pp. 1-22. The JSTOR DOI 10.2307/1252054 resolves to the same article; the SAGE DOI is canonical."
+  },
+  "summary": "The peer-reviewed foundation of customer-based brand equity: brand knowledge modeled as brand awareness plus brand image, and equity defined as the differential effect of that knowledge on consumer response."
+}

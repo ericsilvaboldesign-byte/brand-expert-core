@@ -1,0 +1,29 @@
+{
+  "id": "sinek-start-with-why",
+  "type": "book",
+  "title": "Start with Why",
+  "subtitle": "How Great Leaders Inspire Everyone to Take Action",
+  "authors": [
+    "Simon Sinek"
+  ],
+  "publisher": "Portfolio (Penguin Group)",
+  "first_published_year": 2009,
+  "latest_edition": null,
+  "identifiers": {
+    "isbn_13": "9781591842804",
+    "doi": null,
+    "url": null
+  },
+  "topics": [
+    "brand-purpose"
+  ],
+  "tier": "supplementary",
+  "verification": {
+    "status": "verified",
+    "verified_on": "2026-08-18",
+    "method": "Web check of title/author/publisher/year against publisher or library records",
+    "evidence_url": "https://en.wikipedia.org/wiki/Start_with_Why",
+    "notes": "ISBN-13 is the 2009 Portfolio hardcover first edition, confirmed via AbeBooks and Wikipedia; the common 2011 paperback is 9781591846444."
+  },
+  "summary": "The Golden Circle (why/how/what) argument for purpose-led brands and leadership; influential in purpose-driven brand strategy despite a popular rather than academic evidence base."
+}

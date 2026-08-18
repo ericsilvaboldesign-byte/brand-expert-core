@@ -1,0 +1,30 @@
+{
+  "id": "sharp-how-brands-grow",
+  "type": "book",
+  "title": "How Brands Grow",
+  "subtitle": "What Marketers Don't Know",
+  "authors": [
+    "Byron Sharp"
+  ],
+  "publisher": "Oxford University Press",
+  "first_published_year": 2010,
+  "latest_edition": null,
+  "identifiers": {
+    "isbn_13": "9780195573565",
+    "doi": null,
+    "url": null
+  },
+  "topics": [
+    "brand-growth",
+    "consumer-behavior"
+  ],
+  "tier": "canonical",
+  "verification": {
+    "status": "verified",
+    "verified_on": "2026-08-18",
+    "method": "Web check of title/author/publisher/year against publisher or library records",
+    "evidence_url": "https://global.oup.com/academic/product/how-brands-grow-9780195573565",
+    "notes": "Verified directly on the Oxford University Press publisher page. The companion 'How Brands Grow Part 2' (with Jenni Romaniuk) is a separate work."
+  },
+  "summary": "The empirical counterweight to loyalty-first branding: Ehrenberg-Bass evidence that brands grow through penetration, mental and physical availability, and distinctive assets rather than differentiation and loyalty programs."
+}

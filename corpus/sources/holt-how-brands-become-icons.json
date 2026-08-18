@@ -1,0 +1,30 @@
+{
+  "id": "holt-how-brands-become-icons",
+  "type": "book",
+  "title": "How Brands Become Icons",
+  "subtitle": "The Principles of Cultural Branding",
+  "authors": [
+    "Douglas B. Holt"
+  ],
+  "publisher": "Harvard Business School Press",
+  "first_published_year": 2004,
+  "latest_edition": null,
+  "identifiers": {
+    "isbn_13": "9781578517749",
+    "doi": null,
+    "url": null
+  },
+  "topics": [
+    "brand-culture",
+    "brand-strategy"
+  ],
+  "tier": "canonical",
+  "verification": {
+    "status": "verified",
+    "verified_on": "2026-08-18",
+    "method": "Web check of title/author/publisher/year against publisher or library records",
+    "evidence_url": "https://www.biblio.com/book/how-brands-become-icons-principles-cultural/d/1181474404",
+    "notes": "Originally published by Harvard Business School Press (September 2004); the imprint is now Harvard Business Review Press and some retailer records use the later name."
+  },
+  "summary": "Cultural branding theory: iconic brands win by performing identity myths that resolve cultural contradictions of their era, a fundamentally different mechanism than mindshare models."
+}
