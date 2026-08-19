@@ -18,6 +18,7 @@ code here. The corpus:
 | [`HOLDOUT-CASES.md`](HOLDOUT-CASES.md) | Six famous systems reserved unanalyzed as **known-canon calibration cases** (not blind tests). |
 | [`BLIND-HOLDOUTS.md`](BLIND-HOLDOUTS.md) | The blind / low-contamination holdout set for later anonymized evaluation. |
 | [`PHASE-1B-REPORT.md`](PHASE-1B-REPORT.md) | Reclassification, evidence standard, holdout redesign, and synthesis-readiness verdict. |
+| [`visual-corpus/`](visual-corpus/README.md) | Intake structure for primary visual material — per-case manifests with provenance logging; currently empty, awaiting collection. |
 | [`TYPOGRAPHY.md`](TYPOGRAPHY.md) | Source-backed typography knowledge: function, identity, recognizability, range, multilingual, screen, accessibility, custom vs retail, type as asset. |
 | [`COLOR-IMAGERY.md`](COLOR-IMAGERY.md) | Color (empirical vs practice vs legal ownership), graphic language, and imagery systems — with color-psychology folklore explicitly refuted. |
 | [`MOTION-DIGITAL.md`](MOTION-DIGITAL.md) | Motion as brand behavior, motion signatures, dynamic identity, UI/product expression, static-to-motion coherence, and the (thin) empirical base. |

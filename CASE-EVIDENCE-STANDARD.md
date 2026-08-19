@@ -82,3 +82,9 @@ Leads 7, 10, 13 and 14 have the thinnest reported systems; if their packages
 cannot be acquired, they are candidates for replacement rather than
 promotion. No observation in any lead may be upgraded without the
 corresponding material actually being inspected.
+
+**Intake folders.** [`visual-corpus/training/`](visual-corpus/README.md)
+holds intake folders for eight leads (Mastercard, Slack, Graphcore, Saks,
+Warner Records, Uber, GSK, Robinhood), each with a per-case `MANIFEST.md`
+restating its row above and logging provenance per collected asset. The other
+seven leads get folders when their acquisition starts.
