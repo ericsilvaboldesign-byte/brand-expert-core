@@ -32,21 +32,35 @@ Use for:
 
 Boundary: agency/client claims are first-party accounts, not independent proof of effectiveness.
 
-### B. EDITORIAL CASE ARCHIVES — discovery, comparison and criticism
+### B. EDITORIAL / PROFESSIONAL BRANDING SOURCES — discovery, comparison, criticism and strategic context
 
-These are not primary evidence, but they are essential for discovering a broad, varied set of branding/rebranding cases and for seeing independent professional reactions.
+These are not primary evidence, but they are essential for discovering a broad, varied set of branding/rebranding cases, comparing transformations, and adding independent professional interpretation.
 
-#### Brand New / UnderConsideration — PRIORITY DISCOVERY SOURCE
+#### Brand New / UnderConsideration — PRIORITY REBRANDING DISCOVERY SOURCE
 
 Use heavily for:
 - rebrand / identity discovery
 - before-and-after comparison
 - project and industry filtering
-- reviewed/noted/spotted classification
 - discovering agencies and client projects to trace back to primary sources
 - independent professional critique
 
 Do NOT use Brand New editorial opinion as proof that a strategy or design was effective.
+
+#### Brandemia — PRIORITY STRATEGIC BRANDING / IBERO-AMERICAN SOURCE
+
+Brandemia should be included because its corpus is broader than pure visual inspiration: it publishes branding news, fundamentals, tools, analysis, reports and profiles/reference material, and explicitly positions itself around strategic brand management rather than design inspiration alone.
+
+Use for:
+- branding and rebranding case discovery
+- strategic-branding commentary
+- Spanish / Ibero-American market coverage
+- identifying agencies, practitioners and projects outside the predominantly Anglo-American source set
+- finding brand-management and positioning discussions to trace back to stronger primary/empirical sources where claims require them
+- discovering cases that can then be verified against official agency/client material
+
+Important boundary:
+Brandemia is a professional/editorial/educational source. Its proprietary methods, strategic claims or teaching material are not automatically canonical or empirical. Where an article makes a factual or causal claim, trace it to the underlying primary source before treating it as established knowledge.
 
 #### BP&O — PRIORITY CRITIQUE / CASE DISCOVERY SOURCE
 
@@ -101,6 +115,7 @@ The cases should vary materially across:
 - restrained / expressive
 - evolutionary refresh / substantial rebrand / new identity
 - global / regional
+- Anglo-American / Ibero-American / other regional contexts where evidence is available
 
 ## 4. Case selection rule
 
@@ -119,13 +134,14 @@ OUR ANALYSIS → observation and inference kept separate
 ## 5. Initial discovery workflow
 
 1. Use Brand New as the principal broad rebranding archive.
-2. Add BP&O for professional critique and less-obvious cases.
-3. Use Identity Designed to widen identity-system coverage.
-4. Use DIELINE to add packaging/consumer/physical-brand cases.
-5. From those archives, shortlist 20–30 candidate transformations.
-6. Trace each candidate back to the official agency/client source.
-7. Promote only cases with sufficient primary evidence into the training corpus.
-8. Keep famous canonical cases separate from blind/low-contamination holdouts.
+2. Use Brandemia as a strategic-branding and Ibero-American discovery layer.
+3. Add BP&O for professional critique and less-obvious cases.
+4. Use Identity Designed to widen identity-system coverage.
+5. Use DIELINE to add packaging/consumer/physical-brand cases.
+6. From those archives, shortlist 20–30 candidate transformations.
+7. Trace each candidate back to the official agency/client source.
+8. Promote only cases with sufficient primary evidence into the training corpus.
+9. Keep famous canonical cases separate from blind/low-contamination holdouts.
 
 ## 6. Supplemental system references
 
