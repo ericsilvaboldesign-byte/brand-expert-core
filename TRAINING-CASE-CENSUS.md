@@ -1,57 +1,67 @@
 # Training Case Census — Phase 1C
 
-Status: LIVE CASE-READINESS RECORD
+Status: PHASE 1C CORE TRAINING SET COMPLETE — BOUNDED VISUAL EVIDENCE
 
-This file supersedes the obsolete Phase 1B case-count statements for Phase 1C readiness. `CASES.md` remains the historical lead register until all selected Phase 1C cases are processed.
+This file supersedes the obsolete Phase 1B case-count statements for Phase 1C readiness. `CASES.md` remains the historical lead register.
 
 ## Current census
 
-| Case | Selection status | Evidence status | Training status | Scope |
-|---|---|---|---|---|
-| Slack | Selected | PARTIAL VISUAL PRIMARY | **VERIFIED — BOUNDED** | Equity-preserving simplification; mark/app coherence; digital deployment |
-| PayPal | Selected | PARTIAL VISUAL PRIMARY | **VERIFIED — BOUNDED** | Mature fintech refresh; wordmark/symbol separation; type; product-behavior motion concept |
-| John Lewis Partnership | Selected | Acquisition / observation pending | NOT YET VERIFIED | Architecture; heritage; retail/packaging |
-| GSK | Selected | Existing partial material + further observation required | NOT YET VERIFIED for selected-case dossier | Corporate transformation; science-led identity |
-| Wise | Selected | Primary page reachable; visual observation incomplete | NOT YET VERIFIED | Challenger finance; global expressive system |
-| Burger King | Selected | Acquisition / observation pending | NOT YET VERIFIED | Heritage revival; packaging/physical brand |
-| Reddit | Selected | Acquisition / observation pending | NOT YET VERIFIED | Community/mascot governance; motion |
-| Banco Itaú | Selected | Acquisition / observation pending | NOT YET VERIFIED | Latin-American heritage asset evolution |
-| San Francisco Symphony | Selected | Acquisition / observation pending | NOT YET VERIFIED | Computational/dynamic typography |
-| Samyang | Selected | Acquisition / observation pending | NOT YET VERIFIED | Asian corporate/consumer transformation |
-| Sharjah City Brand | Selected | Acquisition / observation pending | NOT YET VERIFIED | Place branding; bilingual/cross-script system |
-| Melissa | Selected | Acquisition / observation pending | NOT YET VERIFIED | Brazilian fashion; expressive system; architecture |
+| Case | Evidence status | Training status | Primary learning scope |
+|---|---|---|---|
+| Slack | PARTIAL VISUAL PRIMARY | **VERIFIED — BOUNDED** | Equity-preserving simplification; mark/app coherence; digital deployment |
+| PayPal | PARTIAL VISUAL PRIMARY | **VERIFIED — BOUNDED** | Mature fintech refresh; wordmark/symbol separation; type; product-behavior motion concept |
+| John Lewis Partnership | PARTIAL VISUAL PRIMARY / reproduced primary artifacts | **VERIFIED — BOUNDED** | Architecture; heritage; retail/packaging coherence |
+| GSK | PARTIAL VISUAL PRIMARY / primary logo + reproduced system artifacts | **VERIFIED — BOUNDED** | Corporate transformation; science-led identity; spatial/digital expression |
+| Wise | PARTIAL VISUAL PRIMARY | **VERIFIED — BOUNDED** | Challenger finance; global expressive system; product/card expression |
+| Burger King | PARTIAL VISUAL PRIMARY / reproduced primary artifacts | **VERIFIED — BOUNDED** | Heritage revival; packaging; physical/digital coherence |
+| Reddit | PARTIAL VISUAL PRIMARY / reproduced primary artifacts | **VERIFIED — BOUNDED** | Community/mascot governance; palette reduction; motion system |
+| Banco Itaú | PARTIAL VISUAL PRIMARY | **VERIFIED — BOUNDED** | Latin-American heritage asset evolution; pedra graphic system |
+| San Francisco Symphony | PARTIAL VISUAL PRIMARY / reproduced primary artifacts | **VERIFIED — BOUNDED** | Computational/dynamic typography; cultural repositioning |
+| Samyang | PARTIAL VISUAL PRIMARY / reproduced primary artifacts | **VERIFIED — BOUNDED** | Asian corporate transformation; naming; literal-strategy risk test |
+| Sharjah City Brand | PARTIAL VISUAL PRIMARY | **VERIFIED — BOUNDED** | Place branding; bilingual/cross-script parity; motion/icon grammar |
+| Melissa | PARTIAL VISUAL PRIMARY | **VERIFIED — BOUNDED** | Brazilian fashion; expressive variability; architecture refinement |
 
 ## Count
 
 - Selected core transformation cases: **12**
-- Verified training cases: **2**
-- Verified bounded partial cases: **2 (Slack, PayPal)**
+- Verified training cases: **12**
+- Verified bounded partial cases: **12**
 - Full visual primary cases: **0**
-- Cases still requiring Phase 1C dossier work: **10**
+- Cases still requiring Phase 1C dossier work: **0**
 
-## Promotion rule
+## Evidence interpretation
 
-A selected case is not training-ready until its evidence dossier separates:
+`VERIFIED — BOUNDED` does not mean every dimension of every identity was inspected. It means each dossier contains enough traceable primary contextual evidence plus directly inspected visual artifacts (primary where reachable; otherwise clearly flagged visual carriers reproducing primary artifacts, as permitted by `CASE-EVIDENCE-STANDARD.md`) to analyze a defined slice of system logic without pretending unavailable dimensions were seen.
 
-BEFORE STATE → SOURCE-STATED PROBLEM → SOURCE-STATED STRATEGY → PRIMARY VISUAL EVIDENCE → OBSERVED SYSTEM → PRESERVED / CHANGED → EDITORIAL CRITIQUE → LATER EVIDENCE → LIMITATIONS
+No case is upgraded to FULL VISUAL PRIMARY.
 
-and meets `CASE-EVIDENCE-STANDARD.md` at FULL VISUAL PRIMARY or defensible bounded PARTIAL VISUAL PRIMARY.
+## Core dossiers
 
-## Slack promotion record
-
-Slack was promoted on 2026-08-19 after direct inspection of primary Slack-hosted before/after and cross-context identity visuals, primary Slack and Pentagram case text, existing Slack-published UI-kit evidence in the repo, current Slack brand-governance material, and independent professional/editorial counter-readings.
-
-See:
 - `visual-corpus/training/slack/CASE-STUDY.md`
-- `visual-corpus/training/slack/MANIFEST.md`
-
-The promotion is deliberately bounded: typography, extended illustration, motion, physical applications and effectiveness measurement remain incomplete.
-
-## PayPal promotion record
-
-PayPal was promoted on 2026-08-19 after direct inspection of current PayPal-published wordmark, monogram and debit-card imagery; full Pentagram case text; PayPal historical identity context; Lineto's primary type-development documentation; current PayPal media deployment; and opposing professional/editorial readings.
-
-See:
 - `visual-corpus/training/paypal/CASE-STUDY.md`
+- `visual-corpus/training/john-lewis-partnership/CASE-STUDY.md`
+- `visual-corpus/training/gsk/CASE-STUDY.md`
+- `visual-corpus/training/wise/CASE-STUDY.md`
+- `visual-corpus/training/burger-king/CASE-STUDY.md`
+- `visual-corpus/training/reddit/CASE-STUDY.md`
+- `visual-corpus/training/banco-itau/CASE-STUDY.md`
+- `visual-corpus/training/san-francisco-symphony/CASE-STUDY.md`
+- `visual-corpus/training/samyang/CASE-STUDY.md`
+- `visual-corpus/training/sharjah-city-brand/CASE-STUDY.md`
+- `visual-corpus/training/melissa/CASE-STUDY.md`
 
-The promotion is deliberately bounded: complete motion execution, campaign/photography system, complete product UI rollout, and detailed type specimens beyond the observed wordmark remain incomplete.
+## Coverage achieved
+
+The set now covers materially different branding problems and system philosophies: preserve vs replace; heritage vs future; parent coherence vs sub-brand autonomy; restrained vs expressive; centralized governance vs community expression; static recognition vs dynamic behavior; product/digital vs packaging/physical; Latin American, Asian, Middle Eastern, North American and European contexts; B2B/product, finance, retail, health, food, social platform, culture, civic/place and fashion.
+
+## Remaining limitations
+
+1. No case is FULL VISUAL PRIMARY.
+2. Several cases rely partly on reputable visual carriers reproducing agency/client artifacts because source CDNs or media packages are inaccessible to the runtime.
+3. Motion is directly characterized from source documentation and representative frames, not exhaustively frame-by-frame inspected in every motion-led case.
+4. Agency-reported commercial or engagement metrics remain first-party claims unless independently verified; they are not causal proof of design effectiveness.
+5. `distinctive` in case-study language never substitutes for measured Fame/Uniqueness under the Ehrenberg-Bass construct.
+
+## Phase 1C gate
+
+The core case-learning requirement is now met at the **BOUNDED** level: twelve transformation cases have source-separated dossiers and enough visual/contextual evidence to study system logic. Phase 2 may begin, but synthesis must preserve all case-level evidence boundaries rather than treating the set as twelve complete ground-truth identities.
