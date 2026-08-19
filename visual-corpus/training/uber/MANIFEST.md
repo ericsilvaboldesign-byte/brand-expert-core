@@ -22,4 +22,9 @@ Physical applications
 ## Asset log
 | File | Component | Source URL | Collected on |
 |------|-----------|------------|--------------|
-| _(empty — nothing collected yet)_ | | | |
+| `base-design-system/tokens/*` (3 files) | Color — primitive + semantic tokens | https://registry.npmjs.org/baseui/-/baseui-18.2.0.tgz (source repo: github.com/uber/baseweb) | 2026-08-19 |
+| `base-design-system/themes-shared/*` (10 files: typography, animation, grid, borders, lighting, sizing, breakpoints, media-query) | Typography in use (UberMove/UberMoveText/UberMoveMono scale) · motion tokens · layout grid — digital/UI | same | 2026-08-19 |
+| `base-design-system/themes-{light,dark,move}/*` (14 files) | Color — deployed theme mappings incl. Move (Uber's product theme) | same | 2026-08-19 |
+| `base-design-system/PACKAGE-VERSION.txt` | Provenance record | — | 2026-08-19 |
+
+**Provenance:** source organization **Uber Technologies, Inc.** (published under the uber GitHub org / npm `baseui`); package title "baseui" v18.2.0, MIT-licensed. Classification: **PRIMARY** (client-published design-system source — the actual token values shipped to Uber product UI). Covers digital/UI, typography tokens, color, motion tokens, layout grid. Does NOT cover: the brand wordmark artwork, Uber Move font files (licensed, not in package), graphic language (U-frame), imagery, physical.
