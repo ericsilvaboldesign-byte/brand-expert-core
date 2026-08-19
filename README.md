@@ -13,8 +13,11 @@ code here. The corpus:
 | [`SOURCES.md`](SOURCES.md) | The verified source register: theory/marketing-science sources with citation, verification evidence, authority level, known limits, and an access audit. |
 | [`KNOWLEDGE-MAP.md`](KNOWLEDGE-MAP.md) | Branding knowledge by domain, each claim mapped to sources, graded by authority, with limits and live contradictions stated rather than smoothed over. |
 | [`DISTINCTIVE-ASSETS.md`](DISTINCTIVE-ASSETS.md) | Deep primary-evidence briefing on distinctive brand assets (Romaniuk / Ehrenberg-Bass): definitions, Fame, Uniqueness, the grid, ownership, types, palette cohesion, what "distinctive" does not mean, what the research can and cannot tell a designer. |
-| [`CASES.md`](CASES.md) | 15 brand-design training cases from official agency case material, each separating agency-stated strategy / observable design system / our inference. |
-| [`HOLDOUT-CASES.md`](HOLDOUT-CASES.md) | Six identity systems reserved unanalyzed for later evaluation. |
+| [`CASES.md`](CASES.md) | 15 brand-design **case leads (partial access)** from official agency text — agency-stated strategy preserved; system descriptions marked NOT YET VISUALLY VERIFIED. |
+| [`CASE-EVIDENCE-STANDARD.md`](CASE-EVIDENCE-STANDARD.md) | The four case-evidence levels, the visual source package required for a VERIFIED TRAINING CASE, and the per-lead acquisition manifest. |
+| [`HOLDOUT-CASES.md`](HOLDOUT-CASES.md) | Six famous systems reserved unanalyzed as **known-canon calibration cases** (not blind tests). |
+| [`BLIND-HOLDOUTS.md`](BLIND-HOLDOUTS.md) | The blind / low-contamination holdout set for later anonymized evaluation. |
+| [`PHASE-1B-REPORT.md`](PHASE-1B-REPORT.md) | Reclassification, evidence standard, holdout redesign, and synthesis-readiness verdict. |
 | [`TYPOGRAPHY.md`](TYPOGRAPHY.md) | Source-backed typography knowledge: function, identity, recognizability, range, multilingual, screen, accessibility, custom vs retail, type as asset. |
 | [`COLOR-IMAGERY.md`](COLOR-IMAGERY.md) | Color (empirical vs practice vs legal ownership), graphic language, and imagery systems — with color-psychology folklore explicitly refuted. |
 | [`MOTION-DIGITAL.md`](MOTION-DIGITAL.md) | Motion as brand behavior, motion signatures, dynamic identity, UI/product expression, static-to-motion coherence, and the (thin) empirical base. |

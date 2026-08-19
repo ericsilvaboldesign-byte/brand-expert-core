@@ -1,5 +1,11 @@
 # Phase 1 Completion Report
 
+> **Superseded in part by [`PHASE-1B-REPORT.md`](PHASE-1B-REPORT.md)** (visual
+> evidence + evaluation integrity): the 15 "training cases" reported below are
+> now CASE LEADS (partial access), and the 6 "holdouts" are now known-canon
+> calibration cases. This report stands as the historical record of the
+> Phase 1 pass.
+
 Date: 2026-08-18. Scope: completion of the missing practice-side areas of the
 verified source corpus, per the Phase 1 completion-gap directive. No
 methodology was created; no Phase 2 work was begun; nothing was merged.

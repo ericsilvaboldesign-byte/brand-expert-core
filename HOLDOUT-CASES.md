@@ -1,30 +1,37 @@
-# Holdout Cases — Reserved, Not Analyzed
+# Evaluation Reserves — Known-Canon Calibration Cases
 
-These identity systems are deliberately **excluded from the training-case
-corpus** ([`CASES.md`](CASES.md)) and from all analysis in Phase 1. They are
-reserved for later evaluation of the expert system: because no analysis of
-them exists in this corpus, they can test whether downstream reasoning
-generalizes rather than recites.
+**Reclassification notice (Phase 1B).** The six systems below were originally
+reserved as blind holdouts. They are too famous for that role: extensively
+documented canonical work is vulnerable to model prior knowledge, so a
+correct-sounding analysis could be memory, not judgment. They are therefore
+reclassified as **KNOWN-CANON CALIBRATION CASES** — useful later for testing
+whether the system can analyze canonical work competently and for calibrating
+its outputs against well-understood ground truth, but **NOT strong blind
+tests**. The blind evaluation role moves to the separate
+[`BLIND-HOLDOUTS.md`](BLIND-HOLDOUTS.md) set.
 
-Rules: nothing below is analyzed, described as a design system, or graded.
-Only identification, category, primary-source location, and the reason the
-case is useful for evaluation are recorded. Source locations are recorded as
-pointers; their content was **not accessed** in this phase (by design).
+Rules unchanged: nothing below is analyzed, described as a design system, or
+graded in this corpus. Only identification, category, source location, and
+the reason the case is useful are recorded. Source locations are pointers;
+their content was not accessed (by design), except where the change log notes
+incidental verification.
 
-| # | Brand / project | Category | Primary source location | Why useful for later evaluation |
-|---|-----------------|----------|------------------------|--------------------------------|
-| 1 | Airbnb (2014 rebrand, DesignStudio) | Travel / hospitality platform | design.studio (case page); airbnb.design | End-to-end platform rebrand with symbol, later custom typeface, and heavy public documentation — tests whole-system reasoning against a well-documented ground truth. |
-| 2 | Mailchimp (2018 rebrand, COLLINS) | SMB marketing SaaS | wearecollins.com/work/mailchimp | Illustration-led expressive system on a utilitarian product — tests analysis of imagery/illustration as system components, an area the training corpus covers thinly. |
-| 3 | The Met (2016, Wolff Olins) | Cultural institution | wolffolins.com (case page) | Publicly contested wordmark and system — tests whether evaluation separates craft assessment from press discourse. |
-| 4 | FedEx (1994, Landor) | Logistics | landor.com (heritage case material) | Canonical corporate wordmark with negative-space device and decades of consistent application — tests classic identity-system reading and longevity reasoning. |
-| 5 | McDonald's global brand refresh (Turner Duckworth, 2018–) | Quick-service restaurants | turnerduckworth.com (case material) | Masterbrand simplification built on cropped iconic assets (Golden Arches) and packaging-led rollout — tests asset-centric system reasoning in a mass-consumer category the training corpus doesn't cover. |
-| 6 | NASA Graphics Standards Manual (1975/76, NHB 1430.2, Danne & Blackburn) | Public sector / space agency | standardsmanual.com (reissue); NASA archival PDF | A complete pre-digital standards manual — tests reading of primary standards documents and of an identity later reversed (worm → meatball → partial revival). |
+| # | Brand / project | Category | Primary source location | Calibration use |
+|---|-----------------|----------|------------------------|-----------------|
+| 1 | Airbnb (2014 rebrand, DesignStudio) | Travel / hospitality platform | design.studio (case page); airbnb.design | End-to-end platform rebrand with heavy public documentation — calibrates whole-system analysis against a well-documented ground truth. |
+| 2 | Mailchimp (2018 rebrand, COLLINS) | SMB marketing SaaS | wearecollins.com/work/mailchimp | Illustration-led expressive system on a utilitarian product — calibrates imagery/illustration analysis. |
+| 3 | The Met (2016, Wolff Olins) | Cultural institution | wolffolins.com (case page) | Publicly contested system — calibrates separation of craft assessment from press discourse. |
+| 4 | FedEx (1994, Landor) | Logistics | landor.com (heritage case material) | Canonical wordmark with decades of application — calibrates classic identity reading and longevity reasoning. |
+| 5 | McDonald's global brand refresh (Turner Duckworth, 2018–) | Quick-service restaurants | turnerduckworth.com (case material) | Asset-centric masterbrand simplification in a mass-consumer category — calibrates asset-system reasoning. |
+| 6 | NASA Graphics Standards Manual (1975/76, NHB 1430.2, Danne & Blackburn) | Public sector / space agency | standardsmanual.com (reissue); NASA archival PDF | Complete pre-digital standards manual — calibrates reading of primary standards documents and reversed identities (worm → meatball → partial revival). |
 
-**Change log.** IBM was originally holdout #5 but was replaced by McDonald's:
-the Phase 1 practice corpus required IBM's public design-system documentation
-as full-primary professional-practice reference material (see
-[`COLOR-IMAGERY.md`](COLOR-IMAGERY.md) and
-[`MOTION-DIGITAL.md`](MOTION-DIGITAL.md)), which disqualifies IBM as an
-*unanalyzed* evaluation case. The NASA manual's existence and legal authority
-were incidentally verified during color research, but its content remains
-unanalyzed, so it stands as a holdout.
+**Change log.**
+- Phase 1: IBM was originally reserve #5 but was replaced by McDonald's — the
+  practice corpus required IBM's public design-system documentation as
+  full-primary reference ([`COLOR-IMAGERY.md`](COLOR-IMAGERY.md),
+  [`MOTION-DIGITAL.md`](MOTION-DIGITAL.md)), disqualifying IBM as an
+  unanalyzed case. The NASA manual's existence/authority were incidentally
+  verified during color research; its content remains unanalyzed.
+- Phase 1B: entire set reclassified from "holdouts" to known-canon
+  calibration cases; blind evaluation moved to
+  [`BLIND-HOLDOUTS.md`](BLIND-HOLDOUTS.md).

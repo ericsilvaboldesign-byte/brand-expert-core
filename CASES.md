@@ -1,29 +1,38 @@
-# Brand Design Practice — Training Case Corpus
+# Brand Design Practice — CASE LEADS (PARTIAL ACCESS)
 
-Training cases built from **official primary case-study material** — the
-agencies' own case pages (and, where noted, their own press/news pages). Each
-case strictly separates three registers:
+**Reclassification notice (Phase 1B).** The 15 entries below were previously
+titled "training cases." They were built from search-retrieved excerpts of
+official agency case pages: the agency's own **text** was partially
+accessible, but **no primary visual material was inspected** — no logo
+construction, type specimens, color values, layouts, motion, or applications
+were seen. Under the corpus evidence standard
+([`CASE-EVIDENCE-STANDARD.md`](CASE-EVIDENCE-STANDARD.md)) every entry is
+therefore a **CASE LEAD at evidence level SNIPPET / REFERENCE ONLY** — a
+discovery lead, not a verified training case. None qualifies as a VERIFIED
+TRAINING CASE until its visual source package is acquired and inspected (see
+the acquisition manifest in the standard).
 
-- **AGENCY-STATED STRATEGY** — what the agency's own material says; faithful
-  paraphrase, short quotes attributed.
-- **OBSERVABLE DESIGN SYSTEM** — only components the source material documents
-  or shows. "Not documented on source page" means exactly that — gaps are
-  never filled from memory.
-- **OUR INFERENCE** — clearly labeled analyst inference, quarantined from the
-  record.
+Each lead preserves three registers:
 
-No universal principles are derived in this document — that is deliberately
-out of scope for Phase 1.
+- **AGENCY-STATED STRATEGY** — what the agency's own accessible text says;
+  faithful paraphrase, short quotes attributed. This was actually accessed
+  (at excerpt level) and remains valid as *reported agency claims*.
+- **REPORTED DESIGN SYSTEM — NOT YET VISUALLY VERIFIED** — system components
+  as *described in agency text*. These are textual reports, not direct
+  observation; nothing here has been checked against the actual visual work.
+  "Not documented" means the retrieved text didn't cover it — the real system
+  may include it.
+- **OUR INFERENCE** — clearly labeled analyst inference **from the reported
+  text only**, quarantined from the record and doubly provisional until
+  visuals are inspected.
 
-**Access levels.** `fetched` = the source page's content was retrieved and
-read directly. `snippet-only` = the page's own text was retrieved through
-search excerpts of that exact URL (used where a site blocks direct fetching
-from this environment); wording is the source's but coverage may be
-incomplete, so absence of a component is weaker evidence than on a fetched
-page.
+No universal principles are derived in this document — deliberately out of
+scope for Phase 1.
 
-**Reserved brands.** Airbnb, Mailchimp, The Met, FedEx, McDonald's, and NASA appear
-nowhere below — they are holdouts (see [`HOLDOUT-CASES.md`](HOLDOUT-CASES.md)).
+**Reserved brands.** Airbnb, Mailchimp, The Met, FedEx, McDonald's, and NASA
+(known-canon calibration set) and the blind holdout set
+([`BLIND-HOLDOUTS.md`](BLIND-HOLDOUTS.md)) appear nowhere below — see
+[`HOLDOUT-CASES.md`](HOLDOUT-CASES.md).
 
 ---
 
@@ -37,7 +46,7 @@ were built from search-retrieved text of the exact pentagram.com case pages
 - Category: Finance / global payments
 - Primary source: https://www.pentagram.com/work/mastercard (access: snippet-only)
 - **AGENCY-STATED STRATEGY:** An evolution of the identity highlighting "the connectivity and seamlessness of Mastercard and its payment systems" — simplicity and modernity while preserving the equity of the interlocking circles used since 1968. The mark is "optimized for use in digital contexts"; the designers "isolated the brand's elements to their purest form." The page reports global research finding **81% of consumers spontaneously recognized the new symbol without the brand name**.
-- **OBSERVABLE DESIGN SYSTEM:**
+- **REPORTED DESIGN SYSTEM — NOT YET VISUALLY VERIFIED** (from agency text, snippet-retrieved):
   - Logo/symbol/wordmark: two interlocking red and yellow circles reduced to purest form; lowercase wordmark (the lowered "c" as "a visual cue to de-emphasize how the brand is no longer just a card").
   - Typography: wordmark in FF Mark; a new typographic system named among the graphic tools.
   - Color: hues calibrated through hundreds of tests to appear bright and glowing on different backgrounds; the overlap rendered as an additive, brighter orange for "a subtle glow."
@@ -53,7 +62,7 @@ were built from search-retrieved text of the exact pentagram.com case pages
 - Category: Technology / workplace software (SaaS)
 - Primary source: https://www.pentagram.com/work/slack (access: snippet-only)
 - **AGENCY-STATED STRATEGY:** An identity "that captures the software's simplicity and ease of use," updating the hashtag logo "to work consistently in different scales and contexts." After exploring alternatives (connect-the-dots, knots, emojis), the team chose "to retain the equity of Slack's familiar octothorpe, retooling it to eliminate reproduction challenges." Work was done in close collaboration with CEO Stewart Butterfield and Slack's in-house team, coordinated inside Slack itself.
-- **OBSERVABLE DESIGN SYSTEM:**
+- **REPORTED DESIGN SYSTEM — NOT YET VISUALLY VERIFIED** (from agency text, snippet-retrieved):
   - Logo/symbol/wordmark: redrawn octothorpe built on a grid from two geometric primitives — a speech bubble and a lozenge — extractable as standalone elements.
   - Typography: not documented in retrieved page content.
   - Color: reduced from eleven colors (which "suffered against any background color other than white") to four primaries optimized for screen; the aubergine purple retained as accent.
@@ -69,7 +78,7 @@ were built from search-retrieved text of the exact pentagram.com case pages
 - Category: Technology / AI semiconductors
 - Primary source: https://www.pentagram.com/work/graphcore (access: snippet-only; supporting pages /work/graphcore-hardware, /work/graphcore-the-companio)
 - **AGENCY-STATED STRATEGY:** Strategy, tone of voice and identity presenting Graphcore "as both an innovative technology company and an ambitious thought leader." The identity "is built around the concept of resolution, with each of its components finding its form by sensing and responding to its environment," deliberately countering AI branding that "leans into masculine tropes and overly complicated language."
-- **OBSERVABLE DESIGN SYSTEM:**
+- **REPORTED DESIGN SYSTEM — NOT YET VISUALLY VERIFIED** (from agency text, snippet-retrieved):
   - Logo/symbol/wordmark: wordmark drawn from the geometry of the headline typeface.
   - Typography: bespoke headline face **Graphcore Quantized** (based on Caslon's Egyptian) with 65+ alternate characters at varying resolutions; OpenType features switch characters while typing — "a different yet consistent outcome every time it's used."
   - Color: soft palette with multiple options, contrasted against hard type and patterns.
@@ -86,7 +95,7 @@ were built from search-retrieved text of the exact pentagram.com case pages
 - Category: Retail / luxury department store
 - Primary source: https://www.pentagram.com/work/saks-fifth-avenue (access: snippet-only)
 - **AGENCY-STATED STRATEGY:** A new store identity plus graphic program (signage, advertising, direct mail, website, packaging). The mid-nineties logo "had done little to create a profile for the brand"; Saks leadership "were looking for something that could be ubiquitous and iconic, immediately identifiable when glimpsed across a busy street."
-- **OBSERVABLE DESIGN SYSTEM:**
+- **REPORTED DESIGN SYSTEM — NOT YET VISUALLY VERIFIED** (from agency text, snippet-retrieved):
   - Logo/symbol/wordmark: the 1973 cursive script redrawn with type designer Joe Finocchiaro, set in a black square subdivided into 64 tiles that "can be shuffled and rotated to form an almost infinite number of variations."
   - Typography: the redrawn cursive; no secondary face documented in retrieved content.
   - Color: black and white.
@@ -102,7 +111,7 @@ were built from search-retrieved text of the exact pentagram.com case pages
 - Category: Culture / music label
 - Primary source: https://www.pentagram.com/work/warner-records (access: snippet-only; partner attribution via pentagram.com/news)
 - **AGENCY-STATED STRATEGY:** Strategy and identity that "builds on this remarkable legacy and positions it for the future." Having lost rights to the "WB" shield and the "Warner Bros. Records" name, phase one was strategy and renaming — dropping "Brothers," keeping "Warner" to preserve equity. The identity "highlights the label's L.A. roots with a circular logo that suggests a record, a sun and a globe."
-- **OBSERVABLE DESIGN SYSTEM:**
+- **REPORTED DESIGN SYSTEM — NOT YET VISUALLY VERIFIED** (from agency text, snippet-retrieved):
   - Logo/symbol/wordmark: circular mark (record / sun / globe), disk and wordmark both sliced at the bottom "suggesting a horizon line or a sunrise or sunset."
   - Typography: wordmark in Sharp Sans.
   - Color: no fixed palette — the circle acts "as a 'sponge' for color and images" to promote artists.
@@ -127,7 +136,7 @@ Secondary trade-press snippets are used only where explicitly flagged.*
 - Category: Mobility / ride-hailing platform
 - Primary source: https://wolffolins.com/work/uber (access: snippet-only)
 - **AGENCY-STATED STRATEGY:** Uber had gone "from a startup connecting riders and drivers to a global mobility platform in eight short years" and needed a system able to accommodate new transport modes. Stated shifts: "from a narrow Silicon Valley perspective to a truly global outlook," and "from being focused on growth to being focused on people." Brand narrative: "movement ignites opportunity"; internal EVP: "Go Far and Fast Together." Ten-month engagement alongside Uber's in-house team.
-- **OBSERVABLE DESIGN SYSTEM:**
+- **REPORTED DESIGN SYSTEM — NOT YET VISUALLY VERIFIED** (from agency text, snippet-retrieved):
   - Logo/wordmark: "Uber" wordmark set in the new bespoke typeface, replacing the prior symbol-led identity.
   - Typography: bespoke sans **Uber Move**, designed for legibility across 13+ languages and to be "ownable and recognizable."
   - Color: new **Safety Blue** flags "important interactions" and moments of care (pickup points, support).
@@ -143,7 +152,7 @@ Secondary trade-press snippets are used only where explicitly flagged.*
 - Category: Social media / entertainment
 - Primary source: https://wolffolins.com/work/tiktok (access: snippet-only)
 - **AGENCY-STATED STRATEGY:** Wolff Olins has worked with TikTok "since it was just 18 months old — building the foundations of its brand, helping it to 'age up', bringing coherence to the content explosion" and "helping to represent and diversify its user base — all whilst keeping the content centre stage." Deliverables: growth strategy, design system, tone of voice, campaign playbooks as "a single point of truth" for agencies, partners, creators, and product teams.
-- **OBSERVABLE DESIGN SYSTEM:**
+- **REPORTED DESIGN SYSTEM — NOT YET VISUALLY VERIFIED** (from agency text, snippet-retrieved):
   - Logo/wordmark, typography, color: not documented in accessible snippets.
   - Graphic language: a design system "built on a layered grid that creates endless unique designs"; "a unique, ownable style that heroes creator content and the UI of the product itself."
   - Imagery: creator content as hero material.
@@ -156,7 +165,7 @@ Secondary trade-press snippets are used only where explicitly flagged.*
 - Category: Pharmaceuticals / biopharma
 - Primary source: https://wolffolins.com/work/gsk (access: snippet-only)
 - **AGENCY-STATED STRATEGY:** Following the demerger begun in 2020 — "a move away from consumer healthcare and a renewed focus on biopharma" — Wolff Olins partnered with GSK "to bring to life the brand's renewed purpose, strategy, voice and culture," anchored in the purpose "Get ahead of disease together": "an adaptable, forward-facing identity rooted in bioscientific imagery."
-- **OBSERVABLE DESIGN SYSTEM:**
+- **REPORTED DESIGN SYSTEM — NOT YET VISUALLY VERIFIED** (from agency text, snippet-retrieved):
   - Logo/symbol: the orange logo re-housed in a new dynamic shape, the "signal," "designed to always point ahead."
   - Typography: custom face **GSK Precision** by foundry F37, ink traps mirroring the logo's shapes for screen/print readability (detail surfaced via launch coverage quoting the project — flagged as secondary).
   - Color: heritage orange retained; gradient palette "darker and richer."
@@ -171,7 +180,7 @@ Secondary trade-press snippets are used only where explicitly flagged.*
 - Category: FMCG / breakfast cereals
 - Primary source: https://landor.com/en/our-work/kelloggs/ (access: snippet-only)
 - **AGENCY-STATED STRATEGY:** By 2019 "Kellogg's iconic designs were losing their snap, crackle, and pop," the brand "fading fast with its difference eroded by competitors." The task: "remind consumers why Kellogg's remains the original, go-to for breakfast" — the widest redesign in the company's 113-year history, across the entire European cereal portfolio. Stated results: ~70% of regular consumers found the new packs more easily on shelf; purchase intent up almost 50%; a 6% purchase-rate lift in Simstore research.
-- **OBSERVABLE DESIGN SYSTEM:**
+- **REPORTED DESIGN SYSTEM — NOT YET VISUALLY VERIFIED** (from agency text, snippet-retrieved):
   - Logo/wordmark: the script wordmark enlarged and deliberately cropped, bleeding off the top of the pack — "giving the Masterbrand the spotlight it deserved," "relying on customer recognition."
   - Typography: beyond the script treatment, not documented on source page.
   - Color: "brighter and more cohesive" portfolio; specific values not documented.
@@ -186,7 +195,7 @@ Secondary trade-press snippets are used only where explicitly flagged.*
 - Category: Financial information & analytics
 - Primary source: Landor's own press release "Landor Supports McGraw Hill Financial's Rebrand as S&P Global" (May 3, 2016; syndicated copies at finance.yahoo.com and einpresswire.com — used because no landor.com case page was reachable or indexed; access: snippet-only)
 - **AGENCY-STATED STRATEGY:** Strategy and design for McGraw Hill Financial's renaming as S&P Global: "a new name and design system that confidently marks S&P Global as the leader in delivering essential intelligence." Landor's research found the S&P name "carries considerable clout and brand equity" among financial professionals while "McGraw Hill" skewed toward textbook publishing — the basis for the change. One masterbrand platform ("essential intelligence") across four divisions.
-- **OBSERVABLE DESIGN SYSTEM:**
+- **REPORTED DESIGN SYSTEM — NOT YET VISUALLY VERIFIED** (from agency text, snippet-retrieved):
   - Naming/architecture: new corporate name plus branded-house architecture — S&P Global prefixing the four divisions (the release's most concretely documented component).
   - Logo/symbol: not documented in the primary source (third-party descriptions excluded by rule).
   - Typography, color, graphic language, imagery, motion, UI/digital, physical: not documented in the primary source.
@@ -206,7 +215,7 @@ from memory.*
 - Category: Music streaming / consumer technology
 - Primary source: https://wearecollins.com/case-studies/spotify/ (access: snippet-only)
 - **AGENCY-STATED STRATEGY:** Engaged as Apple (Beats) and Google intensified the streaming race. Strategic insight: in an abundance category, personalization is the most valuable proposition — playlist creation ("DIY personalization") drove active usage and paid conversion. The identity shifted Spotify "from a product-focused tech company to a music brand," launched at SXSW 2015 — "as rich and lively as music culture itself."
-- **OBSERVABLE DESIGN SYSTEM:**
+- **REPORTED DESIGN SYSTEM — NOT YET VISUALLY VERIFIED** (from agency text, snippet-retrieved):
   - Logo/wordmark: prior identity described as limited (black, white, one green; stock fonts; small logo); new logo treatment specifics not documented in accessible material.
   - Typography: not documented in accessible material.
   - Color: bold, high-contrast color pairs "most brands avoid"; a "vibrating" mix bringing tension and energy.
@@ -219,7 +228,7 @@ from memory.*
 - Category: Live streaming / creator platform
 - Primary source: https://wearecollins.com/case-studies/twitch/ (access: snippet-only)
 - **AGENCY-STATED STRATEGY:** A new identity reflecting an expanding culture of inclusiveness as content pushed beyond gaming into music, radio, creative content, and NBA/NFL/wrestling partnerships: "a new and cohesive visual identity system, product design language, tone of voice, and brand architecture," balancing coherence with community diversity while keeping the purple heritage.
-- **OBSERVABLE DESIGN SYSTEM:**
+- **REPORTED DESIGN SYSTEM — NOT YET VISUALLY VERIFIED** (from agency text, snippet-retrieved):
   - Logo/wordmark: retained and amplified — "amplifying the uniqueness of their wordmark."
   - Typography: a custom typeface created (name not stated in accessible material).
   - Color: the "beloved purple palette" plus "a flexible system of vibrant hues."
@@ -234,7 +243,7 @@ from memory.*
 - Category: Fintech / retail investing
 - Primary source: https://wearecollins.com/case-studies/robinhood/ (access: snippet-only)
 - **AGENCY-STATED STRATEGY:** Robinhood's budget-friendly, youth-skewed brand "struggled with credibility as a broader financial services provider." Customer research dispelled the "investing is gambling" notion and produced the reframe **"investors are futurists."** Brand and product rebuilt around "secure a brighter financial future." Stated results: first-time investors grew to over 50% of the user base within two years; net cumulative funded accounts +143%; monthly actives +172%.
-- **OBSERVABLE DESIGN SYSTEM:**
+- **REPORTED DESIGN SYSTEM — NOT YET VISUALLY VERIFIED** (from agency text, snippet-retrieved):
   - Illustration: imaginative illustration and bold information graphics, "both evocative and instructive" — visual metaphors for 'ETFs,' 'Fractional Shares,' 'Bull Market,' the 'American Dream.'
   - Iconography: minimalist geometric symbols as "moments of quiet clarity" against the rich illustration world.
   - UI/digital: brand and product experience rebuilt together (screens not detailed in accessible material).
@@ -245,7 +254,7 @@ from memory.*
 - Category: Food delivery / on-demand platform
 - Primary source: https://www.design.studio/collection/branding-unicorns (the original standalone case page appears absorbed into the agency's post-rebrand collections; access: snippet-only)
 - **AGENCY-STATED STRATEGY:** Deliveroo was "a company moving at speed"; strategy and identity to differentiate against increasing competition. With rapid global expansion, Deliveroo "needed the marketing tools to deploy globally so local markets could move at speed, whilst maintaining brand consistency around the world."
-- **OBSERVABLE DESIGN SYSTEM:**
+- **REPORTED DESIGN SYSTEM — NOT YET VISUALLY VERIFIED** (from agency text, snippet-retrieved):
   - Logo/symbol: a new mascot-symbol, "the Roo" — "a symbol that can be recognised as a character... irrespective of what language you speak"; its "minimalist aesthetic reduces established cultural associations"; "a mark that Deliveroo will imbue with meaning over the next few years."
   - Consistency/flexibility: a global toolkit built for local-market speed with worldwide consistency.
   - Typography, color, imagery, motion, UI/digital, physical (rider kit, packaging): not documented in accessible material.
@@ -255,7 +264,7 @@ from memory.*
 - Category: Media / publishing and scientific-educational institution
 - Primary source: https://cghnyc.com/work/project/national-geographic (access: snippet-only)
 - **AGENCY-STATED STRATEGY:** The Society had grown far beyond the magazine into products and licensed merchandise, requiring a cohesive program: a mark "based on the magazine's iconic gold border," with updated elements that "build upon the considerable equity already established" rather than replace it.
-- **OBSERVABLE DESIGN SYSTEM:**
+- **REPORTED DESIGN SYSTEM — NOT YET VISUALLY VERIFIED** (from agency text, snippet-retrieved):
   - Logo/symbol: the gold border rectangle, abstracted from the magazine cover frame into the brand mark.
   - System governance: web-based guidelines letting filmmakers, designers and suppliers worldwide download artwork and photography directly — a distribution/compliance mechanism the page explicitly documents.
   - Identity elements: "a series of updated identity elements" (not itemized in accessible material).
@@ -264,9 +273,9 @@ from memory.*
 
 ---
 
-## Corpus distribution (15 cases)
+## Lead distribution (15 case leads — none yet a verified training case)
 
-| Agency | Cases | Categories covered |
+| Agency | Leads | Categories covered |
 |--------|-------|--------------------|
 | Pentagram | 5 | payments, SaaS, AI hardware, luxury retail, music |
 | Wolff Olins | 3 | mobility, social media, pharma |
@@ -275,6 +284,7 @@ from memory.*
 | DesignStudio | 1 | food delivery |
 | Chermayeff & Geismar & Haviv | 1 | media/institution |
 
-Access level is snippet-only throughout (agency sites block direct fetching
-from this environment); upgrading these cases to `fetched` fidelity is a
-recorded follow-up. No universal principles are derived here by design.
+Evidence level is **SNIPPET / REFERENCE ONLY** throughout. Promotion to
+VERIFIED TRAINING CASE requires the visual source package defined in
+[`CASE-EVIDENCE-STANDARD.md`](CASE-EVIDENCE-STANDARD.md), acquired per its
+manifest. No universal principles are derived here by design.
