@@ -9,7 +9,7 @@ This file supersedes the obsolete Phase 1B case-count statements for Phase 1C re
 | Case | Selection status | Evidence status | Training status | Scope |
 |---|---|---|---|---|
 | Slack | Selected | PARTIAL VISUAL PRIMARY | **VERIFIED — BOUNDED** | Equity-preserving simplification; mark/app coherence; digital deployment |
-| PayPal | Selected | Acquisition / observation pending | NOT YET VERIFIED | Global fintech refresh; type; motion; product behavior |
+| PayPal | Selected | PARTIAL VISUAL PRIMARY | **VERIFIED — BOUNDED** | Mature fintech refresh; wordmark/symbol separation; type; product-behavior motion concept |
 | John Lewis Partnership | Selected | Acquisition / observation pending | NOT YET VERIFIED | Architecture; heritage; retail/packaging |
 | GSK | Selected | Existing partial material + further observation required | NOT YET VERIFIED for selected-case dossier | Corporate transformation; science-led identity |
 | Wise | Selected | Primary page reachable; visual observation incomplete | NOT YET VERIFIED | Challenger finance; global expressive system |
@@ -24,10 +24,10 @@ This file supersedes the obsolete Phase 1B case-count statements for Phase 1C re
 ## Count
 
 - Selected core transformation cases: **12**
-- Verified training cases: **1**
-- Verified bounded partial cases: **1 (Slack)**
+- Verified training cases: **2**
+- Verified bounded partial cases: **2 (Slack, PayPal)**
 - Full visual primary cases: **0**
-- Cases still requiring Phase 1C dossier work: **11**
+- Cases still requiring Phase 1C dossier work: **10**
 
 ## Promotion rule
 
@@ -46,3 +46,12 @@ See:
 - `visual-corpus/training/slack/MANIFEST.md`
 
 The promotion is deliberately bounded: typography, extended illustration, motion, physical applications and effectiveness measurement remain incomplete.
+
+## PayPal promotion record
+
+PayPal was promoted on 2026-08-19 after direct inspection of current PayPal-published wordmark, monogram and debit-card imagery; full Pentagram case text; PayPal historical identity context; Lineto's primary type-development documentation; current PayPal media deployment; and opposing professional/editorial readings.
+
+See:
+- `visual-corpus/training/paypal/CASE-STUDY.md`
+
+The promotion is deliberately bounded: complete motion execution, campaign/photography system, complete product UI rollout, and detailed type specimens beyond the observed wordmark remain incomplete.
