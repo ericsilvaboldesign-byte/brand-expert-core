@@ -1,10 +1,10 @@
 # Phase 2 — Brand Expert Core Operational System
 
-Status: **OPERATING SYSTEM BUILT — READY FOR BLIND EVALUATION**
+Status: **PHASE 2 PASS — BOUNDED VALIDATION**
 
 This directory is the operational synthesis of the verified knowledge corpus, source hierarchy, professional-practice layers and the 12 bounded Phase 1C training cases.
 
-It does **not** declare the system validated. Validation happens only through the blind evaluation defined in `EVAL-PROTOCOL.md`.
+The system has now passed the bounded blind-evaluation gate defined in `EVAL-PROTOCOL.md`. See `BLIND-EVALUATION-RESULTS.md` for the scored record, invalid/calibration-only cases, coverage limits and release decision.
 
 ## Files
 
@@ -28,6 +28,9 @@ Critical, major and minor failure patterns including literalization, trend-as-st
 
 ### `EVAL-PROTOCOL.md`
 Blind-holdout evaluation design, scoring rubric, penalties, pass thresholds and calibration/regression rules.
+
+### `BLIND-EVALUATION-RESULTS.md`
+Frozen scoring summary and release gate for the completed Phase 2 evaluation.
 
 ## Governing inputs
 
@@ -56,25 +59,29 @@ The operating system must be read with the existing project evidence, especially
 - call visual features measured distinctive assets without evidence;
 - assume dynamic/generative/3D/motion execution is strategically superior.
 
-## Current gate
+## Final gate
 
 ### Knowledge / practice synthesis
-**COMPLETE ENOUGH FOR EVALUATION.**
+**COMPLETE ENOUGH FOR USE.**
 
 ### Operational expert behavior
 **SPECIFIED.**
 
 ### Blind validation
-**NOT YET RUN.**
+**PASSED — BOUNDED.**
+
+Six valid blind cases passed with a mean score of **93.67/100**. Instagram was retained as calibration-only because the supplied package was insufficient for a motion-led case. Decathlon was excluded from the threshold because the supplied evidence exposed the agency credit before diagnosis.
 
 ### Calibration
-**NOT YET RUN.**
+**COMPLETE — NO CORE RULE CHANGE REQUIRED.**
+
+The evaluator's occasional use of disclosed category context did not create an evidence-integrity failure. Future blind scoring must continue to treat prior category knowledge as context, not supplied case evidence.
 
 ### Release for consequential client visual-definition work
-**NOT YET PASSED.**
+**PASSED — BOUNDED.**
+
+The Expert Core may now be used as a trusted input for downstream client visual-brand definition while preserving its evidence boundaries. This is not a claim of universal expertise, causal effectiveness prediction, or independent validation of actual moving-image analysis.
 
 ## Next action
 
-Run a clean, contamination-controlled blind evaluation using `EVAL-PROTOCOL.md` and the reserved holdout set. The evaluator must not see `BLIND-HOLDOUTS.md` or case rationales before its diagnosis is frozen.
-
-Only after the blind threshold passes should this Expert Core be treated as validated input for downstream client visual and motion definition.
+Apply the validated Brand Expert Core to the next client visual-definition task without reopening approved strategy unless contradictory evidence appears.
