@@ -1,7 +1,7 @@
 # Visual intake — Robinhood — COLLINS (lead #13)
 
 Case record: [`CASES.md`](../../../CASES.md) · Standard: [`CASE-EVIDENCE-STANDARD.md`](../../../CASE-EVIDENCE-STANDARD.md)
-Current evidence level: **SNIPPET / REFERENCE ONLY** (no visual material inspected yet).
+Current evidence level: see acquisition status below (updated 2026-08-19).
 
 ## Collect (baseline for every case)
 - Full case-page text (saved copy)
@@ -22,4 +22,8 @@ Logo; typography; color; photography — nearly the whole system is visually unr
 ## Asset log
 | File | Component | Source URL | Collected on |
 |------|-----------|------------|--------------|
-| _(empty — nothing collected yet)_ | | | |
+
+
+**Acquisition attempted 2026-08-19:** the `robinhood` GitHub org (9 repos, swept) contains only open-source project marks (faust, thorn) — NOT Robinhood corporate brand assets; `robinhoodmarkets` has zero public repos; robinhood.com and COLLINS case page are egress-blocked. Nothing acquired — project logos were correctly excluded as non-brand material.
+
+**Case acquisition status: INSUFFICIENT VISUAL EVIDENCE — no legitimate primary visual channel reachable from this environment**

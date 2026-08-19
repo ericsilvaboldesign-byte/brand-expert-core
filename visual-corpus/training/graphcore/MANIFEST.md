@@ -1,7 +1,7 @@
 # Visual intake — Graphcore — Pentagram (lead #3)
 
 Case record: [`CASES.md`](../../../CASES.md) · Standard: [`CASE-EVIDENCE-STANDARD.md`](../../../CASE-EVIDENCE-STANDARD.md)
-Current evidence level: **SNIPPET / REFERENCE ONLY** (no visual material inspected yet).
+Current evidence level: see acquisition status below (updated 2026-08-19).
 
 ## Collect (baseline for every case)
 - Full case-page text (saved copy)
@@ -22,4 +22,9 @@ Motion
 ## Asset log
 | File | Component | Source URL | Collected on |
 |------|-----------|------------|--------------|
-| _(empty — nothing collected yet)_ | | | |
+| `graphcorelogo-pdf.png` (2311×602) | Logo — wordmark, high-res (quantized letterforms visible; identity verified) | https://raw.githubusercontent.com/graphcore/poptorch/sdk-release-3.4/docs/common/graphcorelogo-pdf.png | 2026-08-19 |
+| `graphcorelogo-html.png` (342×44) | Logo — wordmark, small docs variant | https://raw.githubusercontent.com/graphcore/poptorch/sdk-release-3.4/docs/common/graphcorelogo-html.png | 2026-08-19 |
+
+**Provenance:** source organization **Graphcore (graphcore GitHub org)**, official SDK documentation assets. Classification: **PRIMARY** (client-published). The org (41 public repos, swept) carries no typeface files, patterns, or further brand assets; docs live on docs.graphcore.ai (egress-blocked).
+
+**Case acquisition status: INSUFFICIENT VISUAL EVIDENCE — wordmark only; typeface alternates, generative patterns, illustration, hardware applications unobtainable in this environment (assets retained)**

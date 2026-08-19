@@ -1,7 +1,7 @@
 # Visual intake — Uber — Wolff Olins (lead #6)
 
 Case record: [`CASES.md`](../../../CASES.md) · Standard: [`CASE-EVIDENCE-STANDARD.md`](../../../CASE-EVIDENCE-STANDARD.md)
-Current evidence level: **SNIPPET / REFERENCE ONLY** (no visual material inspected yet).
+Current evidence level: see acquisition status below (updated 2026-08-19).
 
 ## Collect (baseline for every case)
 - Full case-page text (saved copy)
@@ -28,3 +28,7 @@ Physical applications
 | `base-design-system/PACKAGE-VERSION.txt` | Provenance record | — | 2026-08-19 |
 
 **Provenance:** source organization **Uber Technologies, Inc.** (published under the uber GitHub org / npm `baseui`); package title "baseui" v18.2.0, MIT-licensed. Classification: **PRIMARY** (client-published design-system source — the actual token values shipped to Uber product UI). Covers digital/UI, typography tokens, color, motion tokens, layout grid. Does NOT cover: the brand wordmark artwork, Uber Move font files (licensed, not in package), graphic language (U-frame), imagery, physical.
+
+| `logo/uber-logo.png` (600×365) | Logo — Uber wordmark, black (visually verified) | https://raw.githubusercontent.com/uber/baseweb/main/documentation-site/public/images/uber-logo.png | 2026-08-19 |
+
+**Case acquisition status: PARTIAL VISUAL PRIMARY** — wordmark + full product design-system token source (typography scale incl. UberMove families, color primitives/semantics, motion tokens, grid) inspectable; missing dimensions bounded: brand graphic language (U-frame), imagery, physical applications, brand-level motion, and the Uber Move font files themselves (proprietary, unpublished).

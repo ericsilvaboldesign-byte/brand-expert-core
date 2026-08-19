@@ -1,7 +1,7 @@
 # Visual intake — Saks Fifth Avenue — Pentagram (lead #4)
 
 Case record: [`CASES.md`](../../../CASES.md) · Standard: [`CASE-EVIDENCE-STANDARD.md`](../../../CASE-EVIDENCE-STANDARD.md)
-Current evidence level: **SNIPPET / REFERENCE ONLY** (no visual material inspected yet).
+Current evidence level: see acquisition status below (updated 2026-08-19).
 
 ## Collect (baseline for every case)
 - Full case-page text (saved copy)
@@ -22,4 +22,8 @@ Imagery; motion; secondary typography
 ## Asset log
 | File | Component | Source URL | Collected on |
 |------|-----------|------------|--------------|
-| _(empty — nothing collected yet)_ | | | |
+
+
+**Acquisition attempted 2026-08-19:** `saksdirect` org is an empty shell (verified); saksfifthavenue.com and pentagram.com egress-blocked.
+
+**Case acquisition status: INSUFFICIENT VISUAL EVIDENCE — no legitimate primary visual channel reachable from this environment**

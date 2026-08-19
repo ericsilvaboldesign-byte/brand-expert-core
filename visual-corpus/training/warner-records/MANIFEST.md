@@ -1,7 +1,7 @@
 # Visual intake — Warner Records — Pentagram (lead #5)
 
 Case record: [`CASES.md`](../../../CASES.md) · Standard: [`CASE-EVIDENCE-STANDARD.md`](../../../CASE-EVIDENCE-STANDARD.md)
-Current evidence level: **SNIPPET / REFERENCE ONLY** (no visual material inspected yet).
+Current evidence level: see acquisition status below (updated 2026-08-19).
 
 ## Collect (baseline for every case)
 - Full case-page text (saved copy)
@@ -22,4 +22,8 @@ Palette behavior; motion; physical
 ## Asset log
 | File | Component | Source URL | Collected on |
 |------|-----------|------------|--------------|
-| _(empty — nothing collected yet)_ | | | |
+
+
+**Acquisition attempted 2026-08-19:** no official GitHub org or npm presence exists (absence verified); warnerrecords.com and pentagram.com are egress-blocked.
+
+**Case acquisition status: INSUFFICIENT VISUAL EVIDENCE — no legitimate primary visual channel reachable from this environment**

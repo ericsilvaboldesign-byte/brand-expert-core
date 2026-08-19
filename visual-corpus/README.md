@@ -34,6 +34,18 @@ until folders are added for them.
 4. Licensing note: assets here are collected for internal analysis/research;
    they remain their owners' property and must not be redistributed.
 
-## Status
+## Status (Phase 1C acquisition, 2026-08-19)
 
-All eight folders: **empty — awaiting collection.** Verified training cases: 0.
+Acquisition ran within a hard egress policy (only GitHub raw/npm registries
+reachable; all agency/client websites blocked). Folders now exist for 10
+leads (spotify/ and tiktok/ opened when acquirable material was found).
+
+| Acquisition status | Cases |
+|--------------------|-------|
+| PARTIAL VISUAL PRIMARY (bounded) | uber, slack, mastercard, tiktok (typography-deep) |
+| INSUFFICIENT VISUAL EVIDENCE (assets retained) | graphcore, gsk, spotify |
+| INSUFFICIENT VISUAL EVIDENCE (nothing acquirable) | robinhood, warner-records, saks |
+
+Verified training cases: **0** (promotion requires visual observation, a
+separate step not yet begun). See
+[`VISUAL-EVIDENCE-ACQUISITION-REPORT.md`](../VISUAL-EVIDENCE-ACQUISITION-REPORT.md).
