@@ -3,9 +3,12 @@
 Status: **STAKEHOLDER-PROVIDED REFERENCE — INTERNAL PARTNER MATERIAL**
 
 This is NOT a Civarro corporate deck and NOT approved website copy. It is
-evidence of how Civarro is being positioned inside a larger partner
-architecture, recorded to inform Civarro website design and wording. The
-deck contains a commercial ask to a named partner; treat this document and
+evidence of how Civarro is represented inside a larger multi-company POC
+architecture in this AMD-authored proposal, recorded to inform Civarro
+website design and wording. The deck is evidence that AMD's presentation
+assigns Civarro these roles; it is NOT, by itself, evidence of a formal
+partnership between Civarro and any named company. The
+deck contains a commercial ask to a named company; treat this document and
 the stored source file as internal, not for public distribution.
 
 No website changes have been made from this input. This document is the
@@ -28,7 +31,7 @@ unverified claim must never blur (`phase-2/EVIDENCE-ROUTER.md` §3):
 
 ### Provenance
 
-- Deck: AMD-templated partner pitch, "Anchoring Agentic AI on Edge Compute"
+- Deck: AMD-authored, AMD-templated POC pitch, "Anchoring Agentic AI on Edge Compute"
   (AMD and HPE Agentic AI POC), 9 slides. Received 2026-09-07 as a
   stakeholder upload.
 - Source file: [`evidence/amd-hpe-agentic-ai-poc.pptx`](evidence/amd-hpe-agentic-ai-poc.pptx)
@@ -152,14 +155,14 @@ Analyst inference (Lens D). Nothing here upgrades the evidence above.
    orchestration, placement/sovereignty, settlement. A silicon vendor's own
    architecture drawing treats Civarro as what makes the layers work
    *together*.
-2. **The commercial meaning a partner sees in Civarro is settlement.** The
+2. **The commercial meaning this AMD-authored proposal assigns to Civarro is settlement.** The
    deck's frame is "Security becomes revenue, not just Risk Reduction," and
    settlement/revenue attribution is the one capability attributed to
    Civarro alone. In AMD's telling, Civarro is where the trust architecture
    turns into money flows between operators.
 3. **The vocabulary already survives third-party use.** "Consensus Fabric,"
    "Dispatcher," "global dynamic placement," "sovereignty," "attestable"
-   are used by a partner without gloss — evidence the terms are legible
+   are used in this AMD-authored proposal without gloss — evidence the terms are legible
    outside Civarro. (Legible ≠ owned: see VERIFICATION REQUIRED.)
 4. **The deck's persuasion device is a scenario, not a feature list.** Its
    own justification for the POC (slide 3) is that a concrete
@@ -191,15 +194,15 @@ approved copy, all contingent on the verification items below.
 - The "security becomes revenue" reframe is a message hypothesis worth
   testing for the website: Civarro not as risk reduction but as the thing
   that makes multi-party agentic work billable and attributable.
-- Partner-ecosystem framing: the deck shows Civarro's story is strongest
+- Ecosystem framing: the deck shows Civarro's story is strongest
   when told inside a heterogeneous ecosystem. A website narrative that
   assumes a single-vendor world would throw away the evidence's central
   structure. (Ecosystem framing must still be expressed generically —
-  named partners are blocked pending verification.)
+  named companies are blocked pending verification.)
 
 ### Terminology worth considering
 
-- Strong candidates (already legible to a partner): **Consensus Fabric**,
+- Strong candidates (already legible in a third-party, AMD-authored source): **Consensus Fabric**,
   **Dispatcher**, **global dynamic placement**, **sovereignty-aware
   execution**, **attestable / auditable execution**, **settlement and
   revenue attribution**.
@@ -235,7 +238,7 @@ approved copy, all contingent on the verification items below.
   security marketing, and consistent with the "revenue, not risk" frame.
 - **Anti-implication:** nothing in the deck's own look (AMD dark-silicon
   template) is evidence for Civarro's palette, type, or art direction. Do
-  not let the partner deck's aesthetic leak into the identity.
+  not let the AMD deck's aesthetic leak into the identity.
 
 ---
 
@@ -281,9 +284,10 @@ pitch* converts into no public claim of any kind.
 
 ## Routing note
 
-Under the corpus grading this source is **C-grade advocacy from a partner
-practitioner** with FULL PRIMARY access: reliable evidence of *how Civarro
-is being positioned and described by a major partner*, unreliable as
+Under the corpus grading this source is **C-grade advocacy from an
+AMD-authored stakeholder/POC source** with FULL PRIMARY access: reliable
+evidence of *how Civarro is represented in this AMD-authored POC proposal*
+(third-party ecosystem positioning), unreliable as
 evidence of capability, relationships, or effectiveness. Use the
 INTERPRETATION and WEBSITE IMPLICATION bands as strategy input only; every
 factual claim routes through VERIFICATION REQUIRED before it reaches
