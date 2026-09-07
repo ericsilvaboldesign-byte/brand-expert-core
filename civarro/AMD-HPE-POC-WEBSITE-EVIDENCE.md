@@ -4,36 +4,50 @@ Status: **STAKEHOLDER-PROVIDED REFERENCE — INTERNAL PARTNER MATERIAL**
 
 This is NOT a Civarro corporate deck and NOT approved website copy. It is
 evidence of how Civarro is being positioned inside a larger partner
-architecture, recorded here to inform Civarro website design and wording.
-The deck contains a commercial ask to a named partner; treat the document
-and the stored source file as internal, not for public distribution.
+architecture, recorded to inform Civarro website design and wording. The
+deck contains a commercial ask to a named partner; treat this document and
+the stored source file as internal, not for public distribution.
 
-Date received: 2026-09-07 (stakeholder upload)
-Source file: [`evidence/amd-hpe-agentic-ai-poc.pptx`](evidence/amd-hpe-agentic-ai-poc.pptx)
-(sha256 `f895315ae6823a4ebc32fef66e8febc5eda880cbce0dc9b7d48513b20bd09167`)
+No website changes have been made from this input. This document is the
+evidence/knowledge layer only.
 
-## Access level
+Every finding below sits in exactly one of four bands, per the corpus rule
+that a source account, our inference, a design consequence, and an
+unverified claim must never blur (`phase-2/EVIDENCE-ROUTER.md` §3):
 
-**FULL PRIMARY.** The complete deck file was read in this project: all nine
-slides text-extracted; package media inspected directly. Embedded media are
-AMD template branding only (white AMD wordmark, AMD arrow mark on dark
-ground, one blank image) — the deck contains **no content diagrams**, so the
-verbatim text below is its complete substantive content. Slide 5 is a
-title-only "Demo" divider; slide 7 contains no shapes.
+- **EVIDENCE** — what the deck itself says, verbatim-anchored.
+- **INTERPRETATION** — our analyst inference from that evidence.
+- **WEBSITE IMPLICATION** — what the interpretation suggests for the
+  Civarro website, still subject to verification.
+- **VERIFICATION REQUIRED** — claims that may not reach public use without
+  explicit confirmation.
 
-## Provenance
+---
 
-- Title/topic: AMD and HPE Agentic AI (POC pitch), 9 slides, AMD-templated.
+## EVIDENCE
+
+### Provenance
+
+- Deck: AMD-templated partner pitch, "Anchoring Agentic AI on Edge Compute"
+  (AMD and HPE Agentic AI POC), 9 slides. Received 2026-09-07 as a
+  stakeholder upload.
+- Source file: [`evidence/amd-hpe-agentic-ai-poc.pptx`](evidence/amd-hpe-agentic-ai-poc.pptx)
+  (sha256 `f895315ae6823a4ebc32fef66e8febc5eda880cbce0dc9b7d48513b20bd09167`).
+- Access level: **FULL PRIMARY.** All nine slides text-extracted; package
+  media inspected directly. Embedded media are AMD template branding only
+  (white AMD wordmark, AMD arrow mark on dark ground, one blank image) — no
+  content diagrams, so the verbatim text below is the deck's complete
+  substantive content. Slide 5 is a title-only "Demo" divider; slide 7 is
+  empty; slide 8 is an "Appendix" divider.
 - Presenter attribution (slide 2): Clinton France, Director, Software System
   Design, DC Ecosys & Appl Eng — an AMD role as stated on the slide, not
   independently verified.
 - Slide 1 quotes diginomica commentary on Lisa Su's AMD Advancing AI 2026
-  keynote (July 23, 2026).
-- Purpose/audience: a partner pitch asking HP to commit Market Development
-  Funds to co-market the POC (slide 6). **This is advocacy material with a
-  commercial motive; wording is persuasion, not neutral description.**
+  keynote (July 23, 2026). Neither mentions Civarro.
+- Purpose/audience (slide 6): asks HP to commit Market Development Funds to
+  co-market the POC. The deck is advocacy with a commercial motive.
 
-## Full text record (verbatim extraction, per slide)
+### Full text record (verbatim, per slide)
 
 Spelling and punctuation preserved, including apparent inconsistencies
 ("Ciarro Analyzer", "DC Ecosys &Appl Eng").
@@ -101,99 +115,176 @@ base of the trust chain on HP Edge hardware"
 7. "CASM / Ledger: Chronovault Tamper-Evident records, Ciarro Analyzer for
    audit"
 
-## Civarro's role as positioned in the deck
+### What the deck explicitly says Civarro does
 
-Lens A only (primary case account per `phase-2/EVIDENCE-ROUTER.md` §3): this
-is what the deck *says* Civarro's role is. Nothing here is verified product
-capability.
+Extraction only — each row is the deck's claim, not verified capability:
 
-| Theme | Deck evidence | Slide |
+| Function attributed to Civarro | Attribution | Slide |
 |---|---|---|
-| **Consensus Fabric** | Named as the Edge Mesh layer: "Civarro Consensus Fabric across operator + Edge" | 9 |
-| **Dispatcher and Orchestration** | System-software layer alongside Red Hat RHEL/KVM/OpenShift | 9 |
-| **Global dynamic placement** | "Agentic AI Anchor for global dynamic placement (AMD, Civarro)" | 4 |
-| **Policy / sovereignty-aware execution** | Resolves which sovereignty governs before the agent acts: self-sovereign, governed sovereignty, corporate sovereignty — then applies Security, Policy, Control | 4 |
-| **Attestation and auditable execution** | Co-attributed on "Hybrid Authority Agentic AI with tamper evident auditability" (with Chronovault) and on the "Secure Compute Attestation Chain" (with AMD, Red Hat, HPE); the POC's headline claim is an unbroken cross-partner attestation chain | 3, 4 |
-| **Settlement and revenue attribution** | Sole-attributed: the Fabric "records which operator's compute served which unit of work… producing an attestable multi-party agreement and settlement record" | 4 |
-| **Audit tooling** | "Ciarro Analyzer for audit" at the CASM/Ledger layer (spelling as in deck — presumed "Civarro", unconfirmed) | 9 |
+| Consensus Fabric — the Edge Mesh layer "across operator + Edge" | Civarro alone | 9 |
+| Dispatcher and Orchestration — at the system-software layer, alongside Red Hat RHEL/KVM/OpenShift | Civarro alone (Red Hat holds the adjacent OS role) | 9 |
+| "Agentic AI Anchor for global dynamic placement" — resolves which sovereignty governs before the agent acts (self-sovereign / governed / corporate), then applies the Security, Policy, and Control that follow | AMD + Civarro | 4 |
+| "Hybrid Authority Agentic AI with tamper evident auditability" across consumer-to-agent, agent-to-provider, provider-to-agent exchanges | Civarro + Chronovault (the patent-pending technology and CASM are Chronovault's) | 4 |
+| Settlement and revenue attribution — "Fabric records which operator's compute served which unit of work, at what volume and under what conditions, producing an attestable multi-party agreement and settlement record" | **Civarro alone — the only sole attribution in the deck** | 4 |
+| Participant in the "Secure Compute Attestation Chain" | AMD + Red Hat + HPE + Civarro | 4 |
+| "Ciarro Analyzer for audit" at the CASM/Ledger layer | spelling as in deck; presumed Civarro, unconfirmed | 9 |
 
-Structural observations for positioning work:
+### Terminology appearing in the deck (raw list)
 
-- Civarro is the **only party named at four of the seven layers' worth of
-  functions** (fabric, orchestration, placement/sovereignty, settlement) —
-  the deck positions it as the connective/coordination tissue of the
-  architecture, while AMD holds silicon trust, Red Hat holds the OS,
-  HPE holds hardware, Samsung holds devices, Chronovault holds the ledger.
-- Settlement/revenue attribution is the one capability attributed to Civarro
-  **alone** — in a deck whose stated frame is "Security becomes revenue, not
-  just Risk Reduction." That frame is where a silicon vendor sees Civarro's
-  commercial meaning.
-- The deck's legibility device (slide 3) is a concrete actor-scenario, not a
-  feature list: five companies' infrastructure, real time, no human deciding
-  trust per hop. That is a *communication pattern* worth learning from, even
-  though the scenario itself is unusable as public copy (below).
+Civarro-attributed or Civarro-adjacent terms, as written: *Consensus
+Fabric; Dispatcher and Orchestration; Agentic AI Anchor; global dynamic
+placement; self-sovereign / governed sovereignty / corporate sovereignty;
+Hybrid Authority; tamper evident auditability; attestable; Secure Compute
+Attestation Chain; settlement and revenue attribution; Analyzer; "Security
+becomes revenue, not just Risk Reduction"; "no unattested hop in the path";
+"Attestable, Auditable"; "chain user"; break glass.*
 
-## What this evidence may inform on the website
+---
 
-Conceptual / product-role language — usable as **strategy input**, not as
-copy to lift:
+## INTERPRETATION
 
-- Positioning territory: Civarro as the coordination and trust layer that
-  lets agentic work execute across organizational boundaries — placement,
-  policy/sovereignty resolution, attestation visibility, and settlement.
-- Vocabulary candidates observed in third-party use: "Consensus Fabric",
-  "Dispatcher", "global dynamic placement", "sovereignty-aware",
-  "attestable", "settlement and revenue attribution". That a silicon
-  partner's own deck uses these terms is evidence the vocabulary is legible
-  outside Civarro — subject to confirming which names are actually
-  Civarro's own (see verification items).
-- Message hypothesis: the "security becomes revenue" reframe, and the
-  three-sovereignty model (self-sovereign / governed / corporate) as an
-  explainable structure for policy-aware execution.
-- Audience insight: the deck sells Civarro's function to a non-technical
-  audience through a cross-organization trust scenario — supports a
-  scenario-led rather than feature-led narrative approach.
+Analyst inference (Lens D). Nothing here upgrades the evidence above.
 
-## What may NOT appear in public copy without verification
+1. **Civarro is positioned as the connective tissue, not a box in the
+   stack.** Every other named party owns one bounded layer (Samsung
+   devices, AMD silicon, Red Hat OS, HPE hardware, Chronovault ledger);
+   Civarro appears at four functions spanning layers — fabric,
+   orchestration, placement/sovereignty, settlement. A silicon vendor's own
+   architecture drawing treats Civarro as what makes the layers work
+   *together*.
+2. **The commercial meaning a partner sees in Civarro is settlement.** The
+   deck's frame is "Security becomes revenue, not just Risk Reduction," and
+   settlement/revenue attribution is the one capability attributed to
+   Civarro alone. In AMD's telling, Civarro is where the trust architecture
+   turns into money flows between operators.
+3. **The vocabulary already survives third-party use.** "Consensus Fabric,"
+   "Dispatcher," "global dynamic placement," "sovereignty," "attestable"
+   are used by a partner without gloss — evidence the terms are legible
+   outside Civarro. (Legible ≠ owned: see VERIFICATION REQUIRED.)
+4. **The deck's persuasion device is a scenario, not a feature list.** Its
+   own justification for the POC (slide 3) is that a concrete
+   life-or-death handoff story is "dramatic and legible to a non-technical
+   audience." That is a communication finding about *how this category is
+   best explained*, independent of the scenario's own usability.
+5. **The three-sovereignty model is an explainable structure.** Self /
+   place / role is a complete, teachable triad — rare in
+   security-infrastructure language, which usually stays abstract.
+6. **The deck aesthetic is AMD's, not Civarro's.** All visual material in
+   the file is AMD template branding. The deck carries zero evidence about
+   Civarro's visual identity, and its dark-silicon aesthetic must not be
+   mistaken for a Civarro art direction input.
 
-Per the stakeholder brief and `phase-2/EVIDENCE-ROUTER.md` §9 (first-party
-claims) — none of the following may be inferred, implied, or converted:
+---
 
-- **Partner or customer relationships.** AMD, HPE/HP, Red Hat, Samsung, and
-  Chronovault appear as participants in a *proposed POC pitch*. Naming any
-  of them on the website as partner, customer, or deployment is prohibited
-  without direct verification and permission.
-- **The POC itself.** It is a proposal (the deck is the ask for co-marketing
-  funds). No deployment, pilot, or "in production with" claim exists here.
-  The ambulance/EMT break-glass scenario is not a case study.
-- **Events.** Open Source Summit Prague (October 2026) and MWC Barcelona
-  (March 2027) are the *requested* co-marketing venues, not commitments.
-- **"Patent-pending."** Attributed in the deck to Chronovault's technology,
-  not Civarro's. Never transfer it.
-- **Future/roadmap capability as current.** 6G, Samsung 6G Fabric, AV
-  glasses, the end-to-end SEV-SNP attestation chain — all POC-proposed. Do
-  not infer current production capability from a proposed POC.
-- **Third-party endorsement.** The diginomica quote and Lisa Su keynote
-  reference contextualize AMD's market view; neither mentions Civarro.
+## WEBSITE IMPLICATION
 
-## Open verification items before any public use
+Design/wording consequences of the interpretation — strategy input, not
+approved copy, all contingent on the verification items below.
 
-1. Which product names are Civarro's own registered/used names (Consensus
-   Fabric, Dispatcher, Analyzer) versus deck-coined descriptions.
-2. Canonical spellings: "Ciarro Analyzer" (slide 9) vs "Civarro";
-   "Chronovault" casing; "CASM" expansion ("Community Access Security
-   Model") as Chronovault's term vs shared.
-3. Whether the POC and any partner participation are announceable at all,
-   and under whose approval.
-4. Civarro's own approved articulation of the three sovereignty modes.
-5. Whether "settlement and revenue attribution" is a shipped capability, a
-   POC scope, or a roadmap claim.
+### Positioning
+
+- Candidate territory: **the coordination and trust layer that lets agentic
+  work execute across organizational boundaries** — placement, sovereignty
+  resolution, attestation visibility, settlement. The website should
+  express a role *between and across* other parties' infrastructure, not a
+  product slotted into someone's stack.
+- The "security becomes revenue" reframe is a message hypothesis worth
+  testing for the website: Civarro not as risk reduction but as the thing
+  that makes multi-party agentic work billable and attributable.
+- Partner-ecosystem framing: the deck shows Civarro's story is strongest
+  when told inside a heterogeneous ecosystem. A website narrative that
+  assumes a single-vendor world would throw away the evidence's central
+  structure. (Ecosystem framing must still be expressed generically —
+  named partners are blocked pending verification.)
+
+### Terminology worth considering
+
+- Strong candidates (already legible to a partner): **Consensus Fabric**,
+  **Dispatcher**, **global dynamic placement**, **sovereignty-aware
+  execution**, **attestable / auditable execution**, **settlement and
+  revenue attribution**.
+- The triad **self-sovereign / governed / corporate sovereignty** is a
+  candidate explanatory device for a "how it works" page.
+- "Hybrid Authority" and "CASM"/"chain user" should be treated cautiously:
+  in the deck they attach to Chronovault's technology, so adopting them as
+  Civarro website vocabulary risks claiming another company's terms.
+
+### Visual storytelling
+
+- **Chain/path continuity is the natural motif.** The deck's core claim is
+  a path with "no unattested hop" — handset → edge → server. That suggests
+  visual language of an unbroken path across heterogeneous nodes, where
+  the viewer can see that every link is verified. Breaking/unbroken
+  states are inherently animatable (a motion-signature candidate, per the
+  corpus's motion-as-brand-behavior findings in `MOTION-DIGITAL.md`).
+- **Fabric/mesh spanning others' territory, not a layer cake.** If Civarro
+  is drawn as one stripe in a stack diagram, the positioning evidence is
+  lost; the architecture evidence supports drawing Civarro as the mesh or
+  weave that runs across boxes owned by others.
+- **Scenario-led storytelling over feature grids.** The deck's own
+  legibility argument supports a website narrative built on concrete
+  cross-organization moments (a handoff resolved in real time across
+  multiple companies' infrastructure) rather than capability lists — with
+  the specific ambulance/EMT scenario itself unusable (see below), the
+  *pattern* transfers, the *story* does not.
+- **A triadic device for sovereignty.** The three-mode model invites a
+  simple three-state diagram or interactive toggle (self / place / role)
+  as an explanatory visual.
+- **Settlement invites ledger/metering visual language** — units of work,
+  attribution, records — distinct from the padlock-and-shield clichés of
+  security marketing, and consistent with the "revenue, not risk" frame.
+- **Anti-implication:** nothing in the deck's own look (AMD dark-silicon
+  template) is evidence for Civarro's palette, type, or art direction. Do
+  not let the partner deck's aesthetic leak into the identity.
+
+---
+
+## VERIFICATION REQUIRED
+
+None of the following may appear in, or be implied by, public website
+content without explicit confirmation. Participation in a *proposed POC
+pitch* converts into no public claim of any kind.
+
+1. **Partner or customer relationships.** AMD, HPE/HP, Red Hat, Samsung,
+   Chronovault appear only as proposed POC participants. Naming any of
+   them as partner, customer, or deployment requires direct verification
+   and permission.
+2. **The POC itself.** It is a proposal — the deck *asks* for co-marketing
+   funds. No deployment, pilot, or "in production" claim exists. The
+   ambulance/EMT break-glass scenario is not a case study and may not be
+   presented as one.
+3. **Events.** Open Source Summit Prague (October 2026) and MWC Barcelona
+   (March 2027) are requested venues, not commitments.
+4. **"Patent-pending."** Attributed to Chronovault's technology, not
+   Civarro's. Never transfer it.
+5. **Current capability.** 6G, Samsung 6G Fabric, AV glasses, the
+   end-to-end SEV-SNP attestation chain, and any impression that the POC
+   architecture is shipping — all proposed/future. Do not infer current
+   production capability from a proposed POC.
+6. **Whether "settlement and revenue attribution" is shipped capability,
+   POC scope, or roadmap** — the sole-attributed claim is also the one most
+   in need of grounding before it anchors positioning.
+7. **Name ownership.** Which of Consensus Fabric / Dispatcher / Analyzer /
+   Agentic AI Anchor are Civarro's own product names versus deck-coined
+   descriptions; whether "Hybrid Authority" is Civarro's term or
+   Chronovault's.
+8. **Spellings and terms.** "Ciarro Analyzer" (slide 9) vs "Civarro";
+   Chronovault casing; CASM expansion ("Community Access Security Model")
+   ownership.
+9. **Civarro's approved articulation of the sovereignty modes** before the
+   triad is used as public explanatory copy.
+10. **Third-party references.** The diginomica quote and Lisa Su keynote
+    contextualize AMD's market view and never mention Civarro; they may not
+    be used to imply endorsement.
+
+---
 
 ## Routing note
 
 Under the corpus grading this source is **C-grade advocacy from a partner
 practitioner** with FULL PRIMARY access: reliable evidence of *how Civarro
 is being positioned and described by a major partner*, unreliable as
-evidence of capability, relationships, or effectiveness. Use it for
-positioning vocabulary and narrative strategy; route every factual claim
-through the verification items above before it reaches public copy.
+evidence of capability, relationships, or effectiveness. Use the
+INTERPRETATION and WEBSITE IMPLICATION bands as strategy input only; every
+factual claim routes through VERIFICATION REQUIRED before it reaches
+public copy.

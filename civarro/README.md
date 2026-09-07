@@ -11,5 +11,5 @@ between what a source *says* and what is *verified* — see
 
 | Item | What it is |
 |---|---|
-| [`AMD-HPE-POC-WEBSITE-EVIDENCE.md`](AMD-HPE-POC-WEBSITE-EVIDENCE.md) | Stakeholder-provided AMD partner deck (Agentic AI POC pitch) recorded as website-positioning evidence: Civarro's role as positioned by a partner, usable conceptual language, prohibited claims, and open verification items. |
+| [`AMD-HPE-POC-WEBSITE-EVIDENCE.md`](AMD-HPE-POC-WEBSITE-EVIDENCE.md) | Stakeholder-provided AMD partner deck (Agentic AI POC pitch) recorded as website-positioning evidence, banded as EVIDENCE / INTERPRETATION / WEBSITE IMPLICATION / VERIFICATION REQUIRED: what the deck says Civarro does, terminology candidates, positioning and visual-storytelling implications, and claims blocked pending verification. |
 | [`evidence/`](evidence/) | Stored primary source files with provenance manifest. Internal — do not redistribute. |
