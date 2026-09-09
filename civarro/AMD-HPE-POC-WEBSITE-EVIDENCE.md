@@ -46,7 +46,11 @@ unverified claim must never blur (`phase-2/EVIDENCE-ROUTER.md` §3):
   Design, DC Ecosys & Appl Eng — an AMD role as stated on the slide, not
   independently verified.
 - Slide 1 quotes diginomica commentary on Lisa Su's AMD Advancing AI 2026
-  keynote (July 23, 2026). Neither mentions Civarro.
+  keynote (July 23, 2026). The quote is confirmed verbatim at excerpt level
+  and the article is recorded separately in
+  [`TOKENOMICS-CONTEXT-EVIDENCE.md`](TOKENOMICS-CONTEXT-EVIDENCE.md);
+  no Civarro mention appears in any accessed excerpt (weak evidence of
+  absence, per the corpus excerpt rule).
 - Purpose/audience (slide 6): asks HP to commit Market Development Funds to
   co-market the POC. The deck is advocacy with a commercial motive.
 
@@ -277,8 +281,9 @@ pitch* converts into no public claim of any kind.
 9. **Civarro's approved articulation of the sovereignty modes** before the
    triad is used as public explanatory copy.
 10. **Third-party references.** The diginomica quote and Lisa Su keynote
-    contextualize AMD's market view and never mention Civarro; they may not
-    be used to imply endorsement.
+    contextualize AMD's market view; no accessed excerpt mentions Civarro
+    (see [`TOKENOMICS-CONTEXT-EVIDENCE.md`](TOKENOMICS-CONTEXT-EVIDENCE.md)),
+    and they may not be used to imply endorsement.
 
 ---
 
