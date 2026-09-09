@@ -162,8 +162,12 @@ Analyst inference (Lens D). Nothing here upgrades the evidence above.
 2. **The commercial meaning this AMD-authored proposal assigns to Civarro is settlement.** The
    deck's frame is "Security becomes revenue, not just Risk Reduction," and
    settlement/revenue attribution is the one capability attributed to
-   Civarro alone. In AMD's telling, Civarro is where the trust architecture
-   turns into money flows between operators.
+   Civarro alone. Boundary of this inference: the deck describes
+   *recording and attribution* — which compute served which unit of work,
+   producing a settlement record. It says nothing about who pays whom, who
+   Civarro's paying customer is, or how the platform itself is compensated.
+   The business model is **UNKNOWN / NOT ESTABLISHED**; do not define it by
+   inference from this deck.
 3. **The vocabulary already survives third-party use.** "Consensus Fabric,"
    "Dispatcher," "global dynamic placement," "sovereignty," "attestable"
    are used in this AMD-authored proposal without gloss — evidence the terms are legible
@@ -197,7 +201,11 @@ approved copy, all contingent on the verification items below.
   product slotted into someone's stack.
 - The "security becomes revenue" reframe is a message hypothesis worth
   testing for the website: Civarro not as risk reduction but as the thing
-  that makes multi-party agentic work billable and attributable.
+  that makes multi-party agentic work attributable and auditable. It is
+  AMD's POC framing, not a verified Civarro business model — website copy
+  built on it must not assert or imply who pays for the platform
+  (operator, workload owner, or anyone else) until that is defined by
+  Civarro, not by this evidence.
 - Ecosystem framing: the deck shows Civarro's story is strongest
   when told inside a heterogeneous ecosystem. A website narrative that
   assumes a single-vendor world would throw away the evidence's central
@@ -284,6 +292,14 @@ pitch* converts into no public claim of any kind.
     contextualize AMD's market view; no accessed excerpt mentions Civarro
     (see [`TOKENOMICS-CONTEXT-EVIDENCE.md`](TOKENOMICS-CONTEXT-EVIDENCE.md)),
     and they may not be used to imply endorsement.
+11. **Business model and paying customer.** Nothing in this evidence
+    establishes who pays for the platform's services — operator, workload
+    owner, enterprise, or another party — nor the commercial mechanism
+    (subscription, per-unit fee, revenue share). "Settlement and revenue
+    attribution" as described is a recording capability between parties,
+    not a statement of Civarro's own revenue model. Any website copy,
+    audience definition, or pricing implication that assumes a payer
+    requires this to be defined and confirmed by Civarro first.
 
 ---
 

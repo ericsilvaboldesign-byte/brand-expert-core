@@ -94,9 +94,13 @@ Analyst inference; nothing here upgrades the evidence.
    needs no explanation to Civarro's likely audience and carries no
    partner-specific baggage.
 4. **The vendor-side angle of the quote matters.** The article's point is
-   that tokenomics squeezes *vendors*, not only end users — which is the
-   audience (infrastructure operators) for whom "security becomes revenue"
-   and per-unit attribution are commercially meaningful.
+   that tokenomics squeezes *vendors*, not only end users — so the cost
+   problem exists on the operator/vendor side of the market, not only the
+   buyer side. Boundary of this inference: that the problem exists there
+   does not establish that operators or workload owners would *pay* for
+   attribution/settlement services, nor that they are Civarro's audience
+   or customer. Willingness to pay and the paying customer are **UNKNOWN /
+   NOT ESTABLISHED** in all accessed evidence.
 
 ---
 
@@ -141,6 +145,11 @@ Strategy input, not approved copy; contingent on the verification items.
 4. **Currency check before publication.** Tokenomics figures date fast;
    re-verify any number against the latest available source at the time
    website copy is written.
+5. **No payer is established.** The market context documents a cost
+   problem; it does not document demand for, or willingness to pay for,
+   attribution/settlement services, and it does not identify Civarro's
+   paying customer. Audience and business-model statements on the website
+   require Civarro's own confirmed commercial model, not this evidence.
 
 ---
 
