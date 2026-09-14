@@ -69,6 +69,17 @@ against the profile ends up buried inside the solid and draws nothing.
 `HULL_FLANK` in the source is that constant — offset applied detail from
 it, not from `hullShape()`.
 
+**`EdgesGeometry` only emits creases, never silhouettes.** On a curved
+surface — the motor cans, the lofted blades, the radiused hull corners —
+adjacent faces differ by less than the crease threshold, so no contour
+line is generated at all and the form has no outline. Lowering the
+threshold does not fix this; it only adds facet noise. The model carries
+a silhouette pass instead: an inverted hull (back faces only) expanded
+along the view-space normal by a **constant screen width**, so the
+contour holds the same weight at any scale and thin parts like blades
+don't balloon. `outlineMaterial(color, widthNDC)` in the source; width is
+in NDC units, so ~0.0013 is roughly a 1.5-device-pixel hairline.
+
 Lines are also kept from dropping out by: fills carrying
 `polygonOffsetFactor` 4 so no near-coincident detail loses the depth
 test, edge meshes at `renderOrder` 2 so they resolve after every fill,

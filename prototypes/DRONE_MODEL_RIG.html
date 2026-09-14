@@ -202,6 +202,23 @@ const MAT = {
   hollow: new THREE.MeshBasicMaterial ({ color:0x0a0c0b }),
 };
 for(const m of Object.values(MAT)){ m.polygonOffset=true; m.polygonOffsetFactor=4.0; m.polygonOffsetUnits=4.0; }
+function outlineMaterial(color, widthNDC){
+  const m = new THREE.MeshBasicMaterial({ color, side:THREE.BackSide });
+  m.onBeforeCompile = sh => {
+    sh.uniforms.oW = { value: widthNDC };
+    sh.vertexShader = "uniform float oW;\n" + sh.vertexShader.replace(
+      "#include <project_vertex>",
+      `#include <project_vertex>
+       vec3 oN = normalize(normalMatrix * normal);
+       gl_Position.xy += oN.xy * oW * gl_Position.w;`);
+  };
+  return m;
+}
+const OUTLINE = {
+  simple: outlineMaterial(0xffffff, 0.00130),
+  tech  : outlineMaterial(0xf4f8f6, 0.00110),
+};
+
 const EDGE = {
   solid : new THREE.LineBasicMaterial({ color:0xb9cbc6, transparent:true, opacity:0.42 }),
   tech  : new THREE.LineBasicMaterial({ color:0xf4f8f6 }),
@@ -221,7 +238,10 @@ function part(geo, mat, parent, name, edgeAngle=26, detail=false){
   const m = new THREE.Mesh(geo, mat); m.name = name; m.userData.detail = detail;
   const e = new THREE.LineSegments(new THREE.EdgesGeometry(geo, edgeAngle), EDGE.solid);
   e.renderOrder = 2;                       // lines resolve after every fill
-  m.add(e); m.userData.edges = e; m.userData.mat = mat;
+  m.add(e); m.userData.edges = e;
+  const o = new THREE.Mesh(geo, OUTLINE.tech);   // silhouette, back faces only
+  o.renderOrder = 1; o.visible = false;
+  m.add(o); m.userData.outline = o; m.userData.mat = mat;
   parent.add(m); parts.push(m); return m;
 }
 
@@ -540,6 +560,11 @@ function setMode(m){
     if(e){
       e.material = simple ? EDGE.line : (solid ? EDGE.solid : EDGE.tech);
       e.visible  = !(p.name==="hull.beacon"||p.name==="gimbal.ring");
+    }
+    const o = p.userData.outline;
+    if(o){                                   // contour only in the line languages
+      o.visible  = (simple || tech || fieldM) && !(p.name==="hull.beacon"||p.name==="gimbal.ring");
+      o.material = simple ? OUTLINE.simple : OUTLINE.tech;
     }
   }
   /* the orange accents stay lit in every language but SIMPLE */
