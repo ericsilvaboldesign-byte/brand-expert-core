@@ -39,9 +39,26 @@ rig.seek(t);            // deterministic — blade phase from absolute time
 `▸ LAUNCH SEQUENCE` in the UI runs deploy → spin-up → lift → gimbal
 sweep, which is the rig driving itself end to end.
 
-Display modes: `SHADED` (default), `LINE` (hidden-line), `POINTS`
-(26,000 area-weighted surface samples, the morph-target handle). Drag to
-orbit, wheel to zoom. `?shot=1` hides the UI; `?t=N` freezes a frame.
+### The four board languages
+
+The model renders in the same four representations as the concept board,
+switchable live — same geometry, same rig, different language:
+
+| Mode | What it is |
+|---|---|
+| `01 SIMPLE` | Essential form. Background-coloured fill occludes, white edges draw. Fine detail (louvres, hinges, pips, iris, beacon) is suppressed. |
+| `02 TECHNICAL` | Hidden-line drawing. Near-black shaded fill gives the planes volume, bright edges carry the structure, all detail present. |
+| `03 FIELD` | Technical line plus a surface dusting, a radial particle field the object sits inside, and the sparse colour accents. |
+| `04 PARTICLE` | The object as 34,000 area-weighted surface samples alone — the morph-target handle. |
+| `SOLID` | Shaded working view for judging form. |
+
+The form itself follows the reference: a rounded rectangular slab with
+chamfered edges and a recessed top panel, long slender near-flat rotor
+blades, small low motors, flat bar arms off the body corners, a
+chin-mounted camera module, and short posts with flat pads for gear.
+
+Drag to orbit, wheel to zoom. `?shot=1` hides the UI, `?t=N` freezes a
+frame, `?mode=` picks a language.
 
 ---
 
