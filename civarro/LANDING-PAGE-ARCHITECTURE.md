@@ -3,8 +3,10 @@
 Status: **PARTIALLY SUPERSEDED** — narrative structure (§2) and content
 direction are superseded by
 [`LANDING-PAGE-CONTENT-ARCHITECTURE-V2.md`](LANDING-PAGE-CONTENT-ARCHITECTURE-V2.md);
-the technical architecture (§5), verification gates (§6) and scope
-premise (§1) remain current.
+the stack choice in §5 (Astro) is superseded by the vesper chassis
+([`VESPER-BASE.md`](VESPER-BASE.md)) — §5's copy-as-data model and
+verification build gate carry over unchanged; the verification gates (§6)
+and scope premise (§1) remain current.
 
 Initial information architecture, narrative structure, and technical
 architecture for the Civarro landing page ("Civarro Item 11"). Grounded in:

@@ -54,3 +54,47 @@ Internal third-party material. Not for public distribution.
   Internal evidence only.
 - **Record:** merged with the internal v1 architecture/content into
   [`../LANDING-PAGE-CONTENT-ARCHITECTURE-V2.md`](../LANDING-PAGE-CONTENT-ARCHITECTURE-V2.md).
+
+## field-language-review-board-6.zip
+
+- **What:** "Field Language review board 6" — standalone working HTML/canvas
+  scene: the Traffic and Capacity lenses of Civarro's Operations globe,
+  same engine/field/scene/driver as the product, app chrome removed.
+  ~17k lines across swarm core, capacity field, world scene, lens driver,
+  traffic overlay, hive, geo data, M3 theme tokens (seed #007D76) and
+  Civarro typography CSS.
+- **Received:** 2026-09-14, stakeholder upload to this project (original
+  filename `Field_Language_review_board_6.zip`).
+- **sha256:** `538af14741eb4a997dc00ca72569489d15d8e80e85b8b5b9a79eed091ff41b1e`
+- **Inspection:** full source read; executed locally (Chromium) — Traffic
+  lens render captured as `field-language-traffic-render.png`. External
+  CDN chrome (Material Web, Google Fonts) blocked by this environment's
+  network policy; canvas world renders without it.
+- **Sensitivity:** internal product prototype; fixtures name real vendors,
+  hardware and models (AMD, NVIDIA, Qwen) and AWS-style regions — blocked
+  for public use per gate V9a. Internal evidence only.
+- **Record:** [`../FIELD-LANGUAGE-BASE.md`](../FIELD-LANGUAGE-BASE.md).
+
+## field-language-traffic-render.png
+
+- **What:** our own verification render of the above (Chromium, dark
+  stage, Traffic lens, GLOBAL scale), 2026-09-14. Documentation aid, not a
+  stakeholder asset.
+
+## vesper.zip
+
+- **What:** `next16-claude-starter` ("VESPER / V—0RB" demo) by Textura —
+  Next.js 16 + React 19 starter for animation-heavy landing pages:
+  react-three-fiber WebGL particle scene (orb → galaxy → brain acts on a
+  global scroll clock), @react-spring/web animation system,
+  spring-text-engine, Lenis, Tailwind v4, SEO/cookie scaffolding, Obsidian
+  convention vault with agent-enforcement hooks. 184 files.
+- **Received:** 2026-09-14, stakeholder upload to this project (original
+  filename `vesper.zip`).
+- **sha256:** `668dee741446f1216c7b13f341445d7b390f52214b6dc5b7f98c1bbb5e2b2a16`
+- **Inspection:** source and internal docs read (webgl-scene,
+  animation-system, design-system, system-overview, shaders). Not executed
+  (Next dev build not run in this environment).
+- **Sensitivity:** third-party starter, no LICENSE file present — usage
+  rights to confirm (gate V10b). Internal evidence only.
+- **Record:** [`../VESPER-BASE.md`](../VESPER-BASE.md).
