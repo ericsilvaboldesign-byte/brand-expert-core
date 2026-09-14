@@ -37,10 +37,26 @@ it:
   surface speckled with samples, the radial halo around it, and the
   sparse colour accents. The line drawing is not replaced, it is
   augmented.
-- **04** is the cloud **alone**, on clean ground — no halo, no lines.
-  Stipple rather than fog: fewer, larger, discrete dots via
-  `setDrawRange`. The orange lens accent survives, as it does in the
-  reference.
+- **04** is the cloud **alone**, on clean ground — no halo, no lines. The
+  orange lens accent survives, as it does in the reference.
+
+### Particles
+
+Area-weighted random sampling **clumps**: it puts points where area is,
+so the body clogs while the blades go bare, and the whole thing reads as
+fog. The reference reads as an even stipple with every dot distinguish-
+able. `poissonThin()` fixes this — dart-throwing against a spatial hash,
+accepting a candidate only if it clears a minimum distance from its
+neighbours. Five times the target is generated and thinned down to blue
+noise, giving ~17,000 evenly spaced points from a 0.0235 spacing. The
+same function at a coarser pitch produces the 03 surface dusting, so both
+read as the same instrument at two densities.
+
+The 03 halo is a **flat disc of rays in the craft's own plane**, not a
+dome: dots march outward along 72 fixed spokes, thinning with radius.
+That radial march is what the reference's field actually is — an earlier
+dome-plus-ground-ring version scattered in every direction and read as
+noise.
 
 Drag to orbit and wheel to zoom from any panel; the preset camera is the
 origin the orbit offsets from.

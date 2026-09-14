@@ -533,19 +533,16 @@ const fBase = new Float32Array(FIELD_N*3), fLive = new Float32Array(FIELD_N*3);
 const fPh   = new Float32Array(FIELD_N);
 { let s=9; const rnd=()=>((s=(s*1664525+1013904223)>>>0)/4294967296);
   for(let i=0;i<FIELD_N;i++){
-    let th,r,y;
-    if(i<RING){                                    // snap onto rays → streaks
-      const ray=Math.floor(rnd()*64);
-      th = ray/64*Math.PI*2 + (rnd()-0.5)*0.014;
-      r  = RAD*(0.28+Math.pow(rnd(),0.62)*1.00);
-      y  = -0.80 + (rnd()-0.5)*0.09 + Math.pow(r/RAD,2)*0.10;
-    }else{                                         // sparse dome
-      const u=rnd()*2-1, sq=Math.sqrt(1-u*u);
-      th = rnd()*Math.PI*2;
-      r  = RAD*(0.58+Math.pow(rnd(),0.5)*0.60)*(sq*0.55+0.55);
-      y  = u*RAD*0.40 - 0.04;
-    }
-    fBase[i*3]=Math.cos(th)*r; fBase[i*3+1]=y; fBase[i*3+2]=Math.sin(th)*r*0.96;
+    /* one flat disc of rays in the craft's own plane: dots march outward
+       along a fixed set of spokes, thinning with radius. That radial march
+       is what the reference's halo actually is — not a dome. */
+    const RAYS = 72;
+    const ray = Math.floor(rnd()*RAYS);
+    const th  = ray/RAYS*Math.PI*2 + (rnd()-0.5)*0.010;
+    const step = i<RING ? Math.pow(rnd(),0.55) : Math.pow(rnd(),0.30);
+    const r  = RAD*(0.26 + step*1.02);
+    const y  = (rnd()-0.5)*0.10 - Math.pow(r/RAD,1.5)*0.06;
+    fBase[i*3]=Math.cos(th)*r; fBase[i*3+1]=y; fBase[i*3+2]=Math.sin(th)*r;
     fPh[i]=rnd()*Math.PI*2;
   } fLive.set(fBase); }
 const fieldGeo = new THREE.BufferGeometry();
@@ -601,9 +598,28 @@ function sampleSurface(meshes,count,seed=7){
   }
   return out;
 }
+function poissonThin(src, minDist, cap){
+  const cell = minDist/Math.sqrt(3), grid = new Map(), out = [];
+  const key=(a,b,c)=>a+","+b+","+c;
+  for(let i=0;i<src.length && out.length<cap*3;i+=3){
+    const x=src[i], y=src[i+1], z=src[i+2];
+    const gx=Math.floor(x/cell), gy=Math.floor(y/cell), gz=Math.floor(z/cell);
+    let ok=true;
+    for(let a=-2;a<=2&&ok;a++) for(let b=-2;b<=2&&ok;b++) for(let c=-2;c<=2&&ok;c++){
+      const n=grid.get(key(gx+a,gy+b,gz+c));
+      if(!n) continue;
+      const dx=n[0]-x, dy=n[1]-y, dz=n[2]-z;
+      if(dx*dx+dy*dy+dz*dz < minDist*minDist) ok=false;
+    }
+    if(ok){ grid.set(key(gx,gy,gz),[x,y,z]); out.push(x,y,z); }
+  }
+  return new Float32Array(out);
+}
 const CLOUD_N = 34000;
 const cloudGeo = new THREE.BufferGeometry();
-cloudGeo.setAttribute("position", new THREE.BufferAttribute(sampleSurface(parts,CLOUD_N),3));
+const CLOUD_PTS = poissonThin(sampleSurface(parts, CLOUD_N*5), 0.0235, CLOUD_N);
+cloudGeo.setAttribute("position", new THREE.BufferAttribute(CLOUD_PTS,3));
+console.log("point cloud:", CLOUD_PTS.length/3, "evenly spaced");
 const cloud = new THREE.Points(cloudGeo, new THREE.PointsMaterial({
   size:0.038, map:DOT, color:0xf2f6f4, transparent:true, opacity:1.0, depthWrite:false }));
 cloud.visible=false; scene.add(cloud);   // world-space snapshot, not rigged
@@ -611,7 +627,7 @@ cloud.visible=false; scene.add(cloud);   // world-space snapshot, not rigged
 /* sparser dusting of the same surface, used under the line drawing in FIELD */
 const skinGeo = new THREE.BufferGeometry();
 skinGeo.setAttribute("position", new THREE.BufferAttribute(
-  cloudGeo.attributes.position.array.slice(0, 3*5000), 3));
+  poissonThin(CLOUD_PTS, 0.075, 6000), 3));
 const skin = new THREE.Points(skinGeo, new THREE.PointsMaterial({
   size:0.026, map:DOT, color:0xdae3df, transparent:true, opacity:0.95, depthWrite:false }));
 skin.visible=false; scene.add(skin);
@@ -662,7 +678,7 @@ function setMode(m){
   skin.visible    = fieldM;
   field.visible   = fieldM;               // the reference's 04 has no halo
   accents.visible = fieldM;
-  cloudGeo.setDrawRange(0, target ? 17000 : 0);   // stipple density, not fog
+
 
 }
 
@@ -691,6 +707,7 @@ function updateSilhouettes(cam){
 }
 
 return { root, hull, parts, arms, rig, seams, setMode, updateSilhouettes,
+         cloudCount: CLOUD_PTS.length/3,
          animateField, PERIOD, BOUNDS:BOX, SIZE, RADIUS:RAD,
          extras:{ field, accents, skin, cloud }, cloudGeo, sampleSurface,
          get mode(){ return mode; } };

@@ -178,7 +178,7 @@ const PANELS = {
   field:  { n:"03", t:"LINE + PARTICLE FIELD", accent:"var(--c03)", proj:"PERSPECTIVE 26°",
             sub:["STRUCTURE WITH DATA","ENVIRONMENTAL CONTEXT","DYNAMIC BEHAVIOR"],
             cam:{kind:"persp", az:128, el:19, fit:1.52}, minis:false, circle:null },
-  target: { n:"04", t:"PARTICLE TARGET",       accent:"var(--c04)", proj:"POINT CLOUD · 34,000",
+  target: { n:"04", t:"PARTICLE TARGET",       accent:"var(--c04)", proj:"POINT CLOUD",
             sub:["POINT CLOUD REPRESENTATION","SYSTEM READINESS","ANIMATION READY"],
             cam:{kind:"persp", az:128, el:19, fit:1.40}, minis:false, circle:{cx:52,cy:50,r:27} },
 };
@@ -242,7 +242,8 @@ function selectPanel(m){
   document.getElementById("hN").textContent=P.n;
   document.getElementById("hT").textContent=P.t;
   document.getElementById("hS").innerHTML=P.sub.join("<br>");
-  document.getElementById("mProj").textContent=P.proj;
+  document.getElementById("mProj").textContent =
+    P.proj + (m==="target" ? " · "+D.cloudCount.toLocaleString("en-US") : "");
   document.getElementById("minis").hidden=!P.minis;
   document.getElementById("stage").classList.toggle("withminis",!!P.minis);
   const c=document.querySelector("#deco circle");
