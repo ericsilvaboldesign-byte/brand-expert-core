@@ -157,6 +157,12 @@ now shows as visible chords where before a filled outline hid them.
 Extruded profiles run at 28 curve segments and cylinders at 22-32, which
 is what keeps the radiused hull corners reading as curves.
 
+One caveat when measuring the model: silhouette line buffers are
+preallocated to the full edge count and limited with `setDrawRange`, so
+their `boundingBox` covers unused slots and is meaningless. Measure
+extents over meshes only — a naive `Box3.setFromObject` on the rig reads
+2.59 in Z folded where the actual hardware is 1.92.
+
 `edgeData()` welds vertices by position and caches edge→face adjacency per
 geometry; `updateSilhouette()` re-tests each edge against the camera in
 object space every frame and refills a preallocated buffer via
