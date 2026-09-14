@@ -4,10 +4,32 @@ Visual-direction prototypes. Working material — not approved output.
 
 | File | What it is |
 |---|---|
-| `DRONE_MODEL_RIG.html` | The drone as a built, rigged 3D model — named hierarchy, real pivots, ready to animate |
-| `DRONE_CONCEPT_BOARD_TARGET_MATCH.html` | Earlier study: the five-view technical concept board |
+| `drone-model.js` | The model, the rig, the line engine and the four board languages. One source of truth. |
+| `DRONE_CONCEPT_LIVE.html` | **The board, driven live.** Switch representation 01–04; each panel brings its own camera, chrome, callouts and accent. The rig stays drivable underneath. |
+| `DRONE_MODEL_RIG.html` | Workbench viewer for the same model — orbit, display modes, rig sliders, launch sequence. |
+| `DRONE_CONCEPT_BOARD_TARGET_MATCH.html` | Earlier study, superseded by `DRONE_CONCEPT_LIVE`. Kept for the record; it carries its own older geometry and no rig. |
 
-Both serve from the same vendored `vendor/three.module.min.js`.
+All serve from the same vendored `vendor/three.module.min.js`.
+
+## DRONE_CONCEPT_LIVE
+
+The concept board with a live model behind it. Each panel is a preset —
+camera, framing, construction circle, callouts and accent colour — over
+the same geometry and the same rig:
+
+| Panel | Camera | Carries |
+|---|---|---|
+| `01 SIMPLE LINE` | orthographic front elevation + top/front/side minis | essential form only: no joinery, no seams |
+| `02 TECHNICAL LINE` | perspective 3/4 | full fittings, seams, CAMERA MODULE / ARM MODULE / VENTILATION callouts |
+| `03 LINE + PARTICLE FIELD` | perspective 3/4, wider | + surface dusting, radial field, colour accents, the four field callouts |
+| `04 PARTICLE TARGET` | perspective 3/4 | the point cloud alone |
+
+Callout leaders are 3D anchors projected per frame, so they stay attached
+as the rig folds or the view orbits. Drag to orbit and wheel to zoom from
+any panel; the preset camera is the origin the orbit offsets from.
+
+The rig is live throughout — fold, rotor, gimbal pan/tilt, and the launch
+sequence — so the board is not a picture of the model, it is the model.
 
 ---
 

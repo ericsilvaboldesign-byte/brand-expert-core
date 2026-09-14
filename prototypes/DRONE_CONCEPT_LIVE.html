@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DRONE CONCEPT — LIVE</title>
+<!--
+  DRONE_CONCEPT_LIVE
+  ------------------------------------------------------------------
+  The concept board, driven by the rigged model. Same geometry, same
+  rig, four switchable representations — 01 SIMPLE LINE, 02 TECHNICAL
+  LINE, 03 LINE + PARTICLE FIELD, 04 PARTICLE TARGET — each with the
+  board's own camera, chrome, callouts and accent.
+
+  The model comes from ./drone-model.js, shared with DRONE_MODEL_RIG.
+  ?t=N freeze · ?mode=01..04 · ?shot=1 hides the controls
+-->
+<script type="importmap">
+{ "imports": { "three": "./vendor/three.module.min.js" } }
+</script>
+<style>
+  :root{
+    --bg:#0a0c0b; --ink:#e8ece9; --dim:#7e8a86; --faint:#39423f; --rule:#242c29;
+    --c01:#3fd2e0; --c02:#a8e04a; --c03:#e055c0; --c04:#f5822e; --accent:var(--c01);
+    --mono: ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;background:var(--bg);color:var(--ink);overflow:hidden}
+  body{font-family:var(--mono)}
+  #gl{position:fixed;inset:0;width:100vw;height:100vh;display:block;z-index:0;cursor:grab}
+  #gl.drag{cursor:grabbing}
+  #leaders{position:fixed;inset:0;width:100vw;height:100vh;z-index:3;pointer-events:none}
+
+  .sheet{position:relative;z-index:2;height:100vh;min-height:660px;
+         display:flex;flex-direction:column;padding:26px 34px 20px;pointer-events:none}
+  .bar{display:flex;justify-content:space-between;align-items:flex-start;gap:40px}
+  .bar.top{padding-bottom:14px;border-bottom:1px solid var(--rule)}
+  .bar.bot{padding-top:12px;border-top:1px solid var(--rule);margin-top:10px}
+  .t-lg{font-size:12px;letter-spacing:.42em}
+  .t-sm{font-size:8.5px;letter-spacing:.26em;color:var(--dim);line-height:1.85}
+  .t-sm.r{text-align:right}
+  .tick{display:block;width:14px;height:1px;background:var(--faint);margin:7px 0}
+
+  .panel{flex:1;position:relative;min-height:0}
+  .head{position:absolute;top:16px;left:2px;z-index:4}
+  .head .row{display:flex;align-items:baseline}
+  .head .n{font-size:15px;letter-spacing:.14em;font-weight:600;color:var(--accent)}
+  .head .ttl{font-size:10.5px;letter-spacing:.34em;margin-left:14px}
+  .head .sub{font-size:8px;letter-spacing:.24em;color:var(--dim);line-height:1.9;margin-top:12px}
+  .meta{position:absolute;top:16px;right:2px;z-index:4;text-align:right;
+        font-size:8px;letter-spacing:.24em;color:var(--dim);line-height:1.9}
+  .meta b{color:var(--ink);font-weight:400}
+
+  .frame{position:absolute;top:0;bottom:118px;left:50%;transform:translateX(-50%);
+         width:min(1040px,76%)}
+  .stage{position:absolute;inset:0}
+  .stage.withminis{bottom:26%}
+  .deco{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+  .xh{position:absolute;left:50%;width:9px;height:9px;margin-left:-4.5px;z-index:1;opacity:.6;
+      background:linear-gradient(#4d5a56,#4d5a56) center/9px 1px no-repeat,
+                 linear-gradient(#4d5a56,#4d5a56) center/1px 9px no-repeat}
+  .xh.t{top:4%} .xh.b{bottom:4%}
+
+  .minis{position:absolute;left:6%;right:6%;bottom:1%;height:20%;
+       display:grid;grid-template-columns:repeat(3,1fr);gap:8%;z-index:4}
+  .minis[hidden]{display:none}
+  .mini{position:relative}
+  .mstage{position:absolute;inset:0}
+  .mini .cap{position:absolute;bottom:-15px;left:0;right:0;text-align:center;
+             font-size:7px;letter-spacing:.3em;color:var(--dim)}
+  .mini .cap::after{content:"";display:block;width:10px;height:1px;background:var(--faint);margin:5px auto 0}
+
+  /* controls, in the board's own voice */
+  .ctrls{position:fixed;left:34px;bottom:92px;z-index:6;display:flex;gap:24px;
+         align-items:flex-end;flex-wrap:wrap;pointer-events:auto}
+  .tabs{display:flex;gap:1px}
+  .tabs button{font-family:var(--mono);font-size:8px;letter-spacing:.22em;color:var(--dim);
+               background:none;border:1px solid var(--rule);padding:8px 12px;cursor:pointer}
+  .tabs button:hover{color:var(--ink)}
+  .tabs button.on{color:var(--bg);background:var(--accent);border-color:var(--accent)}
+  .ctl{display:flex;flex-direction:column;gap:5px;min-width:112px}
+  .ctl label{font-size:7px;letter-spacing:.24em;color:var(--dim);display:flex;justify-content:space-between;gap:8px}
+  .ctl label b{color:var(--ink);font-weight:400;font-variant-numeric:tabular-nums}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:12px;background:none;cursor:pointer}
+  input[type=range]::-webkit-slider-runnable-track{height:1px;background:var(--rule)}
+  input[type=range]::-moz-range-track{height:1px;background:var(--rule)}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:7px;height:7px;border-radius:50%;background:var(--ink);margin-top:-3px}
+  input[type=range]::-moz-range-thumb{width:7px;height:7px;border:0;border-radius:50%;background:var(--ink)}
+  .go{font-family:var(--mono);font-size:8px;letter-spacing:.2em;color:var(--c01);
+      background:none;border:1px solid #1e4a4f;padding:8px 12px;cursor:pointer}
+  .go:hover{color:var(--bg);background:var(--c01)}
+  body.shot .ctrls{display:none}
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+
+<section class="sheet">
+  <div class="bar top">
+    <div>
+      <div class="t-lg">DRONE CONCEPT</div>
+      <div class="t-sm" style="margin-top:8px">VISUAL EXPLORATION<br>SYSTEM RENDERING STUDY</div>
+      <span class="tick"></span>
+    </div>
+    <div class="t-sm r">OBSERVE<br>MODEL<br>VISUALIZE<br>ITERATE</div>
+  </div>
+
+  <div class="panel">
+    <div class="head">
+      <div class="row"><span class="n" id="hN">01</span><span class="ttl" id="hT">SIMPLE LINE</span></div>
+      <div class="sub" id="hS"></div><span class="tick"></span>
+    </div>
+    <div class="meta">
+      PROJECTION · <b id="mProj">—</b><br>
+      FOLD <b id="mFold">0.00</b> · ROTOR <b id="mRpm">0</b> RPM<br>
+      GIMBAL <b id="mGim">0° / 0°</b>
+    </div>
+    <div class="frame">
+      <svg class="deco" id="deco" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+      <circle cx="50" cy="50" r="27" fill="none" stroke="#4d5a56"
+              stroke-width="0.30" stroke-dasharray="0.5 1.9" opacity=".55"/>
+    </svg>
+    <i class="xh t"></i><i class="xh b"></i>
+    <div class="stage" id="stage"></div>
+      <div class="minis" id="minis" hidden>
+        <div class="mini"><div class="mstage" data-v="mTop"></div><div class="cap">TOP</div></div>
+        <div class="mini"><div class="mstage" data-v="mFront"></div><div class="cap">FRONT</div></div>
+        <div class="mini"><div class="mstage" data-v="mSide"></div><div class="cap">SIDE</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bar bot">
+    <div class="t-sm">SCALE<br>PRECISION<br>POSSIBILITY</div>
+    <div class="t-sm r">DATA TO FORM<br>FORM TO MOTION<br>MOTION TO INSIGHT</div>
+  </div>
+</section>
+
+<svg id="leaders"></svg>
+
+<div class="ctrls">
+  <div class="tabs">
+    <button data-m="simple" class="on">01 SIMPLE LINE</button>
+    <button data-m="tech">02 TECHNICAL LINE</button>
+    <button data-m="field">03 LINE + PARTICLE FIELD</button>
+    <button data-m="target">04 PARTICLE TARGET</button>
+  </div>
+  <div class="ctl"><label>FOLD <b id="vFold">0.00</b></label>
+    <input type="range" id="sFold" min="0" max="1" step="0.001" value="0"></div>
+  <div class="ctl"><label>ROTOR <b id="vRpm">0</b></label>
+    <input type="range" id="sRpm" min="0" max="7000" step="10" value="0"></div>
+  <div class="ctl"><label>GIMBAL PAN <b id="vPan">0°</b></label>
+    <input type="range" id="sPan" min="-70" max="70" step="1" value="0"></div>
+  <div class="ctl"><label>GIMBAL TILT <b id="vTilt">0°</b></label>
+    <input type="range" id="sTilt" min="-90" max="30" step="1" value="0"></div>
+  <button class="go" id="bLaunch">▸ LAUNCH</button>
+</div>
+
+<script type="module">
+import * as THREE from "three";
+import { createDrone } from "./drone-model.js";
+
+const Q = new URLSearchParams(location.search);
+if(Q.get("shot")) document.body.classList.add("shot");
+const REDUCE = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const scene = new THREE.Scene();
+const D = createDrone(THREE, scene);
+const { rig, setMode, updateSilhouettes, animateField, RADIUS:RAD } = D;
+const st = rig.state;
+
+/* ── the four board panels ─────────────────────────────────────── */
+const PANELS = {
+  simple: { n:"01", t:"SIMPLE LINE",           accent:"var(--c01)", proj:"ORTHOGRAPHIC · ELEVATION",
+            sub:["ESSENTIAL FORM","MINIMAL STRUCTURE","MAXIMUM CLARITY"],
+            cam:{kind:"ortho", az:90,  el:8, fit:1.30}, minis:true,  circle:{cx:50,cy:44,r:25} },
+  tech:   { n:"02", t:"TECHNICAL LINE",        accent:"var(--c02)", proj:"PERSPECTIVE 26°",
+            sub:["STRUCTURE & DETAIL","FUNCTIONAL GEOMETRY","SYSTEM LOGIC"],
+            cam:{kind:"persp", az:128, el:19, fit:1.30}, minis:false, circle:{cx:52,cy:50,r:27} },
+  field:  { n:"03", t:"LINE + PARTICLE FIELD", accent:"var(--c03)", proj:"PERSPECTIVE 26°",
+            sub:["STRUCTURE WITH DATA","ENVIRONMENTAL CONTEXT","DYNAMIC BEHAVIOR"],
+            cam:{kind:"persp", az:128, el:19, fit:1.52}, minis:false, circle:null },
+  target: { n:"04", t:"PARTICLE TARGET",       accent:"var(--c04)", proj:"POINT CLOUD · 34,000",
+            sub:["POINT CLOUD REPRESENTATION","SYSTEM READINESS","ANIMATION READY"],
+            cam:{kind:"persp", az:128, el:19, fit:1.40}, minis:false, circle:{cx:52,cy:50,r:27} },
+};
+const MINIS = { mTop:{az:90,el:90}, mFront:{az:90,el:0}, mSide:{az:180,el:0} };
+
+/* ── callouts, lifted from the board ───────────────────────────── */
+const CALLOUTS = [
+  { m:"tech",  at:[ 1.24,-0.42, 0.00], dir:-1, rise: 26, run:96, txt:["CAMERA MODULE","SENSOR ARRAY"] },
+  { m:"tech",  at:[-0.66, 0.02,-0.62], dir: 1, rise:-78, run:96, txt:["ARM MODULE","FOLDING MECHANISM"] },
+  { m:"tech",  at:[-0.40, 0.06, 0.63], dir: 1, rise: 92, run:84, txt:["VENTILATION","THERMAL FLOW"] },
+  { m:"field", at:[ 0.26, 0.76,-0.08], dir: 1, rise:-46, run:74, txt:["ORIENTATION","STABILITY VECTOR"], c:"var(--c01)" },
+  { m:"field", at:[-1.68, 0.36, 0.70], dir:-1, rise: 18, run:44, txt:["AERODYNAMIC FIELD","AIRFLOW ANALYSIS"], c:"var(--c03)" },
+  { m:"field", at:[ 1.14,-0.88,-0.18], dir:-1, rise: 72, run:52, txt:["SENSOR FIELD","PERCEPTION RADIUS"], c:"var(--c04)" },
+  { m:"field", at:[ 1.80, 0.16, 1.48], dir: 1, rise: 64, run:80, txt:["PROPULSION FIELD","THRUST VECTOR"], c:"var(--c02)" },
+];
+const NS="http://www.w3.org/2000/svg", svg=document.getElementById("leaders");
+for(const co of CALLOUTS){
+  const g=document.createElementNS(NS,"g");
+  co.dot=document.createElementNS(NS,"circle"); co.dot.setAttribute("r","2.1");
+  co.dot.setAttribute("fill", co.c||"var(--ink)");
+  co.path=document.createElementNS(NS,"path"); co.path.setAttribute("fill","none");
+  co.path.setAttribute("stroke", co.c||"var(--dim)"); co.path.setAttribute("stroke-width","0.75");
+  co.t1=document.createElementNS(NS,"text"); co.t2=document.createElementNS(NS,"text");
+  for(const t of [co.t1,co.t2]){
+    t.setAttribute("font-family","ui-monospace,SFMono-Regular,Menlo,Consolas,monospace");
+    t.setAttribute("font-size","7.6"); t.setAttribute("letter-spacing","1.5");
+  }
+  co.t1.setAttribute("fill", co.c||"var(--ink)"); co.t2.setAttribute("fill","var(--dim)");
+  co.t1.textContent=co.txt[0]; co.t2.textContent=co.txt[1];
+  g.append(co.path,co.dot,co.t1,co.t2); svg.appendChild(g);
+  co.g=g; co.vec=new THREE.Vector3(...co.at);
+}
+
+/* ── renderer, cameras ─────────────────────────────────────────── */
+const canvas=document.getElementById("gl");
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setClearColor(0x000000,0);
+const persp=new THREE.PerspectiveCamera(26,1,0.1,200);
+const ortho=new THREE.OrthographicCamera(-1,1,1,-1,-100,200);
+
+const CORNERS=(()=>{ const b=D.BOUNDS,c=b.getCenter(new THREE.Vector3()),o=[];
+  for(const x of [b.min.x,b.max.x]) for(const y of [b.min.y,b.max.y]) for(const z of [b.min.z,b.max.z])
+    o.push(new THREE.Vector3(x,y,z).sub(c)); return o; })();
+const CENTER=D.BOUNDS.getCenter(new THREE.Vector3());
+function extents(dir){
+  const f=dir.clone().normalize();
+  const r=new THREE.Vector3().crossVectors(new THREE.Vector3(0,1,0),f).normalize();
+  const u=new THREE.Vector3().crossVectors(f,r).normalize();
+  let ex=0,ey=0,ez=0;
+  for(const c of CORNERS){ ex=Math.max(ex,Math.abs(c.dot(r))); ey=Math.max(ey,Math.abs(c.dot(u))); ez=Math.max(ez,Math.abs(c.dot(f))); }
+  return {ex,ey,ez};
+}
+function aim(cfg, aspect){
+  const a=THREE.MathUtils.degToRad(cfg.az+orbit.az), e=THREE.MathUtils.degToRad(cfg.el+orbit.el);
+  const dir=new THREE.Vector3(Math.cos(e)*Math.sin(a),Math.sin(e),Math.cos(e)*Math.cos(a));
+  const {ex,ey,ez}=extents(dir), fit=cfg.fit*orbit.zoom;
+  if(cfg.kind==="persp"){
+    const vF=THREE.MathUtils.degToRad(persp.fov), hF=2*Math.atan(Math.tan(vF/2)*aspect);
+    const d=Math.max(ex*fit/Math.tan(hF/2), ey*fit/Math.tan(vF/2))+ez;
+    persp.aspect=aspect; persp.position.copy(CENTER).addScaledVector(dir,d);
+    persp.lookAt(CENTER); persp.updateProjectionMatrix(); return persp;
+  }
+  let hw=ex*fit, hh=ey*fit;
+  if(hw/hh<aspect) hw=hh*aspect; else hh=hw/aspect;
+  ortho.left=-hw; ortho.right=hw; ortho.top=hh; ortho.bottom=-hh;
+  ortho.position.copy(CENTER).addScaledVector(dir,ez+RAD*2);
+  ortho.lookAt(CENTER); ortho.updateProjectionMatrix(); return ortho;
+}
+
+const orbit={az:0,el:0,zoom:1};
+let drag=null;
+canvas.addEventListener("pointerdown",e=>{drag={x:e.clientX,y:e.clientY};canvas.classList.add("drag");canvas.setPointerCapture(e.pointerId);});
+canvas.addEventListener("pointermove",e=>{ if(!drag) return;
+  orbit.az-=(e.clientX-drag.x)*0.3;
+  orbit.el=THREE.MathUtils.clamp(orbit.el+(e.clientY-drag.y)*0.22,-60,60);
+  drag={x:e.clientX,y:e.clientY}; if(frozen) draw(frozenT); });
+addEventListener("pointerup",()=>{drag=null;canvas.classList.remove("drag");});
+canvas.addEventListener("wheel",e=>{e.preventDefault();
+  orbit.zoom=THREE.MathUtils.clamp(orbit.zoom*(1+Math.sign(e.deltaY)*0.07),0.55,3);
+  if(frozen) draw(frozenT);},{passive:false});
+
+/* ── panel chrome ──────────────────────────────────────────────── */
+let mode="simple";
+function selectPanel(m){
+  mode=m; setMode(m);
+  const P=PANELS[m];
+  document.documentElement.style.setProperty("--accent",P.accent);
+  document.getElementById("hN").textContent=P.n;
+  document.getElementById("hT").textContent=P.t;
+  document.getElementById("hS").innerHTML=P.sub.join("<br>");
+  document.getElementById("mProj").textContent=P.proj;
+  document.getElementById("minis").hidden=!P.minis;
+  document.getElementById("stage").classList.toggle("withminis",!!P.minis);
+  const c=document.querySelector("#deco circle");
+  if(P.circle){ c.style.display=""; c.setAttribute("cx",P.circle.cx);
+                c.setAttribute("cy",P.circle.cy); c.setAttribute("r",P.circle.r); }
+  else c.style.display="none";
+  for(const b of document.querySelectorAll(".tabs button")) b.classList.toggle("on", b.dataset.m===m);
+}
+
+function drawCallouts(rect, cam){
+  for(const co of CALLOUTS){
+    if(co.m!==mode){ co.g.style.display="none"; continue; }
+    const p=co.vec.clone().applyMatrix4(D.root.matrixWorld).project(cam);
+    if(p.z>1){ co.g.style.display="none"; continue; }
+    const x=rect.left+(p.x*0.5+0.5)*rect.width, y=rect.top+(-p.y*0.5+0.5)*rect.height;
+    const x1=x+co.dir*Math.abs(co.rise)*0.5, y1=y+co.rise, x2=x1+co.dir*co.run;
+    co.g.style.display="";
+    co.dot.setAttribute("cx",x); co.dot.setAttribute("cy",y);
+    co.path.setAttribute("d",`M${x} ${y} L${x1} ${y1} L${x2} ${y1}`);
+    const tx=x2+co.dir*7, anc=co.dir>0?"start":"end";
+    co.t1.setAttribute("x",tx); co.t1.setAttribute("y",y1-3.5); co.t1.setAttribute("text-anchor",anc);
+    co.t2.setAttribute("x",tx); co.t2.setAttribute("y",y1+7.5); co.t2.setAttribute("text-anchor",anc);
+  }
+}
+
+function viewport(el, cfg, withCallouts){
+  const r=el.getBoundingClientRect();
+  if(r.width<4||r.height<4) return;
+  const w=Math.round(r.width), h=Math.round(r.height);
+  renderer.setViewport(Math.round(r.left), Math.round(innerHeight-r.bottom), w, h);
+  renderer.setScissor(Math.round(r.left), Math.round(innerHeight-r.bottom), w, h);
+  const cam=aim(cfg, w/h);
+  updateSilhouettes(cam);                       // silhouettes are per-view
+  renderer.render(scene,cam);
+  if(withCallouts) drawCallouts(r,cam);
+}
+
+function draw(t){
+  animateField(t);
+  renderer.setScissorTest(false); renderer.clear(); renderer.setScissorTest(true);
+  const P=PANELS[mode];
+  viewport(document.getElementById("stage"), P.cam, true);
+  if(P.minis) for(const el of document.querySelectorAll(".mstage")){
+    viewport(el, {kind:"ortho", ...MINIS[el.dataset.v], fit:1.22}, false);
+  }
+  meta();
+}
+function meta(){
+  document.getElementById("mFold").textContent=st.fold.toFixed(2);
+  document.getElementById("mRpm").textContent=Math.round(st.rpm);
+  document.getElementById("mGim").textContent=`${Math.round(st.pan)}° / ${Math.round(st.tilt)}°`;
+  document.getElementById("vFold").textContent=st.fold.toFixed(2);
+  document.getElementById("vRpm").textContent=Math.round(st.rpm);
+  document.getElementById("vPan").textContent=Math.round(st.pan)+"°";
+  document.getElementById("vTilt").textContent=Math.round(st.tilt)+"°";
+}
+
+function resize(){ renderer.setSize(innerWidth,innerHeight,false);
+  svg.setAttribute("viewBox",`0 0 ${innerWidth} ${innerHeight}`); }
+addEventListener("resize",()=>{resize(); if(frozen) draw(frozenT);});
+resize();
+
+/* ── launch sequence + controls ────────────────────────────────── */
+let seq=null;
+function runSeq(dt){ if(!seq) return; const t=(seq.t+=dt);
+  const k=(a,b,v)=>THREE.MathUtils.clamp((v-a)/(b-a),0,1), e=v=>v*v*(3-2*v);
+  rig.setFold(1-e(k(0.3,2.2,t))); rig.setRotor(e(k(2.0,3.6,t))*5200);
+  rig.setAltitude(e(k(3.2,5.4,t))*1.1);
+  rig.setAttitude(-e(k(5.0,6.4,t))*9, Math.sin(t*1.2)*1.6*e(k(3.4,5,t)), 0);
+  rig.setGimbal(Math.sin(t*0.55)*34*e(k(4.4,6,t)), -e(k(4.8,6.6,t))*38);
+  sync(); if(t>8) seq=null;
+}
+const $=id=>document.getElementById(id);
+function sync(){ $("sFold").value=st.fold; $("sRpm").value=st.rpm;
+  $("sPan").value=st.pan; $("sTilt").value=st.tilt; }
+$("sFold").oninput=e=>{seq=null;rig.setFold(+e.target.value);if(frozen)draw(frozenT);};
+$("sRpm").oninput =e=>{seq=null;rig.setRotor(+e.target.value);if(frozen)draw(frozenT);};
+$("sPan").oninput =e=>{seq=null;rig.setGimbal(+e.target.value,st.tilt);if(frozen)draw(frozenT);};
+$("sTilt").oninput=e=>{seq=null;rig.setGimbal(st.pan,+e.target.value);if(frozen)draw(frozenT);};
+$("bLaunch").onclick=()=>{ seq={t:0}; if(frozen){ frozen=false; start(); } };
+for(const b of document.querySelectorAll(".tabs button"))
+  b.onclick=()=>{ selectPanel(b.dataset.m); if(frozen) draw(frozenT); };
+
+/* ── boot ──────────────────────────────────────────────────────── */
+const MODE_BY_N={ "01":"simple","02":"tech","03":"field","04":"target" };
+selectPanel(MODE_BY_N[Q.get("mode")] || Q.get("mode") || "simple");
+
+window.__DRONE = { THREE, scene, D, rig, renderer, orbit, draw,
+                   selectPanel, get mode(){return mode;} };
+
+let frozen=false, frozenT=0;
+function start(){ const clock=new THREE.Clock(); let el=0;
+  renderer.setAnimationLoop(()=>{ const dt=Math.min(clock.getDelta(),0.05);
+    el+=dt; runSeq(dt); rig.advance(dt); draw(el); }); }
+
+const T=Q.get("t");
+if(T!==null || REDUCE){ frozen=true; frozenT=T!==null?parseFloat(T):0;
+  rig.setRotor(0); rig.seek(frozenT); draw(frozenT); }
+else start();
+window.__ready=true; document.title="ready";
+console.log("DRONE_CONCEPT_LIVE ready · mode", mode);
+</script>
+</body>
+</html>
