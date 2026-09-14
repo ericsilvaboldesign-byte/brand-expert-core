@@ -373,3 +373,32 @@ Traps this build hit:
 - **A green `__ready` is not a green page.** `__ready` is set in the catch
   handler too, so the load check also asserts `window.__DRONE` exists and the
   stats line is populated.
+
+## Field bands (panel 03)
+
+The grey radial halo is gone. A single monochrome downwash disc read as a
+blot under the craft, not as a field the craft sits inside. Panel 03 is now
+four coloured orbital ribbons plus fine dust:
+
+- Each band is a ring of concentric passes around its **own off-centre
+  focus**, with a fixed tilt, so they cross in depth instead of stacking as
+  four flat rings.
+- The foci are symmetric about the craft. Push them all one way and the drone
+  ends up hanging off the corner of its own field.
+- Every band travels along itself and orbits each frame. A static ring reads
+  as a drawn circle; a moving one reads as a field.
+- Radii are expressed in craft radii (`RAD`), so they follow the mesh if the
+  normalisation changes.
+
+## Per-panel orbit
+
+One renderer serves all four panels, so there is no per-panel canvas to hang
+OrbitControls on. Each `VIEWS` entry already carries `az`/`el`/`fit`, so drag
+and wheel just edit the numbers of whichever panel the pointer is over.
+
+## Harness trap: `viewportSize` is not a Playwright option
+
+`browser.newPage({viewportSize:{...}})` is silently ignored — the key is
+`viewport`. Every screenshot in this repo's history taken with the wrong key
+ran at the default 1280x720, which is why panel hit-testing appeared to pick
+the wrong quadrant. The page was correct; the test was not.

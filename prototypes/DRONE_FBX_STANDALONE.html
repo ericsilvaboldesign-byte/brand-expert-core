@@ -120,7 +120,7 @@
   </div>
 
   <div class="bar bot">
-    <div class="t-sm">SCALE<br>PRECISION<br>POSSIBILITY</div>
+    <div class="t-sm">SCALE<br>PRECISION<br>POSSIBILITY<br><span style="color:var(--faint)">DRAG = ORBIT · WHEEL = ZOOM</span></div>
     <div class="t-sm r" id="stats">—</div>
   </div>
 </section>
@@ -7849,7 +7849,7 @@ const camera=new THREE.PerspectiveCamera(28,1,0.01,200);
 /* ══ the rig, taken from the model's own nodes ══════════════════════ */
 const rig={ rotors:[], gear:[], gimbal:null, root:null,
             state:{rpm:0,fold:0,pan:0,tilt:0,alt:0}, spin:0 };
-let parts=[], cloud=null, skin=null, field=null, accents=null, arcs=[];
+let parts=[], cloud=null, skin=null, accents=null, arcs=[];
 
 function markEdges(root, threshold){
   root.traverse(o=>{
@@ -7862,7 +7862,7 @@ function markEdges(root, threshold){
 const VIEWS=[
   { mode:"simple", az:96,  el:6,  fit:1.10 },
   { mode:"tech",   az:128, el:19, fit:1.06 },
-  { mode:"field",  az:-46, el:20, fit:1.22 },
+  { mode:"field",  az:-46, el:20, fit:1.34 },
   { mode:"target", az:132, el:17, fit:1.08 },
 ];
 let CENTER=new THREE.Vector3(), RAD=1;
@@ -7879,7 +7879,6 @@ function applyMode(m){
   }
   if(cloud)   cloud.visible=target;
   if(skin)    skin.visible=(m==="field");
-  if(field)   field.visible=(m==="field");
   if(accents) accents.visible=(m==="field");
   for(const a of arcs) a.visible=(m==="field");
 }
@@ -7936,14 +7935,17 @@ function animate(t){
     rig.gimbal.node.rotation[rig.gimbal.pitchAxis] = rig.gimbal.restPitch + THREE.MathUtils.degToRad(st.tilt);
   }
   if(rig.root) rig.root.position.y = rig.baseY + st.alt + Math.sin(t*1.2)*0.012;
-  if(field){
-    const a=field.geometry.attributes.position.array, base=field.userData.base, ph=field.userData.ph;
-    for(let i=0;i<ph.length;i++){ const k=i*3, s=1+Math.sin(t*0.26+ph[i])*0.03;
-      a[k]=base[k]*s; a[k+1]=base[k+1]+Math.sin(t*0.52+ph[i])*0.02; a[k+2]=base[k+2]*s; }
-    field.geometry.attributes.position.needsUpdate=true;
+  // The bands travel along themselves and orbit; a static ring reads as a
+  // drawn circle, a moving one reads as a field.
+  for(const arc of arcs){
+    const u=arc.userData, a=arc.geometry.attributes.position.array, b=u.base, ph=u.ph;
+    for(let i=0;i<ph.length;i++){ const k=i*3;
+      a[k]  =b[k]  +Math.sin(t*u.spd+ph[i])*u.trav;
+      a[k+1]=b[k+1]+Math.cos(t*(u.spd+0.2)+ph[i])*u.amp;
+      a[k+2]=b[k+2]+Math.sin(t*(u.spd+0.12)+ph[i]*0.82)*u.trav; }
+    arc.geometry.attributes.position.needsUpdate=true;
+    arc.rotation.y = u.spin*t;
   }
-  for(const arc of arcs) arc.rotation.y += arc.userData.spin*t*0 + 0;
-  if(accents) accents.material.opacity = 0.72+Math.sin(t*1.05)*0.22;
 }
 function runSeq(dt){ if(!seq) return; const t=(seq.t+=dt);
   const k=(a,b,v)=>THREE.MathUtils.clamp((v-a)/(b-a),0,1), e=v=>v*v*(3-2*v);
@@ -7962,6 +7964,35 @@ function sync(){ const s=rig.state;
 
 function resize(){ renderer.setSize(innerWidth,innerHeight,false); }
 addEventListener("resize",resize); resize();
+
+/* ══ per-panel orbit ════════════════════════════════════════════════
+   One renderer serves all four panels, so there is no per-panel canvas to
+   hang OrbitControls on. Each VIEW already carries its own az/el/fit, so
+   dragging just edits the numbers of whichever panel the pointer is over. */
+function panelAt(x,y){
+  for(const el of stages){ const r=el.getBoundingClientRect();
+    if(x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom) return VIEWS[+el.dataset.v]; }
+  return null;
+}
+let drag=null;
+addEventListener("pointerdown",e=>{
+  if(e.target.closest(".ctrls")) return;
+  const v=panelAt(e.clientX,e.clientY); if(!v) return;
+  drag={v,x:e.clientX,y:e.clientY}; });
+addEventListener("pointermove",e=>{
+  if(!drag) return;
+  drag.v.az -= (e.clientX-drag.x)*0.35;
+  drag.v.el  = Math.max(-82,Math.min(82, drag.v.el+(e.clientY-drag.y)*0.28));
+  drag.x=e.clientX; drag.y=e.clientY;
+  if(frozen) draw(frozenT); });
+addEventListener("pointerup",()=>{drag=null});
+addEventListener("pointercancel",()=>{drag=null});
+addEventListener("wheel",e=>{
+  if(e.target.closest(".ctrls")) return;
+  const v=panelAt(e.clientX,e.clientY); if(!v) return;
+  e.preventDefault();
+  v.fit=Math.max(0.45,Math.min(4.0, v.fit*(1+Math.sign(e.deltaY)*0.08)));
+  if(frozen) draw(frozenT); },{passive:false});
 
 /* ══ boot ═══════════════════════════════════════════════════════════ */
 /* Every material is replaced below, so the FBX's embedded texture
@@ -8031,29 +8062,55 @@ new FBXLoader(mgr).loadAsync(SRC).then(model=>{
   skin=new THREE.Points(sg,new THREE.PointsMaterial({size:0.022,map:DOT,color:0xdae3df,
         transparent:true,opacity:0.95,depthWrite:false})); skin.visible=false; scene.add(skin);
 
-  // radial halo in the craft's plane
-  const FN=6000, fb=new Float32Array(FN*3), fl=new Float32Array(FN*3), fp=new Float32Array(FN);
-  { let s=9; const rnd=()=>((s=(s*1664525+1013904223)>>>0)/4294967296);
-    for(let i=0;i<FN;i++){ const ray=Math.floor(rnd()*72);
-      const th=ray/72*Math.PI*2+(rnd()-0.5)*0.01;
-      const r=RAD*(0.30+Math.pow(rnd(),0.55)*1.00);
-      const y=(rnd()-0.5)*0.08-Math.pow(r/RAD,1.5)*0.05;
-      fb[i*3]=Math.cos(th)*r; fb[i*3+1]=y; fb[i*3+2]=Math.sin(th)*r; fp[i]=rnd()*6.283; }
-    fl.set(fb); }
-  const fg=new THREE.BufferGeometry(); fg.setAttribute("position",new THREE.BufferAttribute(fl,3));
-  field=new THREE.Points(fg,new THREE.PointsMaterial({size:0.024,map:DOT,color:0xc3cfca,
-        transparent:true,opacity:0.8,depthWrite:false}));
-  field.userData={base:fb,ph:fp}; field.visible=false; scene.add(field);
-
-  const ACC=[[-1.45,.55,.88,0xe055c0],[-1.62,.34,.66,0xe055c0],[.48,.94,-.26,0x3fd2e0],
-             [.24,.72,-.06,0x3fd2e0],[1.32,-.62,-.5,0xf5822e],[1.1,-.84,-.16,0xf5822e],
-             [1.72,.15,1.4,0xa8e04a],[1.4,.02,1.64,0xa8e04a],[-1.0,-.48,1.22,0xa8e04a]];
-  const ag=new THREE.BufferGeometry();
-  ag.setAttribute("position",new THREE.Float32BufferAttribute(ACC.flatMap(a=>a.slice(0,3)),3));
-  ag.setAttribute("color",new THREE.Float32BufferAttribute(
-    ACC.flatMap(a=>{const c=new THREE.Color(a[3]);return[c.r,c.g,c.b];}),3));
-  accents=new THREE.Points(ag,new THREE.PointsMaterial({size:0.10,map:DOT,vertexColors:true,
-          transparent:true,opacity:1,depthWrite:false})); accents.visible=false; scene.add(accents);
+  // ── coloured field bands ──
+  // Loose orbital ribbons, not dots pinned to a label: each band is a ring of
+  // concentric passes around its own off-centre focus, so it reads as a field
+  // the craft sits inside. Sizes are in craft radii so they follow the mesh.
+  // Foci sit symmetrically about the craft so it reads as being INSIDE the
+  // field: push them all one way and the drone ends up hanging off one corner
+  // of its own field. Each band also gets a fixed tilt so they cross in depth
+  // instead of stacking as four flat rings.
+  const BANDS=[
+    {c:0xe055c0, cx:-0.34, cy: 0.04, cz:-0.06, rx:0.86, rz:0.60, tx: 0.16, tz:-0.10, seg:128, rep:6, spd:1.00, spin: 0.33},
+    {c:0x3fd2e0, cx: 0.32, cy: 0.09, cz: 0.05, rx:0.90, rz:0.64, tx:-0.13, tz: 0.14, seg:132, rep:6, spd:1.15, spin:-0.39},
+    {c:0xf5822e, cx:-0.16, cy:-0.13, cz: 0.36, rx:0.46, rz:0.38, tx: 0.28, tz: 0.20, seg: 92, rep:5, spd:1.28, spin: 0.45},
+    {c:0xa8e04a, cx: 0.20, cy:-0.06, cz:-0.34, rx:0.50, rz:0.40, tx:-0.24, tz:-0.18, seg: 92, rep:5, spd:1.38, spin:-0.51},
+  ];
+  accents=new THREE.Group(); accents.visible=false; scene.add(accents);
+  for(let bi=0; bi<BANDS.length; bi++){
+    const b=BANDS[bi], n=b.seg*b.rep;
+    const pos=new Float32Array(n*3), base=new Float32Array(n*3), ph=new Float32Array(n);
+    let k=0, sd=(bi+1)*7919; const rnd=()=>((sd=(sd*1664525+1013904223)>>>0)/4294967296);
+    for(let r=0;r<b.rep;r++){
+      const sc=1+(r-(b.rep-1)/2)*0.055;
+      for(let i=0;i<b.seg;i++){
+        const a=i/b.seg*Math.PI*2, j=k*3;
+        base[j]  =(b.cx+Math.cos(a)*b.rx*sc)*RAD;
+        base[j+1]=(b.cy+Math.sin(a*1.35)*0.045*sc)*RAD;
+        base[j+2]=(b.cz+Math.sin(a)*b.rz*sc)*RAD;
+        ph[k]=rnd()*6.283; k++;
+      }
+    }
+    pos.set(base);
+    const g=new THREE.BufferGeometry(); g.setAttribute("position",new THREE.BufferAttribute(pos,3));
+    const pts=new THREE.Points(g,new THREE.PointsMaterial({size:(bi<2?0.030:0.034),map:DOT,
+              color:b.c,transparent:true,opacity:0.94,depthWrite:false}));
+    pts.rotation.x=b.tx; pts.rotation.z=b.tz;
+    pts.userData={base,ph,spd:b.spd,amp:(bi<2?0.028:0.020)*RAD,spin:b.spin,trav:0.012*RAD};
+    accents.add(pts); arcs.push(pts);
+  }
+  // fine dust so the bands sit in air rather than on black
+  { const DN=1800, dp=new Float32Array(DN*3), db=new Float32Array(DN*3), dph=new Float32Array(DN);
+    let sd=4242; const rnd=()=>((sd=(sd*1664525+1013904223)>>>0)/4294967296);
+    for(let i=0;i<DN;i++){ const j=i*3;
+      db[j]=(rnd()-0.5)*2.9*RAD; db[j+1]=(rnd()-0.5)*1.1*RAD; db[j+2]=(rnd()-0.5)*1.9*RAD;
+      dph[i]=rnd()*6.283; }
+    dp.set(db);
+    const g=new THREE.BufferGeometry(); g.setAttribute("position",new THREE.BufferAttribute(dp,3));
+    const pts=new THREE.Points(g,new THREE.PointsMaterial({size:0.013,map:DOT,color:0xf1f5f5,
+              transparent:true,opacity:0.28,depthWrite:false}));
+    pts.userData={base:db,ph:dph,spd:0.75,amp:0.016*RAD,spin:0.08,trav:0.010*RAD};
+    accents.add(pts); arcs.push(pts); }
 
   let tris=0; for(const p of parts){ const g=p.geometry;
     tris += (g.index?g.index.count:g.attributes.position.count)/3; }
