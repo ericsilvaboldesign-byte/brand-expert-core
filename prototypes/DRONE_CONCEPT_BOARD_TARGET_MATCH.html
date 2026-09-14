@@ -1,0 +1,765 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DRONE CONCEPT BOARD — TARGET MATCH</title>
+
+<!--
+  DRONE_CONCEPT_BOARD_TARGET_MATCH
+  ------------------------------------------------------------------
+  Visual target : generated drone concept board (dark technical sheet,
+                  thin linework, 3/4 volume, integrated particles).
+  Build         : Three.js r169 (core only, vendored in ./vendor/ — the
+                  sheet is fully offline/standalone) for the 3D form.
+                  SVG overlay for callouts / leaders / labels.
+                  Self-sampled surface point cloud (morph-target ready).
+  Camera        : FIXED. No orbit, no free rotation.
+  Harness       : ?t=N   freeze the loop at N seconds (deterministic)
+                  ?az=&el=&dist=   camera trim for the 3/4 views
+                  motion is a seamless 24s loop: frame(t)==frame(t+24)
+                  ?morph=0..1      proves the point cloud is a morph target
+  Palette note  : derived from the reference board. No committed Civarro
+                  token file exists in this repo yet — swap PALETTE below
+                  when one lands.
+-->
+
+<script type="importmap">
+{ "imports": { "three": "./vendor/three.module.min.js" } }
+</script>
+
+<style>
+  :root{
+    --bg:        #0a0c0b;
+    --ink:       #e8ece9;
+    --ink-dim:   #7e8a86;
+    --ink-faint: #39423f;
+    --rule:      #262e2b;
+    --c01:       #3fd2e0;
+    --c02:       #a8e04a;
+    --c03:       #e055c0;
+    --c04:       #f5822e;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html,body{ background:var(--bg); color:var(--ink); }
+  body{ font-family:var(--mono); -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+
+  /* single fixed WebGL surface; every panel is a scissored viewport onto it */
+  #gl{ position:fixed; inset:0; width:100vw; height:100vh; z-index:0; display:block; }
+  #leaders{ position:fixed; inset:0; width:100vw; height:100vh; z-index:3; pointer-events:none; }
+
+  .sheet{
+    position:relative; z-index:2;
+    height:100vh; min-height:700px;
+    display:flex; flex-direction:column;
+    padding:26px 34px 22px;
+  }
+
+  /* ---- board chrome ------------------------------------------------ */
+  .bar{ display:flex; justify-content:space-between; align-items:flex-start; gap:40px; }
+  .bar.top{ padding-bottom:14px; border-bottom:1px solid var(--rule); }
+  .bar.bot{ padding-top:12px; border-top:1px solid var(--rule); margin-top:10px; }
+
+  .t-lg{ font-size:12px; letter-spacing:.42em; font-weight:500; }
+  .t-sm{ font-size:8.5px; letter-spacing:.26em; color:var(--ink-dim); line-height:1.85; }
+  .t-sm.r{ text-align:right; }
+  .tick{ display:block; width:14px; height:1px; background:var(--ink-faint); margin:7px 0; }
+  .tick.r{ margin-left:auto; }
+
+  /* ---- panels ------------------------------------------------------ */
+  .grid{ flex:1; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; min-height:0; }
+  .panel{ position:relative; min-height:0; padding:20px 22px; }
+  .panel.tl{ border-right:1px solid var(--rule); border-bottom:1px solid var(--rule); }
+  .panel.tr{ border-bottom:1px solid var(--rule); }
+  .panel.bl{ border-right:1px solid var(--rule); }
+  .solo{ flex:1; position:relative; min-height:0; }
+
+  .head{ position:absolute; top:20px; left:22px; z-index:4; }
+  .head .n{ font-size:15px; letter-spacing:.14em; font-weight:600; }
+  .head .ttl{ font-size:10.5px; letter-spacing:.34em; margin-left:14px; }
+  .head .row{ display:flex; align-items:baseline; }
+  .head .sub{ font-size:8px; letter-spacing:.24em; color:var(--ink-dim); line-height:1.9; margin-top:12px; }
+  .n01{ color:var(--c01); } .n02{ color:var(--c02); } .n03{ color:var(--c03); } .n04{ color:var(--c04); }
+
+  /* the actual render target rect */
+  .stage{ position:absolute; inset:0; }
+  .stage.inset{ top:13%; bottom:31%; left:5%; right:5%; }
+
+  /* faint construction circle + crosshairs, sits over the render at low alpha */
+  .deco{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:1; }
+
+  /* orthographic mini views */
+  .minis{ position:absolute; left:5%; right:5%; bottom:7%; height:22%;
+          display:grid; grid-template-columns:repeat(3,1fr); gap:7%; z-index:4; }
+  .mini{ position:relative; }
+  .mini .cap{ position:absolute; bottom:-16px; left:0; right:0; text-align:center;
+              font-size:7px; letter-spacing:.3em; color:var(--ink-dim); }
+  .mini .cap::after{ content:""; display:block; width:10px; height:1px;
+                     background:var(--ink-faint); margin:5px auto 0; }
+
+  /* registration crosshairs */
+  .xh{ position:absolute; left:50%; width:9px; height:9px; margin-left:-4.5px; z-index:1; opacity:.6;
+       background:linear-gradient(#4d5a56,#4d5a56) center/9px 1px no-repeat,
+                  linear-gradient(#4d5a56,#4d5a56) center/1px 9px no-repeat; }
+  .xh.t{ top:9%; } .xh.b{ bottom:9%; }
+
+  /* hero sheet */
+  .hero-meta{ position:absolute; right:22px; top:20px; z-index:4; text-align:right; }
+
+  @media (prefers-reduced-motion: reduce){ .sheet{ scroll-behavior:auto; } }
+</style>
+</head>
+<body>
+
+<canvas id="gl"></canvas>
+
+<!-- ================= SHEET A — HERO ================= -->
+<section class="sheet">
+  <div class="bar top">
+    <div>
+      <div class="t-lg">DRONE CONCEPT</div>
+      <div class="t-sm" style="margin-top:8px">VISUAL EXPLORATION<br>SYSTEM RENDERING STUDY</div>
+      <span class="tick"></span>
+    </div>
+    <div class="t-sm r">OBSERVE<br>MODEL<br>VISUALIZE<br>ITERATE</div>
+  </div>
+
+  <div class="solo">
+    <div class="head">
+      <div class="row"><span class="n n01">00</span><span class="ttl">HERO — TECHNICAL 3/4</span></div>
+      <div class="sub">FIXED CAMERA<br>VOLUME &amp; STRUCTURE<br>KEYFRAME REFERENCE<span class="tick"></span></div>
+    </div>
+    <div class="hero-meta t-sm">
+      PROJECTION · PERSPECTIVE 26°<br>
+      AZIMUTH <span id="mAz">—</span> · ELEVATION <span id="mEl">—</span><br>
+      SURFACE SAMPLES <span id="mPts">—</span>
+    </div>
+    <svg class="deco" viewBox="0 0 100 100" preserveAspectRatio="none">
+      <circle cx="50" cy="50" r="26" fill="none" stroke="#4d5a56" stroke-width="0.30"
+              stroke-dasharray="0.5 1.9" opacity=".55"/>
+    </svg>
+    <div class="stage" data-view="hero"></div>
+  </div>
+
+  <div class="bar bot">
+    <div class="t-sm">SCALE<br>PRECISION<br>POSSIBILITY</div>
+    <div class="t-sm r">DATA TO FORM<br>FORM TO MOTION<br>MOTION TO INSIGHT</div>
+  </div>
+</section>
+
+<!-- ================= SHEET B — 2×2 MATRIX ================= -->
+<section class="sheet">
+  <div class="bar top">
+    <div>
+      <div class="t-lg">DRONE CONCEPT</div>
+      <div class="t-sm" style="margin-top:8px">VISUAL EXPLORATION<br>SYSTEM RENDERING STUDY</div>
+      <span class="tick"></span>
+    </div>
+    <div class="t-sm r">OBSERVE<br>MODEL<br>VISUALIZE<br>ITERATE</div>
+  </div>
+
+  <div class="grid">
+    <!-- 01 -->
+    <div class="panel tl">
+      <div class="head">
+        <div class="row"><span class="n n01">01</span><span class="ttl">SIMPLE LINE</span></div>
+        <div class="sub">ESSENTIAL FORM<br>MINIMAL STRUCTURE<br>MAXIMUM CLARITY<span class="tick"></span></div>
+      </div>
+      <svg class="deco" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <circle cx="50" cy="44" r="24" fill="none" stroke="#4d5a56" stroke-width="0.30"
+                stroke-dasharray="0.5 1.9"/>
+      </svg>
+      <div class="stage inset" data-view="p01"></div>
+      <div class="minis">
+        <div class="mini"><div class="stage" data-view="mTop"></div><div class="cap">TOP</div></div>
+        <div class="mini"><div class="stage" data-view="mFront"></div><div class="cap">FRONT</div></div>
+        <div class="mini"><div class="stage" data-view="mSide"></div><div class="cap">SIDE</div></div>
+      </div>
+    </div>
+
+    <!-- 02 -->
+    <div class="panel tr">
+      <div class="head">
+        <div class="row"><span class="n n02">02</span><span class="ttl">TECHNICAL LINE</span></div>
+        <div class="sub">STRUCTURE &amp; DETAIL<br>FUNCTIONAL GEOMETRY<br>SYSTEM LOGIC<span class="tick"></span></div>
+      </div>
+      <svg class="deco" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <circle cx="52" cy="52" r="25" fill="none" stroke="#4d5a56" stroke-width="0.30"
+                stroke-dasharray="0.5 1.9" opacity=".55"/>
+      </svg>
+      <div class="stage" data-view="p02"></div>
+    </div>
+
+    <!-- 03 -->
+    <div class="panel bl">
+      <div class="head">
+        <div class="row"><span class="n n03">03</span><span class="ttl">LINE + PARTICLE FIELD</span></div>
+        <div class="sub">STRUCTURE WITH DATA<br>ENVIRONMENTAL CONTEXT<br>DYNAMIC BEHAVIOR<span class="tick"></span></div>
+      </div>
+      <div class="stage" data-view="p03"></div>
+    </div>
+
+    <!-- 04 -->
+    <div class="panel">
+      <div class="head">
+        <div class="row"><span class="n n04">04</span><span class="ttl">PARTICLE TARGET</span></div>
+        <div class="sub">POINT CLOUD REPRESENTATION<br>SYSTEM READINESS<br>ANIMATION READY<span class="tick"></span></div>
+      </div>
+      <svg class="deco" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <circle cx="52" cy="52" r="25" fill="none" stroke="#4d5a56" stroke-width="0.30"
+                stroke-dasharray="0.5 1.9"/>
+      </svg>
+      <div class="stage" data-view="p04"></div>
+    </div>
+  </div>
+
+  <div class="bar bot">
+    <div class="t-sm">SCALE<br>PRECISION<br>POSSIBILITY</div>
+    <div class="t-sm r">DATA TO FORM<br>FORM TO MOTION<br>MOTION TO INSIGHT</div>
+  </div>
+</section>
+
+<svg id="leaders"></svg>
+
+<script type="module">
+import * as THREE from "three";
+
+/* ══════════════════════════════════════════════════════════════════
+   0 · CONSTANTS
+   ══════════════════════════════════════════════════════════════════ */
+const PALETTE = { bg:0x0a0c0b, ink:0xe8ece9, c01:0x3fd2e0, c02:0xa8e04a, c03:0xe055c0, c04:0xf5822e };
+const Q       = new URLSearchParams(location.search);
+const REDUCE  = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const SAMPLES = 22000;
+
+/* deterministic RNG — every particle position reproduces across reloads */
+function mulberry32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0;
+  let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t;
+  return ((t^t>>>14)>>>0)/4294967296; }; }
+
+/* ══════════════════════════════════════════════════════════════════
+   1 · GEOMETRY HELPERS  (core three only — no addons to fetch)
+   ══════════════════════════════════════════════════════════════════ */
+function roundedRect(w,h,r){
+  const s = new THREE.Shape(), x=w/2, y=h/2;
+  s.moveTo(-x+r,-y);  s.lineTo(x-r,-y);  s.quadraticCurveTo(x,-y,x,-y+r);
+  s.lineTo(x,y-r);    s.quadraticCurveTo(x,y,x-r,y);
+  s.lineTo(-x+r,y);   s.quadraticCurveTo(-x,y,-x,y-r);
+  s.lineTo(-x,-y+r);  s.quadraticCurveTo(-x,-y,-x+r,-y);
+  return s;
+}
+/* soft-cornered slab: rounded in plan, bevelled top & bottom */
+function slab(len,wid,hgt,r,bev=0.05){
+  const g = new THREE.ExtrudeGeometry(roundedRect(len,wid,r),{
+    depth:hgt-bev*2, bevelEnabled:true, bevelSize:bev, bevelThickness:bev,
+    bevelSegments:2, curveSegments:10, steps:1 });
+  g.rotateX(-Math.PI/2); g.center(); return g;
+}
+/* prismatic bar spanning a→b, used for the folding arms */
+function bar(a,b,w,h){
+  const d = new THREE.Vector3().subVectors(b,a), L = d.length();
+  const g = new THREE.BoxGeometry(L,h,w);
+  const m = new THREE.Object3D();
+  m.position.copy(a).add(b).multiplyScalar(0.5);
+  m.lookAt(b); m.rotateY(Math.PI/2);          // box +X onto the a→b axis
+  m.updateMatrix(); g.applyMatrix4(m.matrix); return g;
+}
+/* tapered rotor blade with rounded tip — crisp silhouette for EdgesGeometry */
+function blade(L=0.88,wr=0.076,wt=0.042){
+  const s=new THREE.Shape();
+  s.moveTo(0.06,-wr); s.lineTo(L-0.16,-wt);
+  s.quadraticCurveTo(L,-wt,L,0); s.quadraticCurveTo(L,wt,L-0.16,wt);
+  s.lineTo(0.06,wr);  s.quadraticCurveTo(-0.03,wr,-0.03,0);
+  s.quadraticCurveTo(-0.03,-wr,0.06,-wr);
+  const g=new THREE.ExtrudeGeometry(s,{depth:0.018,bevelEnabled:false,curveSegments:8});
+  g.rotateX(-Math.PI/2); return g;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   2 · MATERIALS
+   ══════════════════════════════════════════════════════════════════ */
+const matFillTech = new THREE.MeshLambertMaterial({
+  color:0x1d272c, polygonOffset:true, polygonOffsetFactor:1.6, polygonOffsetUnits:1.6 });
+const matFillLine = new THREE.MeshBasicMaterial({
+  color:PALETTE.bg, polygonOffset:true, polygonOffsetFactor:1.6, polygonOffsetUnits:1.6 });
+const matEdgeTech = new THREE.LineBasicMaterial({ color:0xe2e8e5, transparent:true, opacity:0.92 });
+const matEdgeLine = new THREE.LineBasicMaterial({ color:0xe8ece9, transparent:true, opacity:0.95 });
+
+/* round soft dot — generated at runtime, no external asset */
+function dotTexture(){
+  const c=document.createElement("canvas"); c.width=c.height=64;
+  const x=c.getContext("2d"), g=x.createRadialGradient(32,32,0,32,32,32);
+  g.addColorStop(0,"rgba(255,255,255,1)"); g.addColorStop(0.42,"rgba(255,255,255,0.92)");
+  g.addColorStop(1,"rgba(255,255,255,0)");
+  x.fillStyle=g; x.beginPath(); x.arc(32,32,32,0,Math.PI*2); x.fill();
+  const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; return t;
+}
+const DOT = dotTexture();
+
+/* ══════════════════════════════════════════════════════════════════
+   3 · THE DRONE
+   ══════════════════════════════════════════════════════════════════ */
+const drone  = new THREE.Group();
+const shells = [];                                  // meshes that carry fill + edges
+
+function addShell(geo,parent=drone,detail=false){
+  const m = new THREE.Mesh(geo, matFillTech);
+  m.userData.detail = detail;
+  const e = new THREE.LineSegments(new THREE.EdgesGeometry(geo,26), matEdgeTech);
+  m.add(e); m.userData.edges = e; parent.add(m); shells.push(m); return m;
+}
+
+/* — fuselage ————————————————————————————————— */
+addShell(slab(2.34,1.14,0.60,0.30,0.06));                                    // main body
+const deck = addShell(slab(1.72,0.80,0.10,0.22,0.02)); deck.position.y=0.31;  // top deck
+const bell = addShell(slab(1.30,0.66,0.12,0.20,0.03),drone,true); bell.position.y=-0.30; // belly
+
+/* — camera / sensor module ——————————————————————— */
+const gimb = addShell(slab(0.34,0.40,0.36,0.10,0.03));
+gimb.position.set(1.02,-0.20,0);
+const lensG = new THREE.CylinderGeometry(0.105,0.105,0.10,22); lensG.rotateZ(Math.PI/2);
+const lens  = addShell(lensG); lens.position.set(1.21,-0.20,0);
+const irisG = new THREE.CylinderGeometry(0.052,0.052,0.12,18); irisG.rotateZ(Math.PI/2);
+const iris  = addShell(irisG,drone,true); iris.position.set(1.25,-0.20,0);
+
+/* — front sensor pips ————————————————————————— */
+[-0.26,0.26].forEach(z=>{
+  const p=addShell(new THREE.BoxGeometry(0.05,0.085,0.085),drone,true);
+  p.position.set(1.17,0.02,z);
+});
+
+/* — lateral ventilation slats ———————————————————— */
+[-1,1].forEach(side=>{
+  for(let i=0;i<5;i++){
+    const v=addShell(new THREE.BoxGeometry(0.30,0.035,0.022),drone,true);
+    v.position.set(-0.30-i*0.105, 0.045, side*0.575);
+  }
+});
+
+/* — arms, hinges, motors, rotors ————————————————— */
+const ARMS = [
+  { root:new THREE.Vector3( 0.78,0.06, 0.44), tip:new THREE.Vector3( 1.74,0.10, 1.24), foot:true  },
+  { root:new THREE.Vector3( 0.78,0.06,-0.44), tip:new THREE.Vector3( 1.74,0.10,-1.24), foot:true  },
+  { root:new THREE.Vector3(-0.76,0.06, 0.46), tip:new THREE.Vector3(-1.80,0.10, 1.30), foot:false },
+  { root:new THREE.Vector3(-0.76,0.06,-0.46), tip:new THREE.Vector3(-1.80,0.10,-1.30), foot:false },
+];
+const BLADE = blade();
+ARMS.forEach(({root,tip,foot},i)=>{
+  addShell(bar(root,tip,0.16,0.135));                                   // arm
+  const hg=new THREE.CylinderGeometry(0.105,0.105,0.19,18);
+  const h=addShell(hg,drone,true); h.position.copy(root);               // folding hinge
+  const mg=new THREE.CylinderGeometry(0.155,0.170,0.24,22);
+  const mo=addShell(mg); mo.position.copy(tip).setY(0.19);              // motor can
+  const cg=new THREE.CylinderGeometry(0.058,0.058,0.09,14);
+  const cap=addShell(cg,drone,true); cap.position.copy(tip).setY(0.35); // hub cap
+
+  const hub=new THREE.Group(); hub.position.copy(tip).setY(0.325);
+  hub.rotation.y = (i===0||i===3) ? 0.38 : -0.38;                      // mirrored, static
+  drone.add(hub);
+  [0,Math.PI].forEach(a=>{
+    const b=new THREE.Mesh(BLADE,matFillTech);
+    b.add(new THREE.LineSegments(new THREE.EdgesGeometry(BLADE,26),matEdgeTech));
+    b.userData.edges=b.children[0];
+    b.rotation.y=a; b.rotation.x=0.05;                                 // slight pitch
+    hub.add(b); shells.push(b);
+  });
+
+  if(foot){                                                             // landing leg
+    const lg=addShell(new THREE.BoxGeometry(0.085,0.24,0.085));
+    lg.position.copy(tip).setY(-0.10);
+    const pd=addShell(slab(0.30,0.19,0.075,0.055,0.018));
+    pd.position.copy(tip).setY(-0.25);
+  }
+});
+
+/* — rear beacon accent ————————————————————————— */
+const beacon = new THREE.Mesh(new THREE.SphereGeometry(0.035,10,10),
+  new THREE.MeshBasicMaterial({color:PALETTE.c04}));
+beacon.position.set(-1.20,0.30,0); drone.add(beacon);
+
+drone.updateMatrixWorld(true);
+const BOUNDS = new THREE.Box3().setFromObject(drone);
+const CENTER = BOUNDS.getCenter(new THREE.Vector3());
+const RADIUS = BOUNDS.getBoundingSphere(new THREE.Sphere()).radius;
+
+/* ══════════════════════════════════════════════════════════════════
+   4 · SURFACE SAMPLING  → the morph-target-ready point cloud
+   ══════════════════════════════════════════════════════════════════ */
+function sampleSurface(meshes,count,seed=7){
+  const rng=mulberry32(seed), tri=[], cdf=[]; let total=0;
+  const A=new THREE.Vector3(),B=new THREE.Vector3(),C=new THREE.Vector3(),
+        ab=new THREE.Vector3(),ac=new THREE.Vector3(),cr=new THREE.Vector3();
+  for(const m of meshes){
+    m.updateWorldMatrix(true,false);
+    const pos=m.geometry.attributes.position, idx=m.geometry.index;
+    const n=idx?idx.count:pos.count;
+    for(let i=0;i<n;i+=3){
+      const a=idx?idx.getX(i):i, b=idx?idx.getX(i+1):i+1, c=idx?idx.getX(i+2):i+2;
+      A.fromBufferAttribute(pos,a).applyMatrix4(m.matrixWorld);
+      B.fromBufferAttribute(pos,b).applyMatrix4(m.matrixWorld);
+      C.fromBufferAttribute(pos,c).applyMatrix4(m.matrixWorld);
+      const area=ab.subVectors(B,A).cross(ac.subVectors(C,A)).length()*0.5;
+      if(area<=0) continue;
+      total+=area; tri.push(A.x,A.y,A.z,B.x,B.y,B.z,C.x,C.y,C.z); cdf.push(total);
+    }
+  }
+  const out=new Float32Array(count*3);
+  for(let s=0;s<count;s++){
+    const target=rng()*total;
+    let lo=0,hi=cdf.length-1;                       // binary search the area CDF
+    while(lo<hi){ const mid=(lo+hi)>>1; if(cdf[mid]<target) lo=mid+1; else hi=mid; }
+    const t=lo*9;
+    let u=rng(), v=rng(); if(u+v>1){ u=1-u; v=1-v; }
+    const w=1-u-v;
+    out[s*3  ]=tri[t]*w   + tri[t+3]*u + tri[t+6]*v;
+    out[s*3+1]=tri[t+1]*w + tri[t+4]*u + tri[t+7]*v;
+    out[s*3+2]=tri[t+2]*w + tri[t+5]*u + tri[t+8]*v;
+  }
+  return out;
+}
+
+const BASE   = sampleSurface(shells,SAMPLES);
+const LIVE   = new Float32Array(BASE);              // what actually renders
+const JITTER = new Float32Array(SAMPLES*3);
+{ const r=mulberry32(19); for(let i=0;i<JITTER.length;i++) JITTER[i]=r()*2-1; }
+
+const cloudGeo = new THREE.BufferGeometry();
+cloudGeo.setAttribute("position", new THREE.BufferAttribute(LIVE,3));
+const cloud = new THREE.Points(cloudGeo, new THREE.PointsMaterial({
+  size:0.024, map:DOT, color:0xe4ebe7, transparent:true, opacity:0.97,
+  depthWrite:false, alphaTest:0.04, blending:THREE.NormalBlending }));
+drone.add(cloud);
+
+/* the surface dusting used in view 03 — sparser, dimmer */
+const skinGeo = new THREE.BufferGeometry();
+skinGeo.setAttribute("position", new THREE.BufferAttribute(BASE.slice(0,3*4200),3));
+const skin = new THREE.Points(skinGeo, new THREE.PointsMaterial({
+  size:0.022, map:DOT, color:0xaebab5, transparent:true, opacity:0.55, depthWrite:false }));
+drone.add(skin);
+
+/* ══════════════════════════════════════════════════════════════════
+   5 · THE FIELD  — radial dot volume the object sits inside
+   ══════════════════════════════════════════════════════════════════ */
+const FIELD_N = 5200;
+const fieldBase = new Float32Array(FIELD_N*3);
+const fieldLive = new Float32Array(FIELD_N*3);
+const fieldPh   = new Float32Array(FIELD_N);
+{
+  const r = mulberry32(53);
+  const RING = Math.floor(FIELD_N*0.62);            // radial ground field
+  for(let i=0;i<FIELD_N;i++){
+    let th, rad, y;
+    if(i<RING){
+      const ray = Math.floor(r()*84);               // snap onto rays → radial streaks
+      th  = (ray/84)*Math.PI*2 + (r()-0.5)*0.022;
+      rad = RADIUS*(0.30 + Math.pow(r(),0.62)*0.98);
+      y   = -0.78 + (r()-0.5)*0.10 + Math.pow(rad/RADIUS,2)*0.10;
+    }else{                                          // sparse surrounding dome
+      const u = r()*2-1, sq = Math.sqrt(1-u*u);
+      th  = r()*Math.PI*2;
+      rad = RADIUS*(0.62 + Math.pow(r(),0.5)*0.62);
+      y   = u*RADIUS*0.42 - 0.05;
+      rad *= sq*0.55 + 0.55;
+    }
+    fieldBase[i*3  ]=Math.cos(th)*rad;
+    fieldBase[i*3+1]=y;
+    fieldBase[i*3+2]=Math.sin(th)*rad*0.96;
+    fieldPh[i]=r()*Math.PI*2;
+  }
+  fieldLive.set(fieldBase);
+}
+const fieldGeo = new THREE.BufferGeometry();
+fieldGeo.setAttribute("position", new THREE.BufferAttribute(fieldLive,3));
+const field = new THREE.Points(fieldGeo, new THREE.PointsMaterial({
+  size:0.021, map:DOT, color:0x9caaa4, transparent:true, opacity:0.60, depthWrite:false }));
+drone.add(field);
+
+/* sparse colour accents — the only saturation on the sheet */
+const ACCENTS = [
+  { p:[-1.55, 0.62,  0.95], c:PALETTE.c03 },  { p:[-1.72, 0.40, 0.72], c:PALETTE.c03 },
+  { p:[ 0.55, 1.05, -0.30], c:PALETTE.c01 },  { p:[ 0.30, 0.82, -0.10], c:PALETTE.c01 },
+  { p:[ 1.45,-0.72, -0.55], c:PALETTE.c04 },  { p:[ 1.20,-0.95, -0.20], c:PALETTE.c04 },
+  { p:[ 1.90, 0.20,  1.55], c:PALETTE.c02 },  { p:[ 1.55, 0.05,  1.80], c:PALETTE.c02 },
+  { p:[-1.10,-0.55,  1.35], c:PALETTE.c02 },  { p:[ 0.10, 1.25,  0.45], c:PALETTE.c01 },
+];
+const accGeo = new THREE.BufferGeometry();
+accGeo.setAttribute("position", new THREE.Float32BufferAttribute(ACCENTS.flatMap(a=>a.p),3));
+accGeo.setAttribute("color", new THREE.Float32BufferAttribute(
+  ACCENTS.flatMap(a=>{ const c=new THREE.Color(a.c); return [c.r,c.g,c.b]; }),3));
+const accents = new THREE.Points(accGeo, new THREE.PointsMaterial({
+  size:0.085, map:DOT, vertexColors:true, transparent:true, opacity:0.95, depthWrite:false }));
+drone.add(accents);
+
+/* ══════════════════════════════════════════════════════════════════
+   6 · SCENE / RENDERER
+   ══════════════════════════════════════════════════════════════════ */
+const scene = new THREE.Scene();
+scene.add(drone);
+scene.add(new THREE.AmbientLight(0x2e3f44,1.05));
+const key=new THREE.DirectionalLight(0xffffff,2.40); key.position.set(3.4,5.4,3.6); scene.add(key);
+const rim=new THREE.DirectionalLight(0x86b0c0,0.80); rim.position.set(-4.2,1.4,-3.8); scene.add(rim);
+
+const canvas   = document.getElementById("gl");
+const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true, powerPreference:"high-performance" });
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));   // the single biggest perf win
+renderer.setClearColor(0x000000,0);
+renderer.setScissorTest(true);
+
+const persp = new THREE.PerspectiveCamera(26,1,0.1,200);
+const ortho = new THREE.OrthographicCamera(-1,1,1,-1,-100,200);
+
+/* ══════════════════════════════════════════════════════════════════
+   7 · VIEWS  — fixed cameras, one scissored viewport each
+   ══════════════════════════════════════════════════════════════════ */
+const AZ   = parseFloat(Q.get("az")   ?? "128");   // trimmable via URL, then baked
+const EL   = parseFloat(Q.get("el")   ?? "25");
+const DIST = parseFloat(Q.get("dist") ?? "1");     // global distance multiplier
+
+/* half-extents of the drone measured in a camera-aligned basis — lets every
+   panel frame the real silhouette instead of a loose bounding sphere */
+const CORNERS = (()=>{ const b=BOUNDS, o=[]; for(const x of [b.min.x,b.max.x])
+  for(const y of [b.min.y,b.max.y]) for(const z of [b.min.z,b.max.z])
+    o.push(new THREE.Vector3(x,y,z).sub(CENTER)); return o; })();
+function extents(dir){
+  const fwd=dir.clone().normalize();
+  const right=new THREE.Vector3().crossVectors(new THREE.Vector3(0,1,0),fwd).normalize();
+  const up=new THREE.Vector3().crossVectors(fwd,right).normalize();
+  let ex=0,ey=0,ez=0;
+  for(const c of CORNERS){ ex=Math.max(ex,Math.abs(c.dot(right)));
+    ey=Math.max(ey,Math.abs(c.dot(up))); ez=Math.max(ez,Math.abs(c.dot(fwd))); }
+  return {ex,ey,ez};
+}
+
+const VIEWS = {
+  hero  : { kind:"persp", az:AZ,  el:EL, fit:1.30, mode:"tech"   },
+  p01   : { kind:"ortho", az:180, el:17, fit:1.52, mode:"line"   },
+  mTop  : { kind:"ortho", az:180, el:90, fit:1.34, mode:"line"   },
+  mFront: { kind:"ortho", az:180, el:0,  fit:1.34, mode:"line"   },
+  mSide : { kind:"ortho", az:90,  el:0,  fit:1.34, mode:"line"   },
+  p02   : { kind:"persp", az:AZ,  el:EL, fit:1.28, mode:"tech"   },
+  p03   : { kind:"persp", az:AZ,  el:EL, fit:1.60, mode:"field"  },
+  p04   : { kind:"persp", az:AZ,  el:EL, fit:1.34, mode:"points" },
+};
+for(const [k,v] of Object.entries(VIEWS)){
+  v.el_dom = document.querySelector(`.stage[data-view="${k}"]`);
+}
+
+function aimCamera(v, aspect){
+  const a = THREE.MathUtils.degToRad(v.az), e = THREE.MathUtils.degToRad(v.el);
+  const dir = new THREE.Vector3(Math.cos(e)*Math.sin(a), Math.sin(e), Math.cos(e)*Math.cos(a));
+  const { ex, ey, ez } = extents(dir);
+
+  if(v.kind==="persp"){
+    const vFov = THREE.MathUtils.degToRad(persp.fov);
+    const hFov = 2*Math.atan(Math.tan(vFov/2)*aspect);
+    const d = Math.max(ex*v.fit/Math.tan(hFov/2), ey*v.fit/Math.tan(vFov/2)) + ez;
+    persp.aspect = aspect;
+    persp.position.copy(CENTER).addScaledVector(dir, d*DIST);
+    persp.lookAt(CENTER); persp.updateProjectionMatrix();
+    return persp;
+  }
+  let hw = ex*v.fit, hh = ey*v.fit;          // fit the true silhouette, then
+  if(hw/hh < aspect) hw = hh*aspect; else hh = hw/aspect;   // grow to panel aspect
+  ortho.left=-hw; ortho.right=hw; ortho.top=hh; ortho.bottom=-hh;
+  ortho.position.copy(CENTER).addScaledVector(dir, ez+RADIUS*2);
+  ortho.lookAt(CENTER); ortho.updateProjectionMatrix();
+  return ortho;
+}
+
+function applyMode(mode){
+  const wire = mode==="line";
+  const solid= mode!=="points";
+  for(const m of shells){
+    m.visible = solid && !(wire && m.userData.detail);   // 01 = essential form only
+    m.material = wire ? matFillLine : matFillTech;
+    if(m.userData.edges) m.userData.edges.material = wire ? matEdgeLine : matEdgeTech;
+  }
+  cloud.visible   = mode==="points";
+  skin.visible    = mode==="field";
+  field.visible   = mode==="field" || mode==="points";
+  accents.visible = mode==="field";
+  beacon.visible  = mode!=="line";
+  field.material.opacity = mode==="points" ? 0.40 : 0.60;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   8 · CALLOUTS  — 3D anchors projected into the SVG overlay
+   ══════════════════════════════════════════════════════════════════ */
+const CALLOUTS = [
+  { v:"hero", at:[ 1.24,-0.20, 0.00], dir:-1, rise: 20, run:118, txt:["CAMERA MODULE","SENSOR ARRAY"] },
+  { v:"hero", at:[-0.78, 0.02,-0.46], dir: 1, rise:-70, run:104, txt:["ARM MODULE","FOLDING MECHANISM"] },
+  { v:"hero", at:[-0.62, 0.05, 0.58], dir: 1, rise: 58, run:88,  txt:["VENTILATION","THERMAL FLOW"] },
+  { v:"hero", at:[ 1.86, 0.28, 1.16], dir:-1, rise: 72, run:80,  txt:["ROTOR ASSEMBLY","THRUST UNIT"] },
+
+  { v:"p02",  at:[ 1.24,-0.20, 0.00], dir:-1, rise:-30, run:52,  txt:["CAMERA MODULE","SENSOR ARRAY"] },
+  { v:"p02",  at:[-0.78, 0.02,-0.46], dir: 1, rise:-42, run:56,  txt:["ARM MODULE","FOLDING MECHANISM"] },
+  { v:"p02",  at:[-0.62, 0.05, 0.58], dir: 1, rise: 36, run:50,  txt:["VENTILATION","THERMAL FLOW"] },
+
+  { v:"p03",  at:[ 0.30, 0.82,-0.10], dir: 1, rise:-40, run:62,  txt:["ORIENTATION","STABILITY VECTOR"], c:"var(--c01)" },
+  { v:"p03",  at:[-1.72, 0.40, 0.72], dir:-1, rise: 22, run:30,  txt:["AERODYNAMIC FIELD","AIRFLOW ANALYSIS"], c:"var(--c03)" },
+  { v:"p03",  at:[ 1.20,-0.95,-0.20], dir:-1, rise: 66, run:40,  txt:["SENSOR FIELD","PERCEPTION RADIUS"], c:"var(--c04)" },
+  { v:"p03",  at:[ 1.90, 0.20, 1.55], dir: 1, rise: 74, run:74,  txt:["PROPULSION FIELD","THRUST VECTOR"], c:"var(--c02)" },
+];
+
+const NS = "http://www.w3.org/2000/svg";
+const svg = document.getElementById("leaders");
+CALLOUTS.forEach(co=>{
+  const g = document.createElementNS(NS,"g");
+  co.dot  = document.createElementNS(NS,"circle");
+  co.dot.setAttribute("r","2.1");
+  co.dot.setAttribute("fill", co.c || "var(--ink)");
+  co.path = document.createElementNS(NS,"path");
+  co.path.setAttribute("fill","none");
+  co.path.setAttribute("stroke", co.c || "var(--ink-dim)");
+  co.path.setAttribute("stroke-width","0.75");
+  co.t1 = document.createElementNS(NS,"text");
+  co.t2 = document.createElementNS(NS,"text");
+  [co.t1,co.t2].forEach(t=>{
+    t.setAttribute("fill", co.c || "var(--ink)");
+    t.setAttribute("font-family","ui-monospace, SFMono-Regular, Menlo, Consolas, monospace");
+    t.setAttribute("font-size","7.6"); t.setAttribute("letter-spacing","1.5");
+  });
+  co.t1.textContent = co.txt[0]; co.t2.textContent = co.txt[1];
+  co.t2.setAttribute("fill","var(--ink-dim)");
+  g.append(co.path, co.dot, co.t1, co.t2); svg.appendChild(g); co.g = g;
+  co.vec = new THREE.Vector3(...co.at);
+});
+
+function drawCallouts(view, key, rect, cam){
+  for(const co of CALLOUTS){
+    if(co.v!==key) continue;
+    const p = co.vec.clone().project(cam);
+    if(p.z>1){ co.g.style.display="none"; continue; }
+    const x = rect.left + (p.x*0.5+0.5)*rect.width;
+    const y = rect.top  + (-p.y*0.5+0.5)*rect.height;
+    const x1 = x + co.dir*Math.abs(co.rise)*0.55, y1 = y + co.rise;
+    const x2 = x1 + co.dir*co.run;
+    co.g.style.display="";
+    co.dot.setAttribute("cx",x); co.dot.setAttribute("cy",y);
+    co.path.setAttribute("d",`M${x} ${y} L${x1} ${y1} L${x2} ${y1}`);
+    const tx = x2 + co.dir*7, anchor = co.dir>0 ? "start" : "end";
+    co.t1.setAttribute("x",tx); co.t1.setAttribute("y",y1-3.5); co.t1.setAttribute("text-anchor",anchor);
+    co.t2.setAttribute("x",tx); co.t2.setAttribute("y",y1+7.5); co.t2.setAttribute("text-anchor",anchor);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   9 · FRAME  — pure function of elapsed time (deterministic seek)
+   ══════════════════════════════════════════════════════════════════ */
+const MORPH = parseFloat(Q.get("morph") ?? "0");
+
+/* every frequency is an integer harmonic of the loop, so the sheet is
+   seamless: frame(t) === frame(t + PERIOD) exactly. */
+const PERIOD = 24, W = Math.PI*2/PERIOD;
+
+function animateParticles(t){
+  /* field: slow radial breathing + vertical drift, seeded, loops at 12s */
+  for(let i=0;i<FIELD_N;i++){
+    const ph=fieldPh[i], k=i*3;
+    const s = 1 + Math.sin(t*W + ph)*0.035;
+    fieldLive[k  ] = fieldBase[k  ]*s;
+    fieldLive[k+1] = fieldBase[k+1] + Math.sin(t*W*2 + ph*1.7)*0.055;
+    fieldLive[k+2] = fieldBase[k+2]*s;
+  }
+  fieldGeo.attributes.position.needsUpdate = true;
+
+  /* surface cloud: micro shimmer off the true surface + optional morph */
+  const amp = 0.012;
+  for(let i=0;i<SAMPLES;i++){
+    const k=i*3, w=Math.sin(t*W*3 + JITTER[k]*6.28)*amp;
+    LIVE[k  ] = BASE[k  ] + JITTER[k  ]*w;
+    LIVE[k+1] = BASE[k+1] + JITTER[k+1]*w;
+    LIVE[k+2] = BASE[k+2] + JITTER[k+2]*w;
+  }
+  if(MORPH>0) applyMorph(MORPH);
+  cloudGeo.attributes.position.needsUpdate = true;
+
+  accents.material.opacity = 0.72 + Math.sin(t*W*4)*0.22;
+  beacon.material.opacity  = 1;
+}
+
+/* ---- morph-target proof: the cloud is a fixed-count buffer, so any
+        equal-length target can be blended in. --------------------- */
+let morphTarget = null;
+function makeDemoTarget(){
+  const out=new Float32Array(SAMPLES*3), r=mulberry32(101);
+  for(let i=0;i<SAMPLES;i++){
+    const u=r()*2-1, th=r()*Math.PI*2, s=Math.sqrt(1-u*u), R=RADIUS*0.82;
+    out[i*3]=Math.cos(th)*s*R; out[i*3+1]=u*R*0.55; out[i*3+2]=Math.sin(th)*s*R;
+  }
+  return out;
+}
+function applyMorph(t){
+  if(!morphTarget) morphTarget = makeDemoTarget();
+  for(let i=0;i<LIVE.length;i++) LIVE[i] += (morphTarget[i]-LIVE[i])*t;
+}
+
+function frame(t){
+  animateParticles(t);
+  for(const co of CALLOUTS) co.g.style.display="none";   // only re-shown if drawn
+  renderer.setScissorTest(false);
+  renderer.clear();
+  renderer.setScissorTest(true);
+
+  for(const [key,v] of Object.entries(VIEWS)){
+    const el=v.el_dom; if(!el) continue;
+    const r=el.getBoundingClientRect();
+    if(r.width<2||r.height<2||r.bottom<0||r.top>innerHeight) continue;
+    const w=Math.round(r.width), h=Math.round(r.height);
+    const x=Math.round(r.left),  y=Math.round(innerHeight-r.bottom);
+    renderer.setViewport(x,y,w,h);
+    renderer.setScissor(x,y,w,h);
+    applyMode(v.mode);
+    const cam = aimCamera(v, w/h);
+    renderer.render(scene,cam);
+    drawCallouts(v,key,r,cam);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   10 · BOOT
+   ══════════════════════════════════════════════════════════════════ */
+function resize(){
+  renderer.setSize(innerWidth,innerHeight,false);
+  svg.setAttribute("viewBox",`0 0 ${innerWidth} ${innerHeight}`);
+}
+addEventListener("resize",resize);
+resize();
+
+document.getElementById("mAz").textContent  = AZ.toFixed(0)+"°";
+document.getElementById("mEl").textContent  = EL.toFixed(0)+"°";
+document.getElementById("mPts").textContent = SAMPLES.toLocaleString("en-US");
+
+/* public handle — lets a later stage drive the morph from outside */
+window.__DRONE = {
+  THREE, scene, drone, shells, PERIOD,
+  surfaceTargets : BASE,
+  sampleCount    : SAMPLES,
+  resample       : (n,seed)=>sampleSurface(shells,n,seed),
+  setMorphTarget : arr => { morphTarget = arr; },
+  radius         : RADIUS,
+  center         : CENTER,
+  render         : t => frame(t),      // redraw a frozen sheet (scroll / print)
+};
+
+/* drop registration marks into every panel that carries a construction circle */
+for(const d of document.querySelectorAll(".deco")){
+  for(const pos of ["t","b"]){
+    const i=document.createElement("i"); i.className="xh "+pos; d.parentElement.appendChild(i);
+  }
+}
+
+const T = Q.get("t");
+if(T!==null || REDUCE){
+  frame(T!==null ? parseFloat(T) : 0);               // one deterministic still
+}else{
+  const clock = new THREE.Clock();
+  renderer.setAnimationLoop(()=> frame(clock.getElapsedTime()));
+}
+window.__ready = true;
+document.title = "ready";
+console.log("DRONE_CONCEPT_BOARD_TARGET_MATCH ready · samples", SAMPLES, "· seamless loop", PERIOD+"s");
+</script>
+</body>
+</html>
