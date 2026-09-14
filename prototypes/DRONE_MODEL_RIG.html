@@ -311,7 +311,7 @@ const hull = new THREE.Group();  hull.name = "hull";  root.add(hull);
 
 /* — fuselage: one chamfered slab, split by a shallow parting band ——— */
 const HULL_BEVEL = 0.045;
-part(extrude(hullShape(), 0.50, HULL_BEVEL), MAT.shell, hull, "hull.body", 22);
+const BODY = part(extrude(hullShape(), 0.50, HULL_BEVEL), MAT.shell, hull, "hull.body", 22);
 
 /* recessed top panel — the large rounded rectangle on the reference deck */
 const deck = part(extrude(roundRect(1.62,0.80,0.24), 0.045, 0.010), MAT.dark, hull, "hull.deckPanel", 16);
@@ -324,24 +324,24 @@ deckIn.position.set(-0.06, 0.252, 0);
 const HULL_FLANK = 0.560 + HULL_BEVEL;     // extrude's bevel pushes the flank OUT
 
 /* — camera / sensor module at the front underside ————————— */
-const gYaw = new THREE.Group(); gYaw.name="gimbal.yaw"; gYaw.position.set(1.10,-0.25,0); hull.add(gYaw);
+const gYaw = new THREE.Group(); gYaw.name="gimbal.yaw"; gYaw.position.set(1.05,-0.375,0); hull.add(gYaw);
 const gRoll = new THREE.Group(); gRoll.name="gimbal.roll"; gYaw.add(gRoll);
 const gPitch = new THREE.Group(); gPitch.name="gimbal.pitch"; gRoll.add(gPitch);
-part(extrude(roundRect(0.30,0.32,0.085), 0.28, 0.028), MAT.dark, gPitch, "gimbal.housing", 24);
-const yoke = part(extrude(roundRect(0.13,0.30,0.05), 0.10, 0.018), MAT.trim, hull, "gimbal.mount", 24, true);
-yoke.position.set(1.06,-0.20,0);
-const barrel = part(new THREE.CylinderGeometry(0.098,0.104,0.075,22), MAT.trim, gPitch, "gimbal.barrel", 40);
-barrel.rotation.z = Math.PI/2; barrel.position.set(0.175,0,0);
-const iris = part(new THREE.CylinderGeometry(0.058,0.058,0.030,20), MAT.glass, gPitch, "gimbal.iris", 40, true);
-iris.rotation.z = Math.PI/2; iris.position.set(0.212,0,0);
-const ring = part(new THREE.TorusGeometry(0.064,0.006,6,24), MAT.accent, gPitch, "gimbal.ring", 90, true);
-ring.rotation.y = Math.PI/2; ring.position.set(0.218,0,0);
+part(extrude(roundRect(0.245,0.265,0.075), 0.195, 0.024), MAT.dark, gPitch, "gimbal.housing", 24);
+const yoke = part(extrude(roundRect(0.155,0.265,0.05), 0.135, 0.018), MAT.trim, hull, "gimbal.mount", 24);
+yoke.position.set(1.045,-0.255,0);
+const barrel = part(new THREE.CylinderGeometry(0.082,0.088,0.062,26), MAT.trim, gPitch, "gimbal.barrel", 30);
+barrel.rotation.z = Math.PI/2; barrel.position.set(0.142,0,0);
+const iris = part(new THREE.CylinderGeometry(0.049,0.049,0.026,22), MAT.glass, gPitch, "gimbal.iris", 30, true);
+iris.rotation.z = Math.PI/2; iris.position.set(0.176,0,0);
+const ring = part(new THREE.TorusGeometry(0.054,0.005,6,24), MAT.accent, gPitch, "gimbal.ring", 90, true);
+ring.rotation.y = Math.PI/2; ring.position.set(0.181,0,0);
 ring.userData.edges.visible = false;
 
 /* — forward sensor pips and flank ventilation slats ——————— */
 for(const z of [-0.26,0.26]){
-  const s2 = part(new THREE.BoxGeometry(0.070,0.070,0.085), MAT.glass, hull, "hull.sensor", 20, true);
-  s2.position.set(1.255, -0.04, z);
+  const s2 = part(new THREE.BoxGeometry(0.048,0.052,0.072), MAT.glass, hull, "hull.sensor", 20);
+  s2.position.set(1.246, -0.045, z*0.58);
 }
 for(const side of [-1,1]) for(let i=0;i<6;i++){
   const v = part(new THREE.BoxGeometry(0.205,0.024,0.026), MAT.trim, hull, "hull.louvre", 30, true);
@@ -448,6 +448,86 @@ for(const def of ARM_DEF){
     angle:THREE.MathUtils.degToRad(def.foldDeg),
     dir:(def.id==="FL"||def.id==="RR") ? 1 : -1,
     rest:g.quaternion.clone() };
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SEAMS — where a fitting enters the fuselage
+   ════════════════════════════════════════════════════════════════
+   There is no CSG here, so a bracket that penetrates the hull simply
+   vanishes into the solid and the join draws nothing. A technical
+   drawing needs that line. These are the real mesh-mesh intersection
+   curves, computed once from the deployed pose and drawn as ordinary
+   LineSegments, so they carry the same one-pixel weight as everything
+   else. Only fittings fixed to the body qualify: their seam cannot
+   change. (The arm pivot is a cylinder centred on its own hinge axis,
+   so rotating it leaves the seam invariant — it counts.) */
+const _E1=new THREE.Vector3(),_E2=new THREE.Vector3(),_PV=new THREE.Vector3(),
+      _TV=new THREE.Vector3(),_QV=new THREE.Vector3(),_DR=new THREE.Vector3();
+function edgeHitsTri(o,e,a,b,c,out){
+  _DR.subVectors(e,o); _E1.subVectors(b,a); _E2.subVectors(c,a);
+  _PV.crossVectors(_DR,_E2); const det=_E1.dot(_PV);
+  if(Math.abs(det)<1e-12) return false;
+  const inv=1/det; _TV.subVectors(o,a);
+  const u=_TV.dot(_PV)*inv; if(u<-1e-7||u>1+1e-7) return false;
+  _QV.crossVectors(_TV,_E1);
+  const v=_DR.dot(_QV)*inv; if(v<-1e-7||u+v>1+1e-7) return false;
+  const t=_E2.dot(_QV)*inv; if(t<0||t>1) return false;
+  out.copy(o).addScaledVector(_DR,t); return true;
+}
+function worldTris(mesh){
+  mesh.updateWorldMatrix(true,false);
+  const pos=mesh.geometry.attributes.position, idx=mesh.geometry.index;
+  const n=idx?idx.count:pos.count, out=[];
+  const v=new THREE.Vector3();
+  for(let i=0;i<n;i+=3){
+    const tri=[];
+    for(let k=0;k<3;k++){
+      const j=idx?idx.getX(i+k):i+k;
+      v.fromBufferAttribute(pos,j).applyMatrix4(mesh.matrixWorld);
+      tri.push(v.clone());
+    }
+    const bb=new THREE.Box3().setFromPoints(tri);
+    out.push({tri,bb});
+  }
+  return out;
+}
+function seamCurve(fitting, solid){
+  const A=worldTris(fitting), B=worldTris(solid);
+  const box=new THREE.Box3(); for(const t of A) box.union(t.bb);
+  box.expandByScalar(1e-3);
+  const Bn=B.filter(t=>t.bb.intersectsBox(box));      // prefilter: tiny slice of hull
+  const pts=[], h=[new THREE.Vector3(),new THREE.Vector3(),new THREE.Vector3(),
+                   new THREE.Vector3(),new THREE.Vector3(),new THREE.Vector3()];
+  for(const ta of A) for(const tb of Bn){
+    if(!ta.bb.intersectsBox(tb.bb)) continue;
+    let n=0;
+    for(let k=0;k<3&&n<6;k++)
+      if(edgeHitsTri(ta.tri[k],ta.tri[(k+1)%3],tb.tri[0],tb.tri[1],tb.tri[2],h[n])) n++;
+    for(let k=0;k<3&&n<6;k++)
+      if(edgeHitsTri(tb.tri[k],tb.tri[(k+1)%3],ta.tri[0],ta.tri[1],ta.tri[2],h[n])) n++;
+    if(n<2) continue;
+    if(h[0].distanceToSquared(h[1])<1e-10) continue;
+    pts.push(h[0].x,h[0].y,h[0].z, h[1].x,h[1].y,h[1].z);
+  }
+  return pts;
+}
+
+const seams = [];
+{
+  root.updateMatrixWorld(true);
+  const fittings = parts.filter(p =>
+    /^shoulder\.|^pin\.|^gimbal\.mount$|^hull\.sensor$/.test(p.name) ||
+    /\.pivot$/.test(p.name));
+  const all = [];
+  for(const f of fittings) all.push(...seamCurve(f, BODY));
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(all,3));
+  const ls = new THREE.LineSegments(g, EDGE.tech);
+  ls.renderOrder = 2; ls.frustumCulled = false;
+  hull.worldToLocal;                                   // seams are built in world
+  hull.add(ls); ls.position.set(0,0,0);
+  seams.push(ls);
+  console.log("seam segments:", all.length/6, "from", fittings.length, "fittings");
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -660,6 +740,10 @@ function setMode(m){
   /* the orange accents stay lit in every language but SIMPLE */
   for(const n of ["hull.beacon","gimbal.ring"]){
     const o = parts.find(p=>p.name===n); if(o){ o.visible = drawn && !simple; o.material = MAT.accent; }
+  }
+  for(const sm of seams){
+    sm.visible  = simple || tech || fieldM;
+    sm.material = simple ? EDGE.line : EDGE.tech;
   }
   cloud.visible   = target;
   skin.visible    = fieldM;

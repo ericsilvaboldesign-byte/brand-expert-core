@@ -77,6 +77,27 @@ counter-rotate with the fold.
 None of these are tagged `detail`, so they survive into SIMPLE, where the
 reference calls the folding mechanism out by name.
 
+### Seams
+
+There is no CSG, so a fitting that penetrates the fuselage just vanishes
+into the solid and the join draws nothing — the exact line a technical
+drawing needs. `seamCurve()` computes the real mesh-mesh intersection
+(edge-against-triangle both ways, with an AABB prefilter so only the
+handful of hull triangles under each fitting are tested) and the result
+is drawn as ordinary `LineSegments`, so seams carry the same one-pixel
+weight as every other line.
+
+Seams are computed **once, at build**, which constrains what may have
+one: only fittings fixed to the body, whose seam cannot change. The
+shoulder forks, axle pins and nose sensors qualify. The arm pivot
+qualifies too — it is a cylinder centred on its own hinge axis, so
+rotating it leaves the intersection invariant. The camera does **not**:
+it pans and tilts. So it hangs from a short mount collar that is fixed to
+the hull and is the only part entering it, which keeps the seam static
+and correct at any gimbal angle.
+
+About 500 seam segments from 19 fittings, ~0.4 s at load.
+
 ### Line fidelity
 
 `ExtrudeGeometry` with a bevel pushes the mid-section **outward** by
