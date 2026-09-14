@@ -341,3 +341,35 @@ window.__DRONE.render(t);           // redraw a frozen sheet
 - The palette is derived from the reference board. There is no committed
   Civarro token file in this repo yet — swap `PALETTE` and the CSS custom
   properties when one lands.
+
+## DRONE_FBX_STANDALONE.html
+
+One file, 8.29 MB, opens by double-click — the FBX board with three, the
+loader chain and the 5.57 MB mesh folded in. Built by
+`build-fbx-standalone.py`; edit `DRONE_FBX_BOARD.html` and rebuild, never
+edit the standalone.
+
+Traps this build hit:
+
+- **`file://` blocks fetches, not modules.** An inline `<script type="module">`
+  runs fine from disk, but `FBXLoader.loadAsync("./assets/…")` is a fetch and
+  dies on CORS. The mesh travels as base64 and reaches the loader as a blob
+  URL via `fbxURL()`.
+- **Each vendored module becomes an IIFE returning its namespace**, which is
+  what a module scope actually is. Otherwise three's minified internals and
+  fflate's collide.
+- **`export {gzip as compress}`** means the namespace key is `compress` but the
+  binding to read is `gzip`. Reading the key name gives
+  `compress is not defined`.
+- **The build substitutes the FBX path, not the loader call.** Matching
+  `new FBXLoader().loadAsync("…")` literally broke the moment the loader took
+  a `LoadingManager` argument: the replace silently no-opped and the standalone
+  went back to fetching a file that isn't there. It now matches the path
+  string alone and fails loudly if the count isn't 1.
+- **Texture short-circuit can't be a filename test.** The FBX's texture
+  references don't ship with it, and from a blob they resolve to
+  `blob:null/undefined` — no extension to match. The `LoadingManager` sends
+  anything that isn't the mesh itself to a 1x1 GIF.
+- **A green `__ready` is not a green page.** `__ready` is set in the catch
+  handler too, so the load check also asserts `window.__DRONE` exists and the
+  stats line is populated.

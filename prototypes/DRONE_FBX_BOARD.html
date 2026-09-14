@@ -30,6 +30,9 @@
   #gl{position:fixed;inset:0;width:100vw;height:100vh;z-index:0;display:block}
   .sheet{position:relative;z-index:2;height:100vh;min-height:680px;
          display:flex;flex-direction:column;padding:22px 30px 16px;pointer-events:none}
+  /* the control strip is fixed, so the sheet reserves its height or the
+     bottom rule lands on top of the sliders */
+  body:not(.shot) .sheet{padding-bottom:84px}
   .bar{display:flex;justify-content:space-between;align-items:flex-start;gap:40px}
   .bar.top{padding-bottom:12px;border-bottom:1px solid var(--rule)}
   .bar.bot{padding-top:10px;border-top:1px solid var(--rule);margin-top:8px}
@@ -56,7 +59,7 @@
                  linear-gradient(#4d5a56,#4d5a56) center/1px 9px no-repeat}
   .xh.t{top:6%} .xh.b{bottom:6%}
 
-  .ctrls{position:fixed;left:30px;bottom:52px;z-index:6;display:flex;gap:22px;
+  .ctrls{position:fixed;left:30px;bottom:16px;z-index:6;display:flex;gap:22px;
          align-items:flex-end;flex-wrap:wrap;pointer-events:auto}
   .ctl{display:flex;flex-direction:column;gap:5px;min-width:104px}
   .ctl label{font-size:7px;letter-spacing:.24em;color:var(--dim);display:flex;justify-content:space-between;gap:8px}
@@ -341,7 +344,17 @@ function resize(){ renderer.setSize(innerWidth,innerHeight,false); }
 addEventListener("resize",resize); resize();
 
 /* ══ boot ═══════════════════════════════════════════════════════════ */
-new FBXLoader().loadAsync("./assets/Xiaomi_mi_drone.FBX").then(model=>{
+/* Every material is replaced below, so the FBX's embedded texture
+   references are dead weight — and they fail noisily: the textures don't
+   ship with the mesh, and in the single-file build the mesh loads from a
+   blob, so its texture names resolve to "blob:null/undefined" — which no
+   filename test catches. Anything that isn't the mesh gets a 1x1 pixel. */
+const PX = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
+const SRC = "./assets/Xiaomi_mi_drone.FBX";
+const mgr = new THREE.LoadingManager();
+mgr.setURLModifier(u => u === SRC ? u : PX);
+
+new FBXLoader(mgr).loadAsync(SRC).then(model=>{
   // Strip the author's viewport furniture. Hiding is not enough:
   // Box3.expandByObject ignores visibility, so a hidden grid still inflates
   // the bounds and shoves the camera miles back.
