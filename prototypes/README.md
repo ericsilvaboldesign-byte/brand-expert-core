@@ -4,6 +4,7 @@ Visual-direction prototypes. Working material — not approved output.
 
 | File | What it is |
 |---|---|
+| `DRONE_FBX_BOARD.html` | **The board drawn from the real Xiaomi Mi Drone mesh**, rigged through the model's own nodes. See below. |
 | `drone-model.js` | The model, the rig, the line engine and the four board languages. One source of truth. |
 | `DRONE_CONCEPT_STANDALONE.html` | **Single file — open it straight from disk.** Same board, everything inlined, no server. Rebuild with `python3 build-standalone.py`. |
 | `DRONE_CONCEPT_LIVE.html` | **The board, driven live.** Switch representation 01–04; each panel brings its own camera, chrome, callouts and accent. The rig stays drivable underneath. |
@@ -11,6 +12,32 @@ Visual-direction prototypes. Working material — not approved output.
 | `DRONE_CONCEPT_BOARD_TARGET_MATCH.html` | Earlier study, superseded by `DRONE_CONCEPT_LIVE`. Kept for the record; it carries its own older geometry and no rig. |
 
 All serve from the same vendored `vendor/three.module.min.js`.
+
+## DRONE_FBX_BOARD
+
+The reference board, drawn from the actual product mesh
+(`assets/Xiaomi_mi_drone.FBX`, 109,770 triangles after stripping the
+author's viewport furniture) rather than from hand-built geometry.
+
+**The rig is the model's own hierarchy.** The FBX carries named nodes —
+`wing`, `wing001..003` (two blade meshes each), `leg`, `leg001`, and
+`CAMERA` (31 meshes) — so the propellers, gear and gimbal are driven
+directly. No proxy rotors bolted alongside a motionless mesh.
+
+Four scissored viewports off one renderer, one representation each,
+material-swapped per pass. Three and FBXLoader are vendored: it runs with
+no network.
+
+Two things the FBX makes you handle:
+
+- Its 912 `Line` nodes look like line art in the file but arrive as empty
+  groups — **no line geometry survives the load**, so the drawing is
+  `EdgesGeometry` throughout.
+- `Box3.expandByObject` ignores visibility, so hiding the author's grid
+  and particle-view furniture is not enough: they still inflate the
+  bounds and shove the camera back. They have to be removed from the
+  graph. And the craft is flat (1.14 tall against 3.0 wide), so cameras
+  fit **projected extents**, never the bounding sphere.
 
 ## DRONE_CONCEPT_LIVE
 

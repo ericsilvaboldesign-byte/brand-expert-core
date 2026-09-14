@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>DRONE CONCEPT — FBX BOARD</title>
+<!--
+  DRONE_FBX_BOARD
+  ------------------------------------------------------------------
+  The reference board layout, drawn from the real Xiaomi Mi Drone mesh,
+  with the rig driven through the model's OWN nodes — no proxy rotors,
+  no proxy gimbal. wing/wing001..003 spin, leg/leg001 fold, CAMERA aims.
+
+  One renderer, four scissored viewports, four representations.
+  Everything is local: three and FBXLoader are vendored.
+  ?t=N freeze · ?shot=1 hide controls
+-->
+<script type="importmap">
+{ "imports": { "three": "./vendor/three.module.min.js" } }
+</script>
+<style>
+  :root{
+    --bg:#0a0c0b; --ink:#e8ece9; --dim:#7e8a86; --faint:#39423f; --rule:#242c29;
+    --c01:#3fd2e0; --c02:#a8e04a; --c03:#e055c0; --c04:#f5822e;
+    --mono: ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;background:var(--bg);color:var(--ink);overflow:hidden}
+  body{font-family:var(--mono)}
+  #gl{position:fixed;inset:0;width:100vw;height:100vh;z-index:0;display:block}
+  .sheet{position:relative;z-index:2;height:100vh;min-height:680px;
+         display:flex;flex-direction:column;padding:22px 30px 16px;pointer-events:none}
+  .bar{display:flex;justify-content:space-between;align-items:flex-start;gap:40px}
+  .bar.top{padding-bottom:12px;border-bottom:1px solid var(--rule)}
+  .bar.bot{padding-top:10px;border-top:1px solid var(--rule);margin-top:8px}
+  .t-lg{font-size:12px;letter-spacing:.42em}
+  .t-sm{font-size:8px;letter-spacing:.26em;color:var(--dim);line-height:1.85}
+  .t-sm.r{text-align:right}
+  .tick{display:block;width:14px;height:1px;background:var(--faint);margin:6px 0}
+
+  .grid{flex:1;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;min-height:0}
+  .panel{position:relative;min-height:0;padding:16px 18px}
+  .panel.tl{border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+  .panel.tr{border-bottom:1px solid var(--rule)}
+  .panel.bl{border-right:1px solid var(--rule)}
+  .head{position:absolute;top:16px;left:18px;z-index:4}
+  .head .row{display:flex;align-items:baseline}
+  .head .n{font-size:14px;letter-spacing:.14em;font-weight:600}
+  .head .ttl{font-size:9.5px;letter-spacing:.32em;margin-left:12px}
+  .head .sub{font-size:7.5px;letter-spacing:.22em;color:var(--dim);line-height:1.9;margin-top:10px}
+  .n01{color:var(--c01)} .n02{color:var(--c02)} .n03{color:var(--c03)} .n04{color:var(--c04)}
+  .stage{position:absolute;inset:0}
+  .deco{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+  .xh{position:absolute;left:50%;width:9px;height:9px;margin-left:-4.5px;z-index:1;opacity:.55;
+      background:linear-gradient(#4d5a56,#4d5a56) center/9px 1px no-repeat,
+                 linear-gradient(#4d5a56,#4d5a56) center/1px 9px no-repeat}
+  .xh.t{top:6%} .xh.b{bottom:6%}
+
+  .ctrls{position:fixed;left:30px;bottom:52px;z-index:6;display:flex;gap:22px;
+         align-items:flex-end;flex-wrap:wrap;pointer-events:auto}
+  .ctl{display:flex;flex-direction:column;gap:5px;min-width:104px}
+  .ctl label{font-size:7px;letter-spacing:.24em;color:var(--dim);display:flex;justify-content:space-between;gap:8px}
+  .ctl label b{color:var(--ink);font-weight:400;font-variant-numeric:tabular-nums}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:12px;background:none;cursor:pointer}
+  input[type=range]::-webkit-slider-runnable-track{height:1px;background:var(--rule)}
+  input[type=range]::-moz-range-track{height:1px;background:var(--rule)}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:7px;height:7px;border-radius:50%;background:var(--ink);margin-top:-3px}
+  input[type=range]::-moz-range-thumb{width:7px;height:7px;border:0;border-radius:50%;background:var(--ink)}
+  .go{font-family:var(--mono);font-size:7.5px;letter-spacing:.2em;color:var(--c01);
+      background:none;border:1px solid #1e4a4f;padding:7px 11px;cursor:pointer}
+  .go:hover{color:var(--bg);background:var(--c01)}
+  #boot{position:fixed;inset:0;display:grid;place-items:center;z-index:9;background:var(--bg);
+        font-size:9px;letter-spacing:.3em;color:var(--dim)}
+  body.shot .ctrls{display:none}
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<div id="boot">LOADING MESH…</div>
+
+<section class="sheet">
+  <div class="bar top">
+    <div><div class="t-lg">DRONE CONCEPT</div>
+      <div class="t-sm" style="margin-top:7px">VISUAL EXPLORATION<br>SYSTEM RENDERING STUDY</div>
+      <span class="tick"></span></div>
+    <div class="t-sm r">OBSERVE<br>MODEL<br>VISUALIZE<br>ITERATE</div>
+  </div>
+
+  <div class="grid">
+    <div class="panel tl">
+      <div class="head"><div class="row"><span class="n n01">01</span><span class="ttl">SIMPLE LINE</span></div>
+        <div class="sub">ESSENTIAL FORM<br>MINIMAL STRUCTURE<br>MAXIMUM CLARITY</div><span class="tick"></span></div>
+      <svg class="deco" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+        <circle cx="50" cy="52" r="30" fill="none" stroke="#4d5a56" stroke-width=".3" stroke-dasharray=".5 1.9" opacity=".5"/></svg>
+      <i class="xh t"></i><i class="xh b"></i>
+      <div class="stage" data-v="0"></div>
+    </div>
+    <div class="panel tr">
+      <div class="head"><div class="row"><span class="n n02">02</span><span class="ttl">TECHNICAL LINE</span></div>
+        <div class="sub">STRUCTURE &amp; DETAIL<br>FUNCTIONAL GEOMETRY<br>SYSTEM LOGIC</div><span class="tick"></span></div>
+      <svg class="deco" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+        <circle cx="50" cy="52" r="30" fill="none" stroke="#4d5a56" stroke-width=".3" stroke-dasharray=".5 1.9" opacity=".5"/></svg>
+      <i class="xh t"></i><i class="xh b"></i>
+      <div class="stage" data-v="1"></div>
+    </div>
+    <div class="panel bl">
+      <div class="head"><div class="row"><span class="n n03">03</span><span class="ttl">LINE + PARTICLE FIELD</span></div>
+        <div class="sub">STRUCTURE WITH DATA<br>ENVIRONMENTAL CONTEXT<br>DYNAMIC BEHAVIOR</div><span class="tick"></span></div>
+      <i class="xh t"></i><i class="xh b"></i>
+      <div class="stage" data-v="2"></div>
+    </div>
+    <div class="panel">
+      <div class="head"><div class="row"><span class="n n04">04</span><span class="ttl">PARTICLE TARGET</span></div>
+        <div class="sub">POINT CLOUD REPRESENTATION<br>SYSTEM READINESS<br>ANIMATION READY</div><span class="tick"></span></div>
+      <svg class="deco" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+        <circle cx="50" cy="52" r="30" fill="none" stroke="#4d5a56" stroke-width=".3" stroke-dasharray=".5 1.9" opacity=".5"/></svg>
+      <i class="xh t"></i><i class="xh b"></i>
+      <div class="stage" data-v="3"></div>
+    </div>
+  </div>
+
+  <div class="bar bot">
+    <div class="t-sm">SCALE<br>PRECISION<br>POSSIBILITY</div>
+    <div class="t-sm r" id="stats">—</div>
+  </div>
+</section>
+
+<div class="ctrls">
+  <div class="ctl"><label>ROTOR <b id="vRpm">0</b></label>
+    <input type="range" id="sRpm" min="0" max="7000" step="10" value="0"></div>
+  <div class="ctl"><label>GEAR FOLD <b id="vFold">0.00</b></label>
+    <input type="range" id="sFold" min="0" max="1" step="0.001" value="0"></div>
+  <div class="ctl"><label>GIMBAL PAN <b id="vPan">0°</b></label>
+    <input type="range" id="sPan" min="-60" max="60" step="1" value="0"></div>
+  <div class="ctl"><label>GIMBAL TILT <b id="vTilt">0°</b></label>
+    <input type="range" id="sTilt" min="-80" max="25" step="1" value="0"></div>
+  <button class="go" id="bLaunch">▸ LAUNCH</button>
+</div>
+
+<script type="module">
+import * as THREE from "three";
+import { FBXLoader } from "./vendor/jsm/loaders/FBXLoader.js";
+
+const Q = new URLSearchParams(location.search);
+if(Q.get("shot")) document.body.classList.add("shot");
+const REDUCE = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ══ materials: one model, four languages ═══════════════════════════ */
+const MAT = {
+  hollow: new THREE.MeshBasicMaterial({ color:0x0a0c0b, side:THREE.DoubleSide,
+            polygonOffset:true, polygonOffsetFactor:4, polygonOffsetUnits:4 }),
+  tech  : new THREE.MeshLambertMaterial({ color:0x171d21, side:THREE.DoubleSide,
+            polygonOffset:true, polygonOffsetFactor:4, polygonOffsetUnits:4 }),
+};
+const EDGE = {
+  line: new THREE.LineBasicMaterial({ color:0xffffff }),
+  tech: new THREE.LineBasicMaterial({ color:0xdfe6e2 }),
+};
+
+/* ══ sampling: area-weighted, then thinned to blue noise ════════════ */
+function sampleSurface(meshes, count, seed=7){
+  let s=seed>>>0; const rnd=()=>((s=(s*1664525+1013904223)>>>0)/4294967296);
+  const tri=[], cdf=[]; let total=0;
+  const A=new THREE.Vector3(),B=new THREE.Vector3(),C=new THREE.Vector3(),
+        ab=new THREE.Vector3(),ac=new THREE.Vector3();
+  for(const m of meshes){
+    m.updateWorldMatrix(true,false);
+    const p=m.geometry.attributes.position, ix=m.geometry.index;
+    const n=ix?ix.count:p.count;
+    for(let i=0;i<n;i+=3){
+      const a=ix?ix.getX(i):i,b=ix?ix.getX(i+1):i+1,c=ix?ix.getX(i+2):i+2;
+      A.fromBufferAttribute(p,a).applyMatrix4(m.matrixWorld);
+      B.fromBufferAttribute(p,b).applyMatrix4(m.matrixWorld);
+      C.fromBufferAttribute(p,c).applyMatrix4(m.matrixWorld);
+      const ar=ab.subVectors(B,A).cross(ac.subVectors(C,A)).length()*0.5;
+      if(ar<=0) continue; total+=ar; cdf.push(total);
+      tri.push(A.x,A.y,A.z,B.x,B.y,B.z,C.x,C.y,C.z);
+    }
+  }
+  const out=new Float32Array(count*3);
+  for(let k=0;k<count;k++){
+    const t=rnd()*total; let lo=0,hi=cdf.length-1;
+    while(lo<hi){const mid=(lo+hi)>>1; if(cdf[mid]<t) lo=mid+1; else hi=mid;}
+    const o=lo*9; let u=rnd(),v=rnd(); if(u+v>1){u=1-u;v=1-v;} const w=1-u-v;
+    out[k*3]  =tri[o]*w+tri[o+3]*u+tri[o+6]*v;
+    out[k*3+1]=tri[o+1]*w+tri[o+4]*u+tri[o+7]*v;
+    out[k*3+2]=tri[o+2]*w+tri[o+5]*u+tri[o+8]*v;
+  }
+  return out;
+}
+function poissonThin(src, minDist, cap){
+  const cell=minDist/Math.sqrt(3), grid=new Map(), out=[];
+  const key=(a,b,c)=>a+","+b+","+c;
+  for(let i=0;i<src.length && out.length<cap*3;i+=3){
+    const x=src[i],y=src[i+1],z=src[i+2];
+    const gx=Math.floor(x/cell),gy=Math.floor(y/cell),gz=Math.floor(z/cell);
+    let ok=true;
+    for(let a=-2;a<=2&&ok;a++)for(let b=-2;b<=2&&ok;b++)for(let c=-2;c<=2&&ok;c++){
+      const n=grid.get(key(gx+a,gy+b,gz+c)); if(!n) continue;
+      const dx=n[0]-x,dy=n[1]-y,dz=n[2]-z;
+      if(dx*dx+dy*dy+dz*dz<minDist*minDist) ok=false;
+    }
+    if(ok){ grid.set(key(gx,gy,gz),[x,y,z]); out.push(x,y,z); }
+  }
+  return new Float32Array(out);
+}
+const DOT=(()=>{const c=document.createElement("canvas");c.width=c.height=64;
+  const x=c.getContext("2d"),g=x.createRadialGradient(32,32,0,32,32,32);
+  g.addColorStop(0,"rgba(255,255,255,1)");g.addColorStop(.45,"rgba(255,255,255,.9)");
+  g.addColorStop(1,"rgba(255,255,255,0)");x.fillStyle=g;x.beginPath();x.arc(32,32,32,0,7);x.fill();
+  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t;})();
+
+/* ══ scene ══════════════════════════════════════════════════════════ */
+const scene=new THREE.Scene();
+scene.add(new THREE.AmbientLight(0x2b3940,0.9));
+const key=new THREE.DirectionalLight(0xffffff,2.0); key.position.set(3.4,5.6,3.4); scene.add(key);
+const fill=new THREE.DirectionalLight(0x9ec6d6,0.7); fill.position.set(-4.4,1.2,-3.6); scene.add(fill);
+const rim=new THREE.DirectionalLight(0xbfe4f2,1.0); rim.position.set(-3.2,2.6,4.4); scene.add(rim);
+
+const canvas=document.getElementById("gl");
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setClearColor(0x000000,0);
+const camera=new THREE.PerspectiveCamera(28,1,0.01,200);
+
+/* ══ the rig, taken from the model's own nodes ══════════════════════ */
+const rig={ rotors:[], gear:[], gimbal:null, root:null,
+            state:{rpm:0,fold:0,pan:0,tilt:0,alt:0}, spin:0 };
+let parts=[], cloud=null, skin=null, field=null, accents=null, arcs=[];
+
+function markEdges(root, threshold){
+  root.traverse(o=>{
+    if(!o.isMesh || !o.geometry) return;
+    const e=new THREE.LineSegments(new THREE.EdgesGeometry(o.geometry, threshold), EDGE.tech);
+    e.renderOrder=2; o.add(e); o.userData.edges=e; parts.push(o);
+  });
+}
+
+const VIEWS=[
+  { mode:"simple", az:96,  el:6,  fit:1.10 },
+  { mode:"tech",   az:128, el:19, fit:1.06 },
+  { mode:"field",  az:-46, el:20, fit:1.22 },
+  { mode:"target", az:132, el:17, fit:1.08 },
+];
+let CENTER=new THREE.Vector3(), RAD=1;
+
+function applyMode(m){
+  const simple=m==="simple", target=m==="target";
+  for(const p of parts){
+    p.visible=!target;
+    p.material = simple?MAT.hollow:MAT.tech;
+    if(p.userData.edges){
+      p.userData.edges.visible=!target;
+      p.userData.edges.material = simple?EDGE.line:EDGE.tech;
+    }
+  }
+  if(cloud)   cloud.visible=target;
+  if(skin)    skin.visible=(m==="field");
+  if(field)   field.visible=(m==="field");
+  if(accents) accents.visible=(m==="field");
+  for(const a of arcs) a.visible=(m==="field");
+}
+
+/* Fit the projected extents, not the bounding sphere. The craft is flat —
+   1.14 tall against 3.0 wide — so sphere-fitting reserves room for a height
+   it does not have and the object ends up tiny in frame. */
+let CORNERS=[];
+function extents(dir){
+  const f=dir.clone().normalize();
+  const r=new THREE.Vector3().crossVectors(new THREE.Vector3(0,1,0),f).normalize();
+  const u=new THREE.Vector3().crossVectors(f,r).normalize();
+  let ex=0,ey=0,ez=0;
+  for(const c of CORNERS){ ex=Math.max(ex,Math.abs(c.dot(r)));
+    ey=Math.max(ey,Math.abs(c.dot(u))); ez=Math.max(ez,Math.abs(c.dot(f))); }
+  return {ex,ey,ez};
+}
+function aim(v, aspect){
+  const a=THREE.MathUtils.degToRad(v.az), e=THREE.MathUtils.degToRad(v.el);
+  const dir=new THREE.Vector3(Math.cos(e)*Math.sin(a),Math.sin(e),Math.cos(e)*Math.cos(a));
+  const vF=THREE.MathUtils.degToRad(camera.fov), hF=2*Math.atan(Math.tan(vF/2)*aspect);
+  const {ex,ey,ez}=extents(dir);
+  const d=Math.max(ex*v.fit/Math.tan(hF/2), ey*v.fit/Math.tan(vF/2)) + ez;
+  camera.aspect=aspect;
+  camera.position.copy(CENTER).addScaledVector(dir,d);
+  camera.lookAt(CENTER); camera.updateProjectionMatrix();
+  return camera;
+}
+
+const stages=[...document.querySelectorAll(".stage")];
+function draw(t){
+  animate(t);
+  renderer.setScissorTest(false); renderer.clear(); renderer.setScissorTest(true);
+  for(const el of stages){
+    const v=VIEWS[+el.dataset.v], r=el.getBoundingClientRect();
+    if(r.width<4||r.height<4) continue;
+    const w=Math.round(r.width), h=Math.round(r.height);
+    renderer.setViewport(Math.round(r.left),Math.round(innerHeight-r.bottom),w,h);
+    renderer.setScissor (Math.round(r.left),Math.round(innerHeight-r.bottom),w,h);
+    applyMode(v.mode);
+    renderer.render(scene, aim(v, w/h));
+  }
+}
+
+/* ══ animation — drives the model's own nodes ═══════════════════════ */
+let seq=null, elapsed=0;
+function animate(t){
+  const st=rig.state;
+  rig.spin = st.rpm/60*Math.PI*2*t;
+  rig.rotors.forEach((r,i)=>{ r.node.rotation[r.axis] = r.rest + rig.spin*(i%2?1:-1); });
+  rig.gear.forEach(g=>{ g.node.rotation[g.axis] = g.rest + g.dir*st.fold*Math.PI*0.62; });
+  if(rig.gimbal){
+    rig.gimbal.node.rotation[rig.gimbal.yawAxis]   = rig.gimbal.restYaw   + THREE.MathUtils.degToRad(st.pan);
+    rig.gimbal.node.rotation[rig.gimbal.pitchAxis] = rig.gimbal.restPitch + THREE.MathUtils.degToRad(st.tilt);
+  }
+  if(rig.root) rig.root.position.y = rig.baseY + st.alt + Math.sin(t*1.2)*0.012;
+  if(field){
+    const a=field.geometry.attributes.position.array, base=field.userData.base, ph=field.userData.ph;
+    for(let i=0;i<ph.length;i++){ const k=i*3, s=1+Math.sin(t*0.26+ph[i])*0.03;
+      a[k]=base[k]*s; a[k+1]=base[k+1]+Math.sin(t*0.52+ph[i])*0.02; a[k+2]=base[k+2]*s; }
+    field.geometry.attributes.position.needsUpdate=true;
+  }
+  for(const arc of arcs) arc.rotation.y += arc.userData.spin*t*0 + 0;
+  if(accents) accents.material.opacity = 0.72+Math.sin(t*1.05)*0.22;
+}
+function runSeq(dt){ if(!seq) return; const t=(seq.t+=dt);
+  const k=(a,b,v)=>THREE.MathUtils.clamp((v-a)/(b-a),0,1), e=v=>v*v*(3-2*v);
+  rig.state.rpm  = e(k(0.2,2.0,t))*5200;
+  rig.state.fold = e(k(1.6,3.2,t));
+  rig.state.alt  = e(k(2.4,4.6,t))*0.35;
+  rig.state.pan  = Math.sin(t*0.6)*26*e(k(3.4,5,t));
+  rig.state.tilt = -e(k(3.8,5.6,t))*34;
+  sync(); if(t>8) seq=null;
+}
+const $=id=>document.getElementById(id);
+function sync(){ const s=rig.state;
+  $("sRpm").value=s.rpm; $("sFold").value=s.fold; $("sPan").value=s.pan; $("sTilt").value=s.tilt;
+  $("vRpm").textContent=Math.round(s.rpm); $("vFold").textContent=s.fold.toFixed(2);
+  $("vPan").textContent=Math.round(s.pan)+"°"; $("vTilt").textContent=Math.round(s.tilt)+"°"; }
+
+function resize(){ renderer.setSize(innerWidth,innerHeight,false); }
+addEventListener("resize",resize); resize();
+
+/* ══ boot ═══════════════════════════════════════════════════════════ */
+new FBXLoader().loadAsync("./assets/Xiaomi_mi_drone.FBX").then(model=>{
+  // Strip the author's viewport furniture. Hiding is not enough:
+  // Box3.expandByObject ignores visibility, so a hidden grid still inflates
+  // the bounds and shoves the camera miles back.
+  const junk=[];
+  model.traverse(o=>{ if(/^(grid|Particle[_ ]View|Line\d)/i.test(o.name||"")) junk.push(o); });
+  for(const o of junk) o.removeFromParent();
+  console.log("stripped", junk.length, "furniture nodes");
+
+  // normalise: the source is ~3200 units across
+  model.updateMatrixWorld(true);
+  let box=new THREE.Box3().setFromObject(model);
+  const size=box.getSize(new THREE.Vector3());
+  model.scale.multiplyScalar(3.0/Math.max(size.x,size.y,size.z));
+  model.updateMatrixWorld(true);
+  box=new THREE.Box3().setFromObject(model);
+  CENTER=box.getCenter(new THREE.Vector3());
+  model.position.sub(CENTER);
+  model.updateMatrixWorld(true);
+  box=new THREE.Box3().setFromObject(model);
+  CENTER=box.getCenter(new THREE.Vector3());
+  RAD=box.getBoundingSphere(new THREE.Sphere()).radius;
+  CORNERS=[]; for(const x of [box.min.x,box.max.x]) for(const y of [box.min.y,box.max.y])
+    for(const z of [box.min.z,box.max.z]) CORNERS.push(new THREE.Vector3(x,y,z).sub(CENTER));
+
+  scene.add(model);
+  rig.root=model; rig.baseY=model.position.y;
+
+  // ── the rig: the model's own nodes, found by name ──
+  for(const n of ["wing","wing001","wing002","wing003"]){
+    const o=model.getObjectByName(n);
+    if(o) rig.rotors.push({node:o, axis:"y", rest:o.rotation.y});
+  }
+  ["leg","leg001"].forEach((n,i)=>{
+    const o=model.getObjectByName(n);
+    if(o) rig.gear.push({node:o, axis:"x", rest:o.rotation.x, dir:i?1:-1});
+  });
+  const cam=model.getObjectByName("CAMERA");
+  if(cam) rig.gimbal={node:cam, yawAxis:"y", pitchAxis:"x",
+                      restYaw:cam.rotation.y, restPitch:cam.rotation.x};
+
+  markEdges(model, 24);
+
+  // ── particles, from the real mesh ──
+  const meshes=parts.filter(p=>p.geometry && p.geometry.attributes.position);
+  const raw=sampleSurface(meshes, 200000);
+  const pts=poissonThin(raw, 0.0125, 40000);
+  const cg=new THREE.BufferGeometry();
+  cg.setAttribute("position", new THREE.BufferAttribute(pts,3));
+  cloud=new THREE.Points(cg,new THREE.PointsMaterial({size:0.026,map:DOT,color:0xf2f6f4,
+        transparent:true,opacity:1,depthWrite:false})); cloud.visible=false; scene.add(cloud);
+
+  const sg=new THREE.BufferGeometry();
+  sg.setAttribute("position", new THREE.BufferAttribute(poissonThin(pts,0.040,9000),3));
+  skin=new THREE.Points(sg,new THREE.PointsMaterial({size:0.022,map:DOT,color:0xdae3df,
+        transparent:true,opacity:0.95,depthWrite:false})); skin.visible=false; scene.add(skin);
+
+  // radial halo in the craft's plane
+  const FN=6000, fb=new Float32Array(FN*3), fl=new Float32Array(FN*3), fp=new Float32Array(FN);
+  { let s=9; const rnd=()=>((s=(s*1664525+1013904223)>>>0)/4294967296);
+    for(let i=0;i<FN;i++){ const ray=Math.floor(rnd()*72);
+      const th=ray/72*Math.PI*2+(rnd()-0.5)*0.01;
+      const r=RAD*(0.30+Math.pow(rnd(),0.55)*1.00);
+      const y=(rnd()-0.5)*0.08-Math.pow(r/RAD,1.5)*0.05;
+      fb[i*3]=Math.cos(th)*r; fb[i*3+1]=y; fb[i*3+2]=Math.sin(th)*r; fp[i]=rnd()*6.283; }
+    fl.set(fb); }
+  const fg=new THREE.BufferGeometry(); fg.setAttribute("position",new THREE.BufferAttribute(fl,3));
+  field=new THREE.Points(fg,new THREE.PointsMaterial({size:0.024,map:DOT,color:0xc3cfca,
+        transparent:true,opacity:0.8,depthWrite:false}));
+  field.userData={base:fb,ph:fp}; field.visible=false; scene.add(field);
+
+  const ACC=[[-1.45,.55,.88,0xe055c0],[-1.62,.34,.66,0xe055c0],[.48,.94,-.26,0x3fd2e0],
+             [.24,.72,-.06,0x3fd2e0],[1.32,-.62,-.5,0xf5822e],[1.1,-.84,-.16,0xf5822e],
+             [1.72,.15,1.4,0xa8e04a],[1.4,.02,1.64,0xa8e04a],[-1.0,-.48,1.22,0xa8e04a]];
+  const ag=new THREE.BufferGeometry();
+  ag.setAttribute("position",new THREE.Float32BufferAttribute(ACC.flatMap(a=>a.slice(0,3)),3));
+  ag.setAttribute("color",new THREE.Float32BufferAttribute(
+    ACC.flatMap(a=>{const c=new THREE.Color(a[3]);return[c.r,c.g,c.b];}),3));
+  accents=new THREE.Points(ag,new THREE.PointsMaterial({size:0.10,map:DOT,vertexColors:true,
+          transparent:true,opacity:1,depthWrite:false})); accents.visible=false; scene.add(accents);
+
+  let tris=0; for(const p of parts){ const g=p.geometry;
+    tris += (g.index?g.index.count:g.attributes.position.count)/3; }
+  $("stats").innerHTML = `MESH · ${Math.round(tris).toLocaleString("en-US")} TRIANGLES<br>`+
+    `RIG · ${rig.rotors.length} ROTORS · ${rig.gear.length} GEAR · ${rig.gimbal?"GIMBAL":"NO GIMBAL"}<br>`+
+    `CLOUD · ${(pts.length/3).toLocaleString("en-US")} POINTS`;
+  $("boot").remove();
+
+  window.__DRONE={THREE,scene,model,rig,parts,cloud,draw,VIEWS,renderer};
+  $("sRpm").oninput =e=>{seq=null;rig.state.rpm=+e.target.value;sync();if(frozen)draw(frozenT);};
+  $("sFold").oninput=e=>{seq=null;rig.state.fold=+e.target.value;sync();if(frozen)draw(frozenT);};
+  $("sPan").oninput =e=>{seq=null;rig.state.pan=+e.target.value;sync();if(frozen)draw(frozenT);};
+  $("sTilt").oninput=e=>{seq=null;rig.state.tilt=+e.target.value;sync();if(frozen)draw(frozenT);};
+  $("bLaunch").onclick=()=>{ seq={t:0}; if(frozen){frozen=false;start();} };
+
+  const T=Q.get("t");
+  if(T!==null||REDUCE){ frozen=true; frozenT=T!==null?parseFloat(T):0;
+    rig.state.rpm=0; draw(frozenT); }
+  else start();
+  window.__ready=true; document.title="ready";
+  console.log("DRONE_FBX_BOARD ready ·", Math.round(tris), "tris ·", pts.length/3, "points");
+}).catch(e=>{
+  document.getElementById("boot").textContent = "MESH FAILED — " + (e.message||e);
+  console.error(e); window.__ready=true;
+});
+
+let frozen=false, frozenT=0;
+function start(){ const clock=new THREE.Clock(); let el=0;
+  renderer.setAnimationLoop(()=>{ const dt=Math.min(clock.getDelta(),0.05);
+    el+=dt; runSeq(dt); draw(el); }); }
+</script>
+</body>
+</html>
