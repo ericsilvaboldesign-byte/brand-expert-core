@@ -1,6 +1,9 @@
 # Civarro Landing Page — Draft Content (v1)
 
-Status: **DRAFT COPY — INTERNAL WORKING MATERIAL, NOT APPROVED, NOT CLEARED**
+Status: **SUPERSEDED** by
+[`LANDING-PAGE-CONTENT-ARCHITECTURE-V2.md`](LANDING-PAGE-CONTENT-ARCHITECTURE-V2.md)
+(merge of this draft with the stakeholder content-architecture document).
+Kept for lineage.
 
 Section-by-section draft copy and visual specification for the landing
 page defined in [`LANDING-PAGE-ARCHITECTURE.md`](LANDING-PAGE-ARCHITECTURE.md).

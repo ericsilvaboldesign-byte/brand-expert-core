@@ -1,6 +1,10 @@
 # Civarro Landing Page — Initial Architecture Proposal
 
-Status: **PROPOSAL — INTERNAL WORKING MATERIAL, NOT APPROVED COPY**
+Status: **PARTIALLY SUPERSEDED** — narrative structure (§2) and content
+direction are superseded by
+[`LANDING-PAGE-CONTENT-ARCHITECTURE-V2.md`](LANDING-PAGE-CONTENT-ARCHITECTURE-V2.md);
+the technical architecture (§5), verification gates (§6) and scope
+premise (§1) remain current.
 
 Initial information architecture, narrative structure, and technical
 architecture for the Civarro landing page ("Civarro Item 11"). Grounded in:

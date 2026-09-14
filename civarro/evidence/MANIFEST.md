@@ -34,3 +34,23 @@ Internal third-party material. Not for public distribution.
   Internal evidence only.
 - **Record:** used as the brand foundation for
   [`../LANDING-PAGE-ARCHITECTURE.md`](../LANDING-PAGE-ARCHITECTURE.md).
+
+## civarro-landing-page-content-architecture-v1.docx
+
+- **What:** "Civarro — Landing Page Content + Scroll Animation Architecture,
+  Working Draft v1" — stakeholder-produced homepage content system: nine
+  page beats with site copy and scroll-animation direction, a CTA-by-intent
+  system, and motion/representation rules. Cites the brand strategy
+  definitions plus NuCompute.ai / NuComputeX public content as benchmark
+  cues.
+- **Received:** 2026-09-14, stakeholder upload to this project (original
+  filename `Civarro_Landing_Page_Content_Architecture_v1.docx`).
+- **sha256:** `340fc6a09928dec7a6ca480d97183ce6c1d15df95a976e075e6e43171c83865b`
+- **Inspection:** full text extraction of the document body (headings,
+  tables, source notes).
+- **Sensitivity:** internal working draft; references an unrecorded
+  external benchmark source (see
+  [`../NUCOMPUTE-BENCHMARK-EVIDENCE.md`](../NUCOMPUTE-BENCHMARK-EVIDENCE.md)).
+  Internal evidence only.
+- **Record:** merged with the internal v1 architecture/content into
+  [`../LANDING-PAGE-CONTENT-ARCHITECTURE-V2.md`](../LANDING-PAGE-CONTENT-ARCHITECTURE-V2.md).
