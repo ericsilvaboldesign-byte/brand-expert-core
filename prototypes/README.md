@@ -5,6 +5,7 @@ Visual-direction prototypes. Working material — not approved output.
 | File | What it is |
 |---|---|
 | `drone-model.js` | The model, the rig, the line engine and the four board languages. One source of truth. |
+| `DRONE_CONCEPT_STANDALONE.html` | **Single file — open it straight from disk.** Same board, everything inlined, no server. Rebuild with `python3 build-standalone.py`. |
 | `DRONE_CONCEPT_LIVE.html` | **The board, driven live.** Switch representation 01–04; each panel brings its own camera, chrome, callouts and accent. The rig stays drivable underneath. |
 | `DRONE_MODEL_RIG.html` | Workbench viewer for the same model — orbit, display modes, rig sliders, launch sequence. |
 | `DRONE_CONCEPT_BOARD_TARGET_MATCH.html` | Earlier study, superseded by `DRONE_CONCEPT_LIVE`. Kept for the record; it carries its own older geometry and no rig. |
@@ -259,11 +260,19 @@ Two screen-height sheets:
 
 ### Running it
 
-ES modules do not load over `file://`, so serve the directory:
+`DRONE_CONCEPT_STANDALONE.html` opens by double-clicking — no server.
+
+The multi-file versions need one, because ES modules are blocked over
+`file://` when they *fetch*. An inline `<script type="module">` is fine,
+which is exactly what the standalone build exploits: three, the model and
+the board are folded into one inline module. Two things that had to be
+handled — three's trailing `export{...}` is rewritten into a plain
+namespace object, and the board half is wrapped in a block so its names
+(`Q`, `D`, …) stop colliding with three's minified top-level ones.
 
 ```
 python3 -m http.server 8765 --directory prototypes
-# → http://127.0.0.1:8765/DRONE_CONCEPT_BOARD_TARGET_MATCH.html
+# → http://127.0.0.1:8765/DRONE_CONCEPT_LIVE.html
 ```
 
 Three.js r169 is vendored in `vendor/` — the sheet needs no network.
