@@ -60,6 +60,23 @@ chin-mounted camera module, and short posts with flat pads for gear.
 Drag to orbit, wheel to zoom. `?shot=1` hides the UI, `?t=N` freezes a
 frame, `?mode=` picks a language.
 
+### Assemblies
+
+It is a simple drawing but a *technical* one, so the joints are modelled
+as assemblies rather than implied:
+
+**Arm to body** — root collar where the arm thickens, pivot boss turning
+inside a two-plate fork on the fuselage, and the axle pin standing proud
+of both plates.
+
+**Propeller to arm** — arm end, mount collar, stator can with slots
+(fixed), then bell, hub plate, blade root clamps and retaining nut, all
+carried by the rotating `hub` group so they spin with the blades and
+counter-rotate with the fold.
+
+None of these are tagged `detail`, so they survive into SIMPLE, where the
+reference calls the folding mechanism out by name.
+
 ### Line fidelity
 
 `ExtrudeGeometry` with a bevel pushes the mid-section **outward** by
@@ -104,11 +121,16 @@ drawn as `LineSegments` with the same material as the creases. Every line
 in the drawing is then one device pixel everywhere, because every line is
 the same kind of primitive.
 
+Because silhouette edges follow the *real* tessellation, a coarse curve
+now shows as visible chords where before a filled outline hid them.
+Extruded profiles run at 28 curve segments and cylinders at 22-32, which
+is what keeps the radiused hull corners reading as curves.
+
 `edgeData()` welds vertices by position and caches edge→face adjacency per
 geometry; `updateSilhouette()` re-tests each edge against the camera in
 object space every frame and refills a preallocated buffer via
-`setDrawRange`. About 9,700 cached edges across the model, ~1,100
-silhouette segments in a typical view, 1.3 ms per frame under swiftshader
+`setDrawRange`. About 20,700 cached edges across the model, ~1,800
+silhouette segments in a typical view, 1.7 ms per frame under swiftshader
 with no GPU at all.
 
 **The arm joints are drawn.** Each pivot sits on the real hull flank, not

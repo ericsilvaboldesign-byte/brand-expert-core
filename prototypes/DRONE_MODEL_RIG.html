@@ -180,7 +180,7 @@ function barGeometry(len, width, height){
 }
 function extrude(shape, depth, bev){
   const g = new THREE.ExtrudeGeometry(shape,{ depth:depth-bev*2, bevelEnabled:true,
-    bevelSize:bev, bevelThickness:bev, bevelSegments:2, curveSegments:14, steps:1 });
+    bevelSize:bev, bevelThickness:bev, bevelSegments:3, curveSegments:28, steps:1 });
   g.rotateX(-Math.PI/2); g.center(); g.computeVertexNormals(); return g;
 }
 
@@ -366,7 +366,7 @@ function bladeShape(){
   s.quadraticCurveTo(0.026,-0.016, 0.070,-0.030);
   return s;
 }
-const BLADE = new THREE.ShapeGeometry(bladeShape(), 26);
+const BLADE = new THREE.ShapeGeometry(bladeShape(), 34);
 BLADE.rotateX(-Math.PI/2);                               // lay flat in the disc
 
 /* — arms: flat rectangular bars off the body corners ——————— */
@@ -392,28 +392,48 @@ for(const def of ARM_DEF){
      on the body, straddling the boss above and below. Both are structural,
      not detail, so they survive into SIMPLE. */
   const ang = -Math.atan2(local.z, local.x);
-  part(new THREE.CylinderGeometry(0.072,0.072,0.170,16), MAT.trim, g, `arm.${def.id}.pivot`, 30);
+  const ux = local.x/len, uz = local.z/len;              // unit vector along the arm
+  /* root collar: the arm thickens where it meets the hinge */
+  const col = part(new THREE.BoxGeometry(0.115,0.126,0.174), MAT.trim, g, `arm.${def.id}.collar`, 30);
+  col.rotation.y = ang; col.position.set(ux*0.082, 0, uz*0.082);
+  /* pivot boss — the moving half, turning inside the fork */
+  part(new THREE.CylinderGeometry(0.070,0.070,0.150,22), MAT.trim, g, `arm.${def.id}.pivot`, 30);
+  /* fork plates on the body — the fixed half, straddling the boss */
   for(const sy of [-1,1]){
-    const br = part(new THREE.BoxGeometry(0.19,0.038,0.132), MAT.trim, hull, `shoulder.${def.id}`, 30);
-    br.position.set(hinge.x - 0.02, hinge.y + sy*0.086, hinge.z);
+    const br = part(new THREE.BoxGeometry(0.19,0.036,0.132), MAT.trim, hull, `shoulder.${def.id}`, 30);
+    br.position.set(hinge.x - 0.02, hinge.y + sy*0.094, hinge.z);
     br.rotation.y = ang;
   }
+  /* the axle itself, standing proud of both plates — the technical tell */
+  const pin = part(new THREE.CylinderGeometry(0.026,0.026,0.300,12), MAT.trim, hull, `pin.${def.id}`, 30);
+  pin.position.set(hinge.x - 0.02, hinge.y, hinge.z);
 
   const motor = new THREE.Group(); motor.name=`motor.${def.id}`; motor.position.copy(local); g.add(motor);
-  const can = part(new THREE.CylinderGeometry(0.128,0.136,0.125,22), MAT.dark, motor, `motor.${def.id}.can`, 24);
-  can.position.y = 0.062;
-  for(let i=0;i<8;i++){
-    const sl = part(new THREE.BoxGeometry(0.016,0.095,0.022), MAT.trim, motor, "motor.slot", 30, true);
-    const a=i/8*Math.PI*2; sl.position.set(Math.cos(a)*0.130,0.062,Math.sin(a)*0.130); sl.rotation.y=-a;
+  /* ── rotor head: how the propeller attaches to the arm ─────────────
+     arm end → mount collar → stator can (fixed) → bell → hub plate →
+     blade root clamps → retaining nut. Everything from the bell up turns
+     with the blades, which is also what the fold alignment drives. */
+  const mount = part(new THREE.CylinderGeometry(0.104,0.114,0.050,26), MAT.trim, motor, `motor.${def.id}.mount`, 30);
+  mount.position.y = 0.004;
+  const can = part(new THREE.CylinderGeometry(0.126,0.134,0.096,32), MAT.dark, motor, `motor.${def.id}.can`, 30);
+  can.position.y = 0.077;
+  for(let i=0;i<8;i++){                                  // stator slots
+    const sl = part(new THREE.BoxGeometry(0.015,0.070,0.020), MAT.trim, motor, "motor.slot", 30, true);
+    const a=i/8*Math.PI*2; sl.position.set(Math.cos(a)*0.128,0.077,Math.sin(a)*0.128); sl.rotation.y=-a;
   }
-  const bell = part(new THREE.CylinderGeometry(0.050,0.056,0.042,18), MAT.trim, motor, `motor.${def.id}.bell`, 40, true);
-  bell.position.y = 0.145;
 
-  const hub = new THREE.Group(); hub.name=`hub.${def.id}`; hub.position.y=0.172; motor.add(hub);
-  part(new THREE.CylinderGeometry(0.038,0.043,0.038,14), MAT.trim, hub, "hub.nut", 30, true);
+  const hub = new THREE.Group(); hub.name=`hub.${def.id}`; hub.position.y=0.125; motor.add(hub);
+  const bell = part(new THREE.CylinderGeometry(0.098,0.110,0.060,28), MAT.trim, hub, `hub.${def.id}.bell`, 30);
+  bell.position.y = 0.030;
+  const plate = part(new THREE.CylinderGeometry(0.072,0.072,0.015,24), MAT.trim, hub, `hub.${def.id}.plate`, 30);
+  plate.position.y = 0.068;
+  const nut = part(new THREE.CylinderGeometry(0.029,0.033,0.030,12), MAT.trim, hub, `hub.${def.id}.nut`, 30);
+  nut.position.y = 0.091;
   for(const a of [0, Math.PI]){
+    const clamp = part(new THREE.BoxGeometry(0.082,0.028,0.050), MAT.trim, hub, `hub.${def.id}.clamp`, 30);
+    clamp.position.set(Math.cos(-a)*0.070, 0.076, -Math.sin(-a)*0.070); clamp.rotation.y = a;
     const bl = part(BLADE, MAT.shell, hub, `blade.${def.id}`, 30, false, true);
-    bl.rotation.set(0.085, a, 0);                        // a little pitch, no thickness
+    bl.position.y = 0.076; bl.rotation.set(0.085, a, 0);  // flat planform, slight pitch
   }
 
   if(def.foot){                                    // short post + flat pad
