@@ -10,7 +10,7 @@
   The concept board, driven by the rigged model. Same geometry, same
   rig, four switchable representations — 01 SIMPLE LINE, 02 TECHNICAL
   LINE, 03 LINE + PARTICLE FIELD, 04 PARTICLE TARGET — each with the
-  board's own camera, chrome and accent. No annotation on the drawing.
+  board's own camera, chrome and accent. Nothing labels the drawing.
 
   The model comes from ./drone-model.js, shared with DRONE_MODEL_RIG.
   ?t=N freeze · ?mode=01..04 · ?shot=1 hides the controls
@@ -51,7 +51,7 @@
   .meta b{color:var(--ink);font-weight:400}
 
   .frame{position:absolute;top:0;bottom:118px;left:50%;transform:translateX(-50%);
-         aspect-ratio:1.42;width:auto;max-width:92vw}
+         width:min(1040px,76%)}
   .stage{position:absolute;inset:0}
   .stage.withminis{bottom:26%}
   .deco{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
@@ -171,16 +171,16 @@ const st = rig.state;
 const PANELS = {
   simple: { n:"01", t:"SIMPLE LINE",           accent:"var(--c01)", proj:"ORTHOGRAPHIC · ELEVATION",
             sub:["ESSENTIAL FORM","MINIMAL STRUCTURE","MAXIMUM CLARITY"],
-            cam:{kind:"ortho", az:90,  el:8, fit:1.06}, minis:true,  circle:{cx:50,cy:44,r:25} },
+            cam:{kind:"ortho", az:90,  el:8, fit:1.30}, minis:true,  circle:{cx:50,cy:44,r:25} },
   tech:   { n:"02", t:"TECHNICAL LINE",        accent:"var(--c02)", proj:"PERSPECTIVE 26°",
             sub:["STRUCTURE & DETAIL","FUNCTIONAL GEOMETRY","SYSTEM LOGIC"],
-            cam:{kind:"persp", az:128, el:19, fit:1.06}, minis:false, circle:{cx:50,cy:50,r:33} },
+            cam:{kind:"persp", az:128, el:19, fit:1.30}, minis:false, circle:{cx:52,cy:50,r:27} },
   field:  { n:"03", t:"LINE + PARTICLE FIELD", accent:"var(--c03)", proj:"PERSPECTIVE 26°",
             sub:["STRUCTURE WITH DATA","ENVIRONMENTAL CONTEXT","DYNAMIC BEHAVIOR"],
-            cam:{kind:"persp", az:128, el:19, fit:1.26}, minis:false, circle:null },
+            cam:{kind:"persp", az:128, el:19, fit:1.52}, minis:false, circle:null },
   target: { n:"04", t:"PARTICLE TARGET",       accent:"var(--c04)", proj:"POINT CLOUD · 34,000",
             sub:["POINT CLOUD REPRESENTATION","SYSTEM READINESS","ANIMATION READY"],
-            cam:{kind:"persp", az:128, el:19, fit:1.12}, minis:false, circle:{cx:50,cy:50,r:33} },
+            cam:{kind:"persp", az:128, el:19, fit:1.40}, minis:false, circle:{cx:52,cy:50,r:27} },
 };
 const MINIS = { mTop:{az:90,el:90}, mFront:{az:90,el:0}, mSide:{az:180,el:0} };
 
@@ -269,7 +269,7 @@ function draw(t){
   const P=PANELS[mode];
   viewport(document.getElementById("stage"), P.cam);
   if(P.minis) for(const el of document.querySelectorAll(".mstage")){
-    viewport(el, {kind:"ortho", ...MINIS[el.dataset.v], fit:1.18});
+    viewport(el, {kind:"ortho", ...MINIS[el.dataset.v], fit:1.22});
   }
   meta();
 }

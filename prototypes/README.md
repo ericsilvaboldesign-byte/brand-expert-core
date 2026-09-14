@@ -24,9 +24,26 @@ the same geometry and the same rig:
 | `03 LINE + PARTICLE FIELD` | perspective 3/4, wider | + surface dusting, radial field, colour accents, the four field callouts |
 | `04 PARTICLE TARGET` | perspective 3/4 | the point cloud alone |
 
-Callout leaders are 3D anchors projected per frame, so they stay attached
-as the rig folds or the view orbits. Drag to orbit and wheel to zoom from
-any panel; the preset camera is the origin the orbit offsets from.
+Nothing labels the drawing — no leaders, no callouts. The four panels are
+representation techniques, and each behaves the way the reference plays
+it:
+
+- **01** is line alone. Background-coloured fill occludes, white edges
+  draw, fine fittings and seams are suppressed.
+- **02** is the same drawing with an occluding fill that is *not* pure
+  black, so the top plane separates tonally from the flank, plus every
+  fitting and seam.
+- **03** is **02 unchanged**, with data added on top: the object's own
+  surface speckled with samples, the radial halo around it, and the
+  sparse colour accents. The line drawing is not replaced, it is
+  augmented.
+- **04** is the cloud **alone**, on clean ground — no halo, no lines.
+  Stipple rather than fog: fewer, larger, discrete dots via
+  `setDrawRange`. The orange lens accent survives, as it does in the
+  reference.
+
+Drag to orbit and wheel to zoom from any panel; the preset camera is the
+origin the orbit offsets from.
 
 The rig is live throughout — fold, rotor, gimbal pan/tilt, and the launch
 sequence — so the board is not a picture of the model, it is the model.
