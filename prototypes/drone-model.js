@@ -89,7 +89,7 @@ const MAT = {
   accent: new THREE.MeshBasicMaterial ({ color:0xf5822e }),
   /* technical-line fill: near-black so the fill occludes lines behind it,
      which is what produces a true hidden-line drawing */
-  tech  : new THREE.MeshLambertMaterial({ color:0x101619 }),
+  tech  : new THREE.MeshLambertMaterial({ color:0x1b2226 }),
   hollow: new THREE.MeshBasicMaterial ({ color:0x0a0c0b }),
 };
 for(const m of Object.values(MAT)){ m.polygonOffset=true; m.polygonOffsetFactor=4.0;
@@ -205,25 +205,25 @@ const hull = new THREE.Group();  hull.name = "hull";  root.add(hull);
 
 /* — fuselage: one chamfered slab, split by a shallow parting band ——— */
 const HULL_BEVEL = 0.045;
-const BODY = part(extrude(hullShape(), 0.50, HULL_BEVEL), MAT.shell, hull, "hull.body", 22);
+const BODY = part(extrude(hullShape(), 0.78, HULL_BEVEL), MAT.shell, hull, "hull.body", 22);
 
 /* recessed top panel — the large rounded rectangle on the reference deck */
 const deck = part(extrude(roundRect(1.62,0.80,0.24), 0.045, 0.010), MAT.dark, hull, "hull.deckPanel", 16);
-deck.position.set(-0.06, 0.238, 0);
+deck.position.set(-0.06, 0.371, 0);
 const deckIn = part(extrude(roundRect(1.50,0.68,0.20), 0.030, 0.008), MAT.glass, hull, "hull.deckInner", 16, true);
-deckIn.position.set(-0.06, 0.252, 0);
+deckIn.position.set(-0.06, 0.393, 0);
 
 /* the hull's own bevel already draws the horizontal break along the flank —
    a separate parting band sat inside the solid and drew nothing, so it's gone */
 const HULL_FLANK = 0.560 + HULL_BEVEL;     // extrude's bevel pushes the flank OUT
 
 /* — camera / sensor module at the front underside ————————— */
-const gYaw = new THREE.Group(); gYaw.name="gimbal.yaw"; gYaw.position.set(1.05,-0.375,0); hull.add(gYaw);
+const gYaw = new THREE.Group(); gYaw.name="gimbal.yaw"; gYaw.position.set(1.05,-0.520,0); hull.add(gYaw);
 const gRoll = new THREE.Group(); gRoll.name="gimbal.roll"; gYaw.add(gRoll);
 const gPitch = new THREE.Group(); gPitch.name="gimbal.pitch"; gRoll.add(gPitch);
 part(extrude(roundRect(0.245,0.265,0.075), 0.195, 0.024), MAT.dark, gPitch, "gimbal.housing", 24);
 const yoke = part(extrude(roundRect(0.155,0.265,0.05), 0.135, 0.018), MAT.trim, hull, "gimbal.mount", 24, true);
-yoke.position.set(1.045,-0.255,0);
+yoke.position.set(1.045,-0.398,0);
 const barrel = part(new THREE.CylinderGeometry(0.082,0.088,0.062,26), MAT.trim, gPitch, "gimbal.barrel", 30);
 barrel.rotation.z = Math.PI/2; barrel.position.set(0.142,0,0);
 const iris = part(new THREE.CylinderGeometry(0.049,0.049,0.026,22), MAT.glass, gPitch, "gimbal.iris", 30, true);
@@ -235,16 +235,16 @@ ring.userData.edges.visible = false;
 /* — forward sensor pips and flank ventilation slats ——————— */
 for(const z of [-0.26,0.26]){
   const s2 = part(new THREE.BoxGeometry(0.048,0.052,0.072), MAT.glass, hull, "hull.sensor", 20, true);
-  s2.position.set(1.246, -0.045, z*0.58);
+  s2.position.set(1.246, -0.070, z*0.58);
 }
 for(const side of [-1,1]) for(let i=0;i<6;i++){
   const v = part(new THREE.BoxGeometry(0.205,0.024,0.026), MAT.trim, hull, "hull.louvre", 30, true);
-  v.position.set(-0.06 - i*0.082, 0.055, side*(HULL_FLANK+0.013));
+  v.position.set(-0.06 - i*0.082, 0.086, side*(HULL_FLANK+0.013));
 }
 const hatch = part(extrude(roundRect(0.46,0.54,0.10), 0.040, 0.010), MAT.trim, hull, "hull.hatch", 16, true);
-hatch.position.set(-0.80, -0.243, 0);      // proud of the underside
+hatch.position.set(-0.80, -0.379, 0);      // proud of the underside
 const beacon = part(new THREE.SphereGeometry(0.028,12,12), MAT.accent, hull, "hull.beacon", 90, true);
-beacon.position.set(-1.05, 0.25, 0);
+beacon.position.set(-1.05, 0.39, 0);
 beacon.userData.edges.visible = false;
 
 /* — rotor blade: a flat planform. One closed outline is the whole drawing;
@@ -262,13 +262,14 @@ function bladeShape(){
 }
 const BLADE = new THREE.ShapeGeometry(bladeShape(), 34);
 BLADE.rotateX(-Math.PI/2);                               // lay flat in the disc
+BLADE.scale(0.82,1,0.82);              // reference disc : body length = 0.78
 
 /* — arms: flat rectangular bars off the body corners ——————— */
 const ARM_DEF = [
-  { id:"FL", hinge:[ 0.72, 0.005,  0.600], tip:[ 1.60, 0.03,  1.14], foldDeg:-140, foot:true  },
-  { id:"FR", hinge:[ 0.72, 0.005, -0.600], tip:[ 1.60, 0.03, -1.14], foldDeg: 140, foot:true  },
-  { id:"RL", hinge:[-0.66,-0.075,  0.615], tip:[-1.66,-0.05,  1.20], foldDeg: 142, foot:false },
-  { id:"RR", hinge:[-0.66,-0.075, -0.615], tip:[-1.66,-0.05, -1.20], foldDeg:-142, foot:false },
+  { id:"FL", hinge:[ 0.72, 0.09,  0.600], tip:[ 1.70, 0.12,  1.40], foldDeg:-140, foot:true  },
+  { id:"FR", hinge:[ 0.72, 0.09, -0.600], tip:[ 1.70, 0.12, -1.40], foldDeg: 140, foot:true  },
+  { id:"RL", hinge:[-0.66,-0.12,  0.615], tip:[-1.76,-0.09,  1.46], foldDeg: 142, foot:false },
+  { id:"RR", hinge:[-0.66,-0.12, -0.615], tip:[-1.76,-0.09, -1.46], foldDeg:-142, foot:false },
 ];
 const arms = {};
 for(const def of ARM_DEF){
@@ -317,7 +318,7 @@ for(const def of ARM_DEF){
   }
 
   const hub = new THREE.Group(); hub.name=`hub.${def.id}`; hub.position.y=0.125; motor.add(hub);
-  const bell = part(new THREE.CylinderGeometry(0.098,0.110,0.060,28), MAT.trim, hub, `hub.${def.id}.bell`, 30);
+  const bell = part(new THREE.CylinderGeometry(0.098,0.110,0.060,28), MAT.trim, hub, `hub.${def.id}.bell`, 30, true);
   bell.position.y = 0.030;
   const plate = part(new THREE.CylinderGeometry(0.072,0.072,0.015,24), MAT.trim, hub, `hub.${def.id}.plate`, 30, true);
   plate.position.y = 0.068;
@@ -332,9 +333,9 @@ for(const def of ARM_DEF){
 
   if(def.foot){                                    // short post + flat pad
     const leg = part(new THREE.BoxGeometry(0.078,0.24,0.070), MAT.trim, g, `leg.${def.id}`, 30);
-    leg.position.copy(local).setY(local.y - 0.125);
+    leg.position.copy(local).setY(local.y - 0.185);
     const pad = part(new THREE.BoxGeometry(0.26,0.055,0.145), MAT.dark, g, `pad.${def.id}`, 30);
-    pad.position.copy(local).setY(local.y - 0.272);
+    pad.position.copy(local).setY(local.y - 0.332);
   }
 
   arms[def.id] = { group:g, motor, hub,

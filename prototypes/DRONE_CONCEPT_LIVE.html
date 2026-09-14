@@ -10,7 +10,7 @@
   The concept board, driven by the rigged model. Same geometry, same
   rig, four switchable representations — 01 SIMPLE LINE, 02 TECHNICAL
   LINE, 03 LINE + PARTICLE FIELD, 04 PARTICLE TARGET — each with the
-  board's own camera, chrome, callouts and accent.
+  board's own camera, chrome and accent. No annotation on the drawing.
 
   The model comes from ./drone-model.js, shared with DRONE_MODEL_RIG.
   ?t=N freeze · ?mode=01..04 · ?shot=1 hides the controls
@@ -29,7 +29,6 @@
   body{font-family:var(--mono)}
   #gl{position:fixed;inset:0;width:100vw;height:100vh;display:block;z-index:0;cursor:grab}
   #gl.drag{cursor:grabbing}
-  #leaders{position:fixed;inset:0;width:100vw;height:100vh;z-index:3;pointer-events:none}
 
   .sheet{position:relative;z-index:2;height:100vh;min-height:660px;
          display:flex;flex-direction:column;padding:26px 34px 20px;pointer-events:none}
@@ -52,7 +51,7 @@
   .meta b{color:var(--ink);font-weight:400}
 
   .frame{position:absolute;top:0;bottom:118px;left:50%;transform:translateX(-50%);
-         width:min(1040px,76%)}
+         aspect-ratio:1.42;width:auto;max-width:92vw}
   .stage{position:absolute;inset:0}
   .stage.withminis{bottom:26%}
   .deco{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
@@ -136,7 +135,6 @@
   </div>
 </section>
 
-<svg id="leaders"></svg>
 
 <div class="ctrls">
   <div class="tabs">
@@ -173,46 +171,18 @@ const st = rig.state;
 const PANELS = {
   simple: { n:"01", t:"SIMPLE LINE",           accent:"var(--c01)", proj:"ORTHOGRAPHIC · ELEVATION",
             sub:["ESSENTIAL FORM","MINIMAL STRUCTURE","MAXIMUM CLARITY"],
-            cam:{kind:"ortho", az:90,  el:8, fit:1.30}, minis:true,  circle:{cx:50,cy:44,r:25} },
+            cam:{kind:"ortho", az:90,  el:8, fit:1.06}, minis:true,  circle:{cx:50,cy:44,r:25} },
   tech:   { n:"02", t:"TECHNICAL LINE",        accent:"var(--c02)", proj:"PERSPECTIVE 26°",
             sub:["STRUCTURE & DETAIL","FUNCTIONAL GEOMETRY","SYSTEM LOGIC"],
-            cam:{kind:"persp", az:128, el:19, fit:1.30}, minis:false, circle:{cx:52,cy:50,r:27} },
+            cam:{kind:"persp", az:128, el:19, fit:1.06}, minis:false, circle:{cx:50,cy:50,r:33} },
   field:  { n:"03", t:"LINE + PARTICLE FIELD", accent:"var(--c03)", proj:"PERSPECTIVE 26°",
             sub:["STRUCTURE WITH DATA","ENVIRONMENTAL CONTEXT","DYNAMIC BEHAVIOR"],
-            cam:{kind:"persp", az:128, el:19, fit:1.52}, minis:false, circle:null },
+            cam:{kind:"persp", az:128, el:19, fit:1.26}, minis:false, circle:null },
   target: { n:"04", t:"PARTICLE TARGET",       accent:"var(--c04)", proj:"POINT CLOUD · 34,000",
             sub:["POINT CLOUD REPRESENTATION","SYSTEM READINESS","ANIMATION READY"],
-            cam:{kind:"persp", az:128, el:19, fit:1.40}, minis:false, circle:{cx:52,cy:50,r:27} },
+            cam:{kind:"persp", az:128, el:19, fit:1.12}, minis:false, circle:{cx:50,cy:50,r:33} },
 };
 const MINIS = { mTop:{az:90,el:90}, mFront:{az:90,el:0}, mSide:{az:180,el:0} };
-
-/* ── callouts, lifted from the board ───────────────────────────── */
-const CALLOUTS = [
-  { m:"tech",  at:[ 1.24,-0.42, 0.00], dir:-1, rise: 26, run:96, txt:["CAMERA MODULE","SENSOR ARRAY"] },
-  { m:"tech",  at:[-0.66, 0.02,-0.62], dir: 1, rise:-78, run:96, txt:["ARM MODULE","FOLDING MECHANISM"] },
-  { m:"tech",  at:[-0.40, 0.06, 0.63], dir: 1, rise: 92, run:84, txt:["VENTILATION","THERMAL FLOW"] },
-  { m:"field", at:[ 0.26, 0.76,-0.08], dir: 1, rise:-46, run:74, txt:["ORIENTATION","STABILITY VECTOR"], c:"var(--c01)" },
-  { m:"field", at:[-1.68, 0.36, 0.70], dir:-1, rise: 18, run:44, txt:["AERODYNAMIC FIELD","AIRFLOW ANALYSIS"], c:"var(--c03)" },
-  { m:"field", at:[ 1.14,-0.88,-0.18], dir:-1, rise: 72, run:52, txt:["SENSOR FIELD","PERCEPTION RADIUS"], c:"var(--c04)" },
-  { m:"field", at:[ 1.80, 0.16, 1.48], dir: 1, rise: 64, run:80, txt:["PROPULSION FIELD","THRUST VECTOR"], c:"var(--c02)" },
-];
-const NS="http://www.w3.org/2000/svg", svg=document.getElementById("leaders");
-for(const co of CALLOUTS){
-  const g=document.createElementNS(NS,"g");
-  co.dot=document.createElementNS(NS,"circle"); co.dot.setAttribute("r","2.1");
-  co.dot.setAttribute("fill", co.c||"var(--ink)");
-  co.path=document.createElementNS(NS,"path"); co.path.setAttribute("fill","none");
-  co.path.setAttribute("stroke", co.c||"var(--dim)"); co.path.setAttribute("stroke-width","0.75");
-  co.t1=document.createElementNS(NS,"text"); co.t2=document.createElementNS(NS,"text");
-  for(const t of [co.t1,co.t2]){
-    t.setAttribute("font-family","ui-monospace,SFMono-Regular,Menlo,Consolas,monospace");
-    t.setAttribute("font-size","7.6"); t.setAttribute("letter-spacing","1.5");
-  }
-  co.t1.setAttribute("fill", co.c||"var(--ink)"); co.t2.setAttribute("fill","var(--dim)");
-  co.t1.textContent=co.txt[0]; co.t2.textContent=co.txt[1];
-  g.append(co.path,co.dot,co.t1,co.t2); svg.appendChild(g);
-  co.g=g; co.vec=new THREE.Vector3(...co.at);
-}
 
 /* ── renderer, cameras ─────────────────────────────────────────── */
 const canvas=document.getElementById("gl");
@@ -282,23 +252,7 @@ function selectPanel(m){
   for(const b of document.querySelectorAll(".tabs button")) b.classList.toggle("on", b.dataset.m===m);
 }
 
-function drawCallouts(rect, cam){
-  for(const co of CALLOUTS){
-    if(co.m!==mode){ co.g.style.display="none"; continue; }
-    const p=co.vec.clone().applyMatrix4(D.root.matrixWorld).project(cam);
-    if(p.z>1){ co.g.style.display="none"; continue; }
-    const x=rect.left+(p.x*0.5+0.5)*rect.width, y=rect.top+(-p.y*0.5+0.5)*rect.height;
-    const x1=x+co.dir*Math.abs(co.rise)*0.5, y1=y+co.rise, x2=x1+co.dir*co.run;
-    co.g.style.display="";
-    co.dot.setAttribute("cx",x); co.dot.setAttribute("cy",y);
-    co.path.setAttribute("d",`M${x} ${y} L${x1} ${y1} L${x2} ${y1}`);
-    const tx=x2+co.dir*7, anc=co.dir>0?"start":"end";
-    co.t1.setAttribute("x",tx); co.t1.setAttribute("y",y1-3.5); co.t1.setAttribute("text-anchor",anc);
-    co.t2.setAttribute("x",tx); co.t2.setAttribute("y",y1+7.5); co.t2.setAttribute("text-anchor",anc);
-  }
-}
-
-function viewport(el, cfg, withCallouts){
+function viewport(el, cfg){
   const r=el.getBoundingClientRect();
   if(r.width<4||r.height<4) return;
   const w=Math.round(r.width), h=Math.round(r.height);
@@ -307,16 +261,15 @@ function viewport(el, cfg, withCallouts){
   const cam=aim(cfg, w/h);
   updateSilhouettes(cam);                       // silhouettes are per-view
   renderer.render(scene,cam);
-  if(withCallouts) drawCallouts(r,cam);
 }
 
 function draw(t){
   animateField(t);
   renderer.setScissorTest(false); renderer.clear(); renderer.setScissorTest(true);
   const P=PANELS[mode];
-  viewport(document.getElementById("stage"), P.cam, true);
+  viewport(document.getElementById("stage"), P.cam);
   if(P.minis) for(const el of document.querySelectorAll(".mstage")){
-    viewport(el, {kind:"ortho", ...MINIS[el.dataset.v], fit:1.22}, false);
+    viewport(el, {kind:"ortho", ...MINIS[el.dataset.v], fit:1.18});
   }
   meta();
 }
@@ -330,8 +283,7 @@ function meta(){
   document.getElementById("vTilt").textContent=Math.round(st.tilt)+"°";
 }
 
-function resize(){ renderer.setSize(innerWidth,innerHeight,false);
-  svg.setAttribute("viewBox",`0 0 ${innerWidth} ${innerHeight}`); }
+function resize(){ renderer.setSize(innerWidth,innerHeight,false); }
 addEventListener("resize",()=>{resize(); if(frozen) draw(frozenT);});
 resize();
 
