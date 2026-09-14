@@ -512,22 +512,67 @@ function seamCurve(fitting, solid){
   return pts;
 }
 
+/* A seam belongs to the deepest node both parts hang from: that is the
+   frame in which their relative pose is fixed, so the curve stays correct
+   as the rig moves. pin+fork share the hull; collar+tube share the arm;
+   plate+bell share the hub. Coaxial pairs (pin/pivot, can/bell) are
+   invariant under the rotation between them, so their common ancestor
+   is enough. */
+function commonAncestor(a,b){
+  const chain=new Set(); for(let n=a;n;n=n.parent) chain.add(n);
+  for(let n=b;n;n=n.parent) if(chain.has(n)) return n;
+  return scene;
+}
+
 const seams = [];
 {
   root.updateMatrixWorld(true);
-  const fittings = parts.filter(p =>
-    /^shoulder\.|^pin\.|^gimbal\.mount$|^hull\.sensor$/.test(p.name) ||
-    /\.pivot$/.test(p.name));
-  const all = [];
-  for(const f of fittings) all.push(...seamCurve(f, BODY));
-  const g = new THREE.BufferGeometry();
-  g.setAttribute("position", new THREE.Float32BufferAttribute(all,3));
-  const ls = new THREE.LineSegments(g, EDGE.tech);
-  ls.renderOrder = 2; ls.frustumCulled = false;
-  hull.worldToLocal;                                   // seams are built in world
-  hull.add(ls); ls.position.set(0,0,0);
-  seams.push(ls);
-  console.log("seam segments:", all.length/6, "from", fittings.length, "fittings");
+  const P  = n => parts.find(p=>p.name===n);
+  const PA = n => parts.filter(p=>p.name===n);
+  const pairs = [];
+
+  for(const f of parts.filter(p =>
+        /^shoulder\.|^pin\.|^gimbal\.mount$|^hull\.sensor$|^hull\.hatch$/.test(p.name)))
+    pairs.push([f, BODY]);
+
+  for(const id of ["FL","FR","RL","RR"]){
+    const pin=P(`pin.${id}`), pivot=P(`arm.${id}.pivot`), collar=P(`arm.${id}.collar`),
+          tube=P(`arm.${id}.tube`), mount=P(`motor.${id}.mount`), can=P(`motor.${id}.can`),
+          bell=P(`hub.${id}.bell`), plate=P(`hub.${id}.plate`), nut=P(`hub.${id}.nut`),
+          leg=P(`leg.${id}`), pad=P(`pad.${id}`);
+    for(const fk of PA(`shoulder.${id}`)) pairs.push([pin, fk]);
+    pairs.push([pin,pivot],[pivot,BODY],[collar,tube],[pivot,collar],
+               [mount,tube],[can,mount],[bell,can],[plate,bell],[nut,plate]);
+    for(const cl of PA(`hub.${id}.clamp`)) pairs.push([cl, plate]);
+    for(const sl of PA("motor.slot")) if(sl.parent===can.parent) pairs.push([sl, can]);
+    if(leg&&pad) pairs.push([leg,tube],[pad,leg]);
+  }
+
+  const byParent = new Map();
+  for(const [a,b] of pairs){
+    if(!a||!b) continue;
+    const pts = seamCurve(a,b);
+    if(!pts.length) continue;
+    const par = commonAncestor(a,b);
+    if(!byParent.has(par)) byParent.set(par, []);
+    byParent.get(par).push(...pts);
+  }
+  let total=0;
+  for(const [par, pts] of byParent){
+    const v=new THREE.Vector3(), local=[];
+    par.updateWorldMatrix(true,false);
+    for(let i=0;i<pts.length;i+=3){
+      v.set(pts[i],pts[i+1],pts[i+2]); par.worldToLocal(v);
+      local.push(v.x,v.y,v.z);
+    }
+    const g=new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.Float32BufferAttribute(local,3));
+    const ls=new THREE.LineSegments(g, EDGE.tech);
+    ls.renderOrder=2; ls.frustumCulled=false;
+    par.add(ls); seams.push(ls); total += local.length/6;
+  }
+  console.log("seam segments:", total, "from", pairs.length, "pairs across",
+              byParent.size, "frames");
 }
 
 /* ════════════════════════════════════════════════════════════════

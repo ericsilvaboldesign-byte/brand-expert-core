@@ -87,16 +87,26 @@ handful of hull triangles under each fitting are tested) and the result
 is drawn as ordinary `LineSegments`, so seams carry the same one-pixel
 weight as every other line.
 
-Seams are computed **once, at build**, which constrains what may have
-one: only fittings fixed to the body, whose seam cannot change. The
-shoulder forks, axle pins and nose sensors qualify. The arm pivot
-qualifies too — it is a cylinder centred on its own hinge axis, so
-rotating it leaves the intersection invariant. The camera does **not**:
-it pans and tilts. So it hangs from a short mount collar that is fixed to
-the hull and is the only part entering it, which keeps the seam static
-and correct at any gimbal angle.
+Seams are computed between **arbitrary pairs**, not just against the
+fuselage. Fitting-to-fitting joins matter just as much: where the axle
+pin passes through a fork plate, or the root collar enters the arm tube,
+the line used to arrive and simply stop.
 
-About 500 seam segments from 19 fittings, ~0.4 s at load.
+Each seam is parented to the **deepest common ancestor** of the two
+parts, because that is the frame in which their relative pose is fixed,
+so the curve stays correct as the rig moves — pin+fork share the hull,
+collar+tube share the arm, plate+bell share the hub. Coaxial pairs
+(pin/pivot, can/bell) rotate about their shared axis, so the intersection
+is invariant and the common ancestor is enough.
+
+Seams are computed **once, at build**, which is why the camera cannot
+have one directly: it pans and tilts. It hangs instead from a short mount
+collar fixed to the hull — the only part entering it — so the seam stays
+static and correct at any gimbal angle.
+
+About 2,900 seam segments from 104 pairs across 13 frames, ~0.5 s at
+load. They are small and local, so the drawing stays clean at normal
+viewing distance and gains real joint detail up close.
 
 ### Line fidelity
 
