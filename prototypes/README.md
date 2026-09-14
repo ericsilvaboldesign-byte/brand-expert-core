@@ -69,6 +69,17 @@ against the profile ends up buried inside the solid and draws nothing.
 `HULL_FLANK` in the source is that constant — offset applied detail from
 it, not from `hullShape()`.
 
+**Don't model volume into parts that are drawn as lines.** Volume comes
+from the structure and the perspective, not from each part's thickness. A
+rotor blade given a real aerofoil section draws three near-parallel lines
+(upper surface, lower surface, edge) and reads as a slab. The blade is a
+flat planform — a `ShapeGeometry` whose single boundary loop is the whole
+drawing. Arms, pads and legs are plain prisms for the same reason: a
+bevelled extrusion stacks four parallel lines down every arm. Parts built
+this way are marked `flat` in `part(...)` and skip the silhouette pass,
+since a constant normal would slide the sheet sideways rather than
+expand it.
+
 **`EdgesGeometry` only emits creases, never silhouettes.** On a curved
 surface — the motor cans, the lofted blades, the radiused hull corners —
 adjacent faces differ by less than the crease threshold, so no contour

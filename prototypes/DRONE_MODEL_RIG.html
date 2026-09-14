@@ -174,12 +174,9 @@ function roundRect(w,h,r){
   return s;
 }
 /* prismatic bar running along +X — clean silhouette edges, no facet seams */
-function barGeometry(len, width, height, r){
-  const g = new THREE.ExtrudeGeometry(roundRect(width, height, r), {
-    depth:len, bevelEnabled:true, bevelSize:0.010, bevelThickness:0.010,
-    bevelSegments:1, curveSegments:6, steps:1 });
-  g.rotateY(Math.PI/2);              // extrusion axis Z → X
-  g.computeVertexNormals(); return g;
+function barGeometry(len, width, height){
+  const g = new THREE.BoxGeometry(len, height, width);   // plain prism: two lines
+  g.translate(len/2, 0, 0); return g;                    // along each face, no bevel band
 }
 function extrude(shape, depth, bev){
   const g = new THREE.ExtrudeGeometry(shape,{ depth:depth-bev*2, bevelEnabled:true,
@@ -201,7 +198,8 @@ const MAT = {
   tech  : new THREE.MeshLambertMaterial({ color:0x101619 }),
   hollow: new THREE.MeshBasicMaterial ({ color:0x0a0c0b }),
 };
-for(const m of Object.values(MAT)){ m.polygonOffset=true; m.polygonOffsetFactor=4.0; m.polygonOffsetUnits=4.0; }
+for(const m of Object.values(MAT)){ m.polygonOffset=true; m.polygonOffsetFactor=4.0;
+  m.polygonOffsetUnits=4.0; m.side=THREE.DoubleSide; }
 function outlineMaterial(color, widthNDC){
   const m = new THREE.MeshBasicMaterial({ color, side:THREE.BackSide });
   m.onBeforeCompile = sh => {
@@ -234,14 +232,20 @@ const DOT = (()=>{ const c=document.createElement("canvas"); c.width=c.height=64
   const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; return t; })();
 
 const parts = [];
-function part(geo, mat, parent, name, edgeAngle=26, detail=false){
+/* `flat` marks a part with no volume — a single surface whose EdgesGeometry
+   boundary IS the drawing. Flat parts get no silhouette pass: their normal is
+   constant, so an inverted hull would slide the whole sheet sideways instead
+   of expanding it. */
+function part(geo, mat, parent, name, edgeAngle=26, detail=false, flat=false){
   const m = new THREE.Mesh(geo, mat); m.name = name; m.userData.detail = detail;
   const e = new THREE.LineSegments(new THREE.EdgesGeometry(geo, edgeAngle), EDGE.solid);
   e.renderOrder = 2;                       // lines resolve after every fill
   m.add(e); m.userData.edges = e;
-  const o = new THREE.Mesh(geo, OUTLINE.tech);   // silhouette, back faces only
-  o.renderOrder = 1; o.visible = false;
-  m.add(o); m.userData.outline = o; m.userData.mat = mat;
+  if(!flat){
+    const o = new THREE.Mesh(geo, OUTLINE.tech); // silhouette, back faces only
+    o.renderOrder = 1; o.visible = false;
+    m.add(o); m.userData.outline = o;
+  } m.userData.mat = mat;
   parent.add(m); parts.push(m); return m;
 }
 
@@ -252,7 +256,8 @@ const root = new THREE.Group();  root.name = "root";
 const hull = new THREE.Group();  hull.name = "hull";  root.add(hull);
 
 /* — fuselage: one chamfered slab, split by a shallow parting band ——— */
-part(extrude(hullShape(), 0.50, 0.075), MAT.shell, hull, "hull.body", 17);
+const HULL_BEVEL = 0.045;
+part(extrude(hullShape(), 0.50, HULL_BEVEL), MAT.shell, hull, "hull.body", 22);
 
 /* recessed top panel — the large rounded rectangle on the reference deck */
 const deck = part(extrude(roundRect(1.62,0.80,0.24), 0.045, 0.010), MAT.dark, hull, "hull.deckPanel", 16);
@@ -262,7 +267,7 @@ deckIn.position.set(-0.06, 0.252, 0);
 
 /* the hull's own bevel already draws the horizontal break along the flank —
    a separate parting band sat inside the solid and drew nothing, so it's gone */
-const HULL_FLANK = 0.560 + 0.075;          // profile + bevelSize
+const HULL_FLANK = 0.560 + HULL_BEVEL;     // extrude's bevel pushes the flank OUT
 
 /* — camera / sensor module at the front underside ————————— */
 const gYaw = new THREE.Group(); gYaw.name="gimbal.yaw"; gYaw.position.set(1.10,-0.25,0); hull.add(gYaw);
@@ -294,21 +299,21 @@ const beacon = part(new THREE.SphereGeometry(0.028,12,12), MAT.accent, hull, "hu
 beacon.position.set(-1.05, 0.25, 0);
 beacon.userData.edges.visible = false;
 
-/* — rotor blade: long, slender, barely twisted (reference proportion) —— */
-function bladeGeometry(){
-  const N = 12, st = [];
-  for(let i=0;i<N;i++){
-    const u = i/(N-1);
-    const span = 0.075 + u*1.085;                       // long relative to the body
-    const bulge = Math.sin(Math.min(1,u*1.3)*Math.PI*0.55);
-    const chord = 0.052 + bulge*0.052 - u*u*0.040;      // slender planform
-    const thick = 0.017*(1-u*0.62);
-    const twist = THREE.MathUtils.degToRad(11 - u*8);   // near-flat, reads as a line
-    st.push({ x:span, y:u*u*0.022, z:0, chord, thick, twist });
-  }
-  return loft(st, 12);
+/* — rotor blade: a flat planform. One closed outline is the whole drawing;
+     giving it thickness would draw three parallel lines and read as a slab. */
+function bladeShape(){
+  const s = new THREE.Shape();
+  s.moveTo(0.070,-0.030);
+  s.bezierCurveTo(0.34,-0.064, 0.76,-0.060, 1.00,-0.032);
+  s.quadraticCurveTo(1.15,-0.014, 1.15, 0.001);          // tip
+  s.quadraticCurveTo(1.15, 0.019, 1.00, 0.036);
+  s.bezierCurveTo(0.76, 0.062, 0.34, 0.056, 0.070, 0.026);
+  s.quadraticCurveTo(0.026, 0.015, 0.026, 0.000);        // root
+  s.quadraticCurveTo(0.026,-0.016, 0.070,-0.030);
+  return s;
 }
-const BLADE = bladeGeometry();
+const BLADE = new THREE.ShapeGeometry(bladeShape(), 26);
+BLADE.rotateX(-Math.PI/2);                               // lay flat in the disc
 
 /* — arms: flat rectangular bars off the body corners ——————— */
 const ARM_DEF = [
@@ -323,7 +328,7 @@ for(const def of ARM_DEF){
   const g = new THREE.Group(); g.name = `arm.${def.id}`; g.position.copy(hinge); hull.add(g);
   const local = tip.clone().sub(hinge), len = local.length();
 
-  const tube = part(barGeometry(len, 0.150, 0.096, 0.030), MAT.shell, g, `arm.${def.id}.tube`, 18);
+  const tube = part(barGeometry(len, 0.150, 0.096), MAT.shell, g, `arm.${def.id}.tube`, 30);
   const o = new THREE.Object3D(); o.lookAt(local); o.rotateY(-Math.PI/2);
   tube.quaternion.copy(o.quaternion);
 
@@ -333,23 +338,23 @@ for(const def of ARM_DEF){
   const can = part(new THREE.CylinderGeometry(0.128,0.136,0.125,22), MAT.dark, motor, `motor.${def.id}.can`, 24);
   can.position.y = 0.062;
   for(let i=0;i<8;i++){
-    const sl = part(new THREE.BoxGeometry(0.016,0.095,0.022), MAT.trim, motor, "motor.slot", 26, true);
+    const sl = part(new THREE.BoxGeometry(0.016,0.095,0.022), MAT.trim, motor, "motor.slot", 30, true);
     const a=i/8*Math.PI*2; sl.position.set(Math.cos(a)*0.130,0.062,Math.sin(a)*0.130); sl.rotation.y=-a;
   }
   const bell = part(new THREE.CylinderGeometry(0.050,0.056,0.042,18), MAT.trim, motor, `motor.${def.id}.bell`, 40, true);
   bell.position.y = 0.145;
 
   const hub = new THREE.Group(); hub.name=`hub.${def.id}`; hub.position.y=0.172; motor.add(hub);
-  part(new THREE.CylinderGeometry(0.038,0.043,0.038,14), MAT.trim, hub, "hub.nut", 40, true);
+  part(new THREE.CylinderGeometry(0.038,0.043,0.038,14), MAT.trim, hub, "hub.nut", 30, true);
   for(const a of [0, Math.PI]){
-    const bl = part(BLADE, MAT.shell, hub, `blade.${def.id}`, 34);
-    bl.rotation.y = a;
+    const bl = part(BLADE, MAT.shell, hub, `blade.${def.id}`, 30, false, true);
+    bl.rotation.set(0.085, a, 0);                        // a little pitch, no thickness
   }
 
   if(def.foot){                                    // short post + flat pad
-    const leg = part(extrude(roundRect(0.078,0.070,0.026), 0.24, 0.010), MAT.trim, g, `leg.${def.id}`, 24);
+    const leg = part(new THREE.BoxGeometry(0.078,0.24,0.070), MAT.trim, g, `leg.${def.id}`, 30);
     leg.position.copy(local).setY(local.y - 0.125);
-    const pad = part(extrude(roundRect(0.26,0.145,0.05), 0.055, 0.014), MAT.dark, g, `pad.${def.id}`, 24);
+    const pad = part(new THREE.BoxGeometry(0.26,0.055,0.145), MAT.dark, g, `pad.${def.id}`, 30);
     pad.position.copy(local).setY(local.y - 0.272);
   }
 
