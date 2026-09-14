@@ -201,11 +201,11 @@ const MAT = {
   tech  : new THREE.MeshLambertMaterial({ color:0x101619 }),
   hollow: new THREE.MeshBasicMaterial ({ color:0x0a0c0b }),
 };
-for(const m of Object.values(MAT)){ m.polygonOffset=true; m.polygonOffsetFactor=1.8; m.polygonOffsetUnits=1.8; }
+for(const m of Object.values(MAT)){ m.polygonOffset=true; m.polygonOffsetFactor=4.0; m.polygonOffsetUnits=4.0; }
 const EDGE = {
-  solid : new THREE.LineBasicMaterial({ color:0xb9cbc6, transparent:true, opacity:0.40 }),
-  tech  : new THREE.LineBasicMaterial({ color:0xdfe6e2, transparent:true, opacity:0.88 }),
-  line  : new THREE.LineBasicMaterial({ color:0xf2f5f3, transparent:true, opacity:0.97 }),
+  solid : new THREE.LineBasicMaterial({ color:0xb9cbc6, transparent:true, opacity:0.42 }),
+  tech  : new THREE.LineBasicMaterial({ color:0xf4f8f6 }),
+  line  : new THREE.LineBasicMaterial({ color:0xffffff }),
 };
 
 /* round dot sprite, generated at runtime — no external asset */
@@ -220,6 +220,7 @@ const parts = [];
 function part(geo, mat, parent, name, edgeAngle=26, detail=false){
   const m = new THREE.Mesh(geo, mat); m.name = name; m.userData.detail = detail;
   const e = new THREE.LineSegments(new THREE.EdgesGeometry(geo, edgeAngle), EDGE.solid);
+  e.renderOrder = 2;                       // lines resolve after every fill
   m.add(e); m.userData.edges = e; m.userData.mat = mat;
   parent.add(m); parts.push(m); return m;
 }
@@ -231,15 +232,17 @@ const root = new THREE.Group();  root.name = "root";
 const hull = new THREE.Group();  hull.name = "hull";  root.add(hull);
 
 /* — fuselage: one chamfered slab, split by a shallow parting band ——— */
-part(extrude(hullShape(), 0.50, 0.065), MAT.shell, hull, "hull.body", 26);
+part(extrude(hullShape(), 0.50, 0.075), MAT.shell, hull, "hull.body", 17);
 
 /* recessed top panel — the large rounded rectangle on the reference deck */
-const deck = part(extrude(roundRect(1.62,0.80,0.24), 0.030, 0.008), MAT.dark, hull, "hull.deckPanel", 22);
-deck.position.set(-0.06, 0.252, 0);
+const deck = part(extrude(roundRect(1.62,0.80,0.24), 0.045, 0.010), MAT.dark, hull, "hull.deckPanel", 16);
+deck.position.set(-0.06, 0.238, 0);
+const deckIn = part(extrude(roundRect(1.50,0.68,0.20), 0.030, 0.008), MAT.glass, hull, "hull.deckInner", 16, true);
+deckIn.position.set(-0.06, 0.252, 0);
 
-/* parting band around the waist */
-const band = part(extrude(hullShape(), 0.045, 0.012), MAT.trim, hull, "hull.partingBand", 26, true);
-band.position.y = -0.045; band.scale.set(1.006,1,1.006);
+/* the hull's own bevel already draws the horizontal break along the flank —
+   a separate parting band sat inside the solid and drew nothing, so it's gone */
+const HULL_FLANK = 0.560 + 0.075;          // profile + bevelSize
 
 /* — camera / sensor module at the front underside ————————— */
 const gYaw = new THREE.Group(); gYaw.name="gimbal.yaw"; gYaw.position.set(1.10,-0.25,0); hull.add(gYaw);
@@ -247,7 +250,7 @@ const gRoll = new THREE.Group(); gRoll.name="gimbal.roll"; gYaw.add(gRoll);
 const gPitch = new THREE.Group(); gPitch.name="gimbal.pitch"; gRoll.add(gPitch);
 part(extrude(roundRect(0.30,0.32,0.085), 0.28, 0.028), MAT.dark, gPitch, "gimbal.housing", 24);
 const yoke = part(extrude(roundRect(0.13,0.30,0.05), 0.10, 0.018), MAT.trim, hull, "gimbal.mount", 24, true);
-yoke.position.set(1.02,-0.16,0);
+yoke.position.set(1.06,-0.20,0);
 const barrel = part(new THREE.CylinderGeometry(0.098,0.104,0.075,22), MAT.trim, gPitch, "gimbal.barrel", 40);
 barrel.rotation.z = Math.PI/2; barrel.position.set(0.175,0,0);
 const iris = part(new THREE.CylinderGeometry(0.058,0.058,0.030,20), MAT.glass, gPitch, "gimbal.iris", 40, true);
@@ -258,13 +261,15 @@ ring.userData.edges.visible = false;
 
 /* — forward sensor pips and flank ventilation slats ——————— */
 for(const z of [-0.26,0.26]){
-  const s2 = part(new THREE.BoxGeometry(0.040,0.070,0.085), MAT.glass, hull, "hull.sensor", 26, true);
-  s2.position.set(1.10, -0.04, z);
+  const s2 = part(new THREE.BoxGeometry(0.070,0.070,0.085), MAT.glass, hull, "hull.sensor", 20, true);
+  s2.position.set(1.255, -0.04, z);
 }
 for(const side of [-1,1]) for(let i=0;i<6;i++){
-  const v = part(new THREE.BoxGeometry(0.235,0.024,0.018), MAT.trim, hull, "hull.louvre", 26, true);
-  v.position.set(-0.30 - i*0.086, 0.055, side*0.567);
+  const v = part(new THREE.BoxGeometry(0.235,0.026,0.030), MAT.trim, hull, "hull.louvre", 20, true);
+  v.position.set(-0.30 - i*0.086, 0.055, side*(HULL_FLANK+0.013));
 }
+const hatch = part(extrude(roundRect(0.46,0.54,0.10), 0.040, 0.010), MAT.trim, hull, "hull.hatch", 16, true);
+hatch.position.set(-0.80, -0.243, 0);      // proud of the underside
 const beacon = part(new THREE.SphereGeometry(0.028,12,12), MAT.accent, hull, "hull.beacon", 90, true);
 beacon.position.set(-1.05, 0.25, 0);
 beacon.userData.edges.visible = false;
@@ -298,14 +303,14 @@ for(const def of ARM_DEF){
   const g = new THREE.Group(); g.name = `arm.${def.id}`; g.position.copy(hinge); hull.add(g);
   const local = tip.clone().sub(hinge), len = local.length();
 
-  const tube = part(barGeometry(len, 0.150, 0.096, 0.030), MAT.shell, g, `arm.${def.id}.tube`, 24);
+  const tube = part(barGeometry(len, 0.150, 0.096, 0.030), MAT.shell, g, `arm.${def.id}.tube`, 18);
   const o = new THREE.Object3D(); o.lookAt(local); o.rotateY(-Math.PI/2);
   tube.quaternion.copy(o.quaternion);
 
-  part(new THREE.CylinderGeometry(0.086,0.086,0.155,18), MAT.trim, g, `arm.${def.id}.hinge`, 40, true);
+  part(new THREE.CylinderGeometry(0.092,0.092,0.170,18), MAT.trim, g, `arm.${def.id}.hinge`, 24, true);
 
   const motor = new THREE.Group(); motor.name=`motor.${def.id}`; motor.position.copy(local); g.add(motor);
-  const can = part(new THREE.CylinderGeometry(0.128,0.136,0.125,22), MAT.dark, motor, `motor.${def.id}.can`, 40);
+  const can = part(new THREE.CylinderGeometry(0.128,0.136,0.125,22), MAT.dark, motor, `motor.${def.id}.can`, 24);
   can.position.y = 0.062;
   for(let i=0;i<8;i++){
     const sl = part(new THREE.BoxGeometry(0.016,0.095,0.022), MAT.trim, motor, "motor.slot", 26, true);

@@ -60,6 +60,22 @@ chin-mounted camera module, and short posts with flat pads for gear.
 Drag to orbit, wheel to zoom. `?shot=1` hides the UI, `?t=N` freezes a
 frame, `?mode=` picks a language.
 
+### Line fidelity
+
+`ExtrudeGeometry` with a bevel pushes the mid-section **outward** by
+`bevelSize`, so the hull's real flank sits at `profile + bevelSize`
+(0.560 + 0.075 = 0.635), not at the profile. Applied detail placed
+against the profile ends up buried inside the solid and draws nothing.
+`HULL_FLANK` in the source is that constant — offset applied detail from
+it, not from `hullShape()`.
+
+Lines are also kept from dropping out by: fills carrying
+`polygonOffsetFactor` 4 so no near-coincident detail loses the depth
+test, edge meshes at `renderOrder` 2 so they resolve after every fill,
+un-dimmed edge materials in the line-led modes, and crease thresholds
+low enough (17-24 degrees) that chamfer and curvature breaks actually
+generate edges instead of being smoothed away.
+
 ---
 
 ## DRONE_CONCEPT_BOARD_TARGET_MATCH
