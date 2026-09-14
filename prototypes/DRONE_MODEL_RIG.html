@@ -200,22 +200,25 @@ const MAT = {
 };
 for(const m of Object.values(MAT)){ m.polygonOffset=true; m.polygonOffsetFactor=4.0;
   m.polygonOffsetUnits=4.0; m.side=THREE.DoubleSide; }
-function outlineMaterial(color, widthNDC){
+const OUTLINE_UNIFORMS = [];
+function outlineMaterial(color, px){
   const m = new THREE.MeshBasicMaterial({ color, side:THREE.BackSide });
   m.onBeforeCompile = sh => {
-    sh.uniforms.oW = { value: widthNDC };
-    sh.vertexShader = "uniform float oW;\n" + sh.vertexShader.replace(
+    sh.uniforms.oTexel = { value:new THREE.Vector2(2/1200, 2/800) };
+    sh.uniforms.oPx    = { value:px };
+    OUTLINE_UNIFORMS.push(sh.uniforms);
+    sh.vertexShader = "uniform vec2 oTexel;\nuniform float oPx;\n" + sh.vertexShader.replace(
       "#include <project_vertex>",
       `#include <project_vertex>
        vec3 oN = normalize(normalMatrix * normal);
-       gl_Position.xy += oN.xy * oW * gl_Position.w;`);
+       vec2 oD = oN.xy; float oL = length(oD);
+       if(oL > 1e-4) gl_Position.xy += (oD/oL) * oTexel * oPx * gl_Position.w;`);
   };
   return m;
 }
-const OUTLINE = {
-  simple: outlineMaterial(0xffffff, 0.00130),
-  tech  : outlineMaterial(0xf4f8f6, 0.00110),
-};
+/* 1.0 = exactly one device pixel, the same weight a LineSegments draws */
+const OUTLINE = { simple: outlineMaterial(0xffffff, 1.0),
+                  tech  : outlineMaterial(0xf4f8f6, 1.0) };
 
 const EDGE = {
   solid : new THREE.LineBasicMaterial({ color:0xb9cbc6, transparent:true, opacity:0.42 }),
@@ -290,8 +293,8 @@ for(const z of [-0.26,0.26]){
   s2.position.set(1.255, -0.04, z);
 }
 for(const side of [-1,1]) for(let i=0;i<6;i++){
-  const v = part(new THREE.BoxGeometry(0.235,0.026,0.030), MAT.trim, hull, "hull.louvre", 20, true);
-  v.position.set(-0.30 - i*0.086, 0.055, side*(HULL_FLANK+0.013));
+  const v = part(new THREE.BoxGeometry(0.205,0.024,0.026), MAT.trim, hull, "hull.louvre", 30, true);
+  v.position.set(-0.06 - i*0.082, 0.055, side*(HULL_FLANK+0.013));
 }
 const hatch = part(extrude(roundRect(0.46,0.54,0.10), 0.040, 0.010), MAT.trim, hull, "hull.hatch", 16, true);
 hatch.position.set(-0.80, -0.243, 0);      // proud of the underside
@@ -317,10 +320,10 @@ BLADE.rotateX(-Math.PI/2);                               // lay flat in the disc
 
 /* — arms: flat rectangular bars off the body corners ——————— */
 const ARM_DEF = [
-  { id:"FL", hinge:[ 0.70, 0.005,  0.46], tip:[ 1.60, 0.03,  1.14], foldDeg:-142, foot:true  },
-  { id:"FR", hinge:[ 0.70, 0.005, -0.46], tip:[ 1.60, 0.03, -1.14], foldDeg: 142, foot:true  },
-  { id:"RL", hinge:[-0.68,-0.075,  0.46], tip:[-1.66,-0.05,  1.20], foldDeg: 139, foot:false },
-  { id:"RR", hinge:[-0.68,-0.075, -0.46], tip:[-1.66,-0.05, -1.20], foldDeg:-139, foot:false },
+  { id:"FL", hinge:[ 0.72, 0.005,  0.600], tip:[ 1.60, 0.03,  1.14], foldDeg:-140, foot:true  },
+  { id:"FR", hinge:[ 0.72, 0.005, -0.600], tip:[ 1.60, 0.03, -1.14], foldDeg: 140, foot:true  },
+  { id:"RL", hinge:[-0.66,-0.075,  0.615], tip:[-1.66,-0.05,  1.20], foldDeg: 142, foot:false },
+  { id:"RR", hinge:[-0.66,-0.075, -0.615], tip:[-1.66,-0.05, -1.20], foldDeg:-142, foot:false },
 ];
 const arms = {};
 for(const def of ARM_DEF){
@@ -332,7 +335,18 @@ for(const def of ARM_DEF){
   const o = new THREE.Object3D(); o.lookAt(local); o.rotateY(-Math.PI/2);
   tube.quaternion.copy(o.quaternion);
 
-  part(new THREE.CylinderGeometry(0.092,0.092,0.170,18), MAT.trim, g, `arm.${def.id}.hinge`, 24, true);
+  /* ── the arm-to-body joint, drawn ──────────────────────────────────
+     pivot boss = the moving half, carried by the arm and centred on the
+     hull flank so half of it stands proud; clevis plates = the fixed half
+     on the body, straddling the boss above and below. Both are structural,
+     not detail, so they survive into SIMPLE. */
+  const ang = -Math.atan2(local.z, local.x);
+  part(new THREE.CylinderGeometry(0.072,0.072,0.170,16), MAT.trim, g, `arm.${def.id}.pivot`, 30);
+  for(const sy of [-1,1]){
+    const br = part(new THREE.BoxGeometry(0.19,0.038,0.132), MAT.trim, hull, `shoulder.${def.id}`, 30);
+    br.position.set(hinge.x - 0.02, hinge.y + sy*0.086, hinge.z);
+    br.rotation.y = ang;
+  }
 
   const motor = new THREE.Group(); motor.name=`motor.${def.id}`; motor.position.copy(local); g.add(motor);
   const can = part(new THREE.CylinderGeometry(0.128,0.136,0.125,22), MAT.dark, motor, `motor.${def.id}.can`, 24);
@@ -540,8 +554,12 @@ addEventListener("pointerup",()=>{ drag=null; canvas.classList.remove("drag"); }
 canvas.addEventListener("wheel",e=>{ e.preventDefault();
   cam.dist = THREE.MathUtils.clamp(cam.dist*(1+Math.sign(e.deltaY)*0.08), RAD*1.15, RAD*7); },{passive:false});
 
+const _bufSize = new THREE.Vector2();
 function resize(){ const w=innerWidth,h=innerHeight;
-  renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); }
+  renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix();
+  renderer.getDrawingBufferSize(_bufSize);           // keep the outline at 1 px
+  for(const u of OUTLINE_UNIFORMS) u.oTexel.value.set(2/_bufSize.x, 2/_bufSize.y);
+}
 addEventListener("resize",resize); resize();
 
 /* ── the four visual languages off the board, plus a solid working mode ──

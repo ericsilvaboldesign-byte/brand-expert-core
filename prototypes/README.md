@@ -91,6 +91,23 @@ contour holds the same weight at any scale and thin parts like blades
 don't balloon. `outlineMaterial(color, widthNDC)` in the source; width is
 in NDC units, so ~0.0013 is roughly a 1.5-device-pixel hairline.
 
+**One line weight.** Two systems draw lines: `LineSegments`, which the
+driver fixes at exactly one device pixel, and the silhouette pass, which
+is a filled expansion and therefore whatever width you ask for. They must
+agree or the contour reads heavier than the creases. The outline width is
+expressed in **pixels**, converted to NDC from the live drawing-buffer
+size (`oTexel` uniform, refreshed in `resize()`), and set to 1.0 — the
+same weight a `LineSegments` draws. A fixed NDC constant cannot do this:
+it changes weight with canvas size and device pixel ratio.
+
+**The arm joints are drawn.** Each pivot sits on the real hull flank, not
+inside it, so the joint is a visible element: a boss carried by the arm,
+centred on the surface so half of it stands proud, straddled above and
+below by two clevis plates on the body. Both halves are structural rather
+than `detail`, so they survive into SIMPLE. Fold angles are re-derived
+whenever a hinge moves, from the arm's deployed polar angle to its stowed
+target.
+
 Lines are also kept from dropping out by: fills carrying
 `polygonOffsetFactor` 4 so no near-coincident detail loses the depth
 test, edge meshes at `renderOrder` 2 so they resolve after every fill,
