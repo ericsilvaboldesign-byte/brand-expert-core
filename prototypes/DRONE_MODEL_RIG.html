@@ -200,25 +200,70 @@ const MAT = {
 };
 for(const m of Object.values(MAT)){ m.polygonOffset=true; m.polygonOffsetFactor=4.0;
   m.polygonOffsetUnits=4.0; m.side=THREE.DoubleSide; }
-const OUTLINE_UNIFORMS = [];
-function outlineMaterial(color, px){
-  const m = new THREE.MeshBasicMaterial({ color, side:THREE.BackSide });
-  m.onBeforeCompile = sh => {
-    sh.uniforms.oTexel = { value:new THREE.Vector2(2/1200, 2/800) };
-    sh.uniforms.oPx    = { value:px };
-    OUTLINE_UNIFORMS.push(sh.uniforms);
-    sh.vertexShader = "uniform vec2 oTexel;\nuniform float oPx;\n" + sh.vertexShader.replace(
-      "#include <project_vertex>",
-      `#include <project_vertex>
-       vec3 oN = normalize(normalMatrix * normal);
-       vec2 oD = oN.xy; float oL = length(oD);
-       if(oL > 1e-4) gl_Position.xy += (oD/oL) * oTexel * oPx * gl_Position.w;`);
-  };
-  return m;
+/* ── true silhouette edges ────────────────────────────────────────────
+   An inverted hull cannot hold one line weight: it is a filled expansion,
+   so the width you actually see is however much back face emerges past the
+   front faces, and that grows wherever the surface curves away gently. A
+   sharp edge gives 1px, a motor can gives noticeably more.
+
+   Instead, find the real silhouette: an edge whose two adjacent faces
+   disagree about facing the camera. Those are drawn as LineSegments with
+   the same material as the creases, so every line in the drawing is one
+   device pixel, everywhere, by construction. */
+const EDGE_CACHE = new Map();
+function edgeData(geo){
+  if(EDGE_CACHE.has(geo.uuid)) return EDGE_CACHE.get(geo.uuid);
+  const pos=geo.attributes.position, idx=geo.index;
+  const n = idx ? idx.count : pos.count;
+  const key=new Map(), vx=[], remap=new Int32Array(pos.count);
+  for(let i=0;i<pos.count;i++){                       // weld by position
+    const x=pos.getX(i), y=pos.getY(i), z=pos.getZ(i);
+    const k=`${Math.round(x*1e4)},${Math.round(y*1e4)},${Math.round(z*1e4)}`;
+    let id=key.get(k);
+    if(id===undefined){ id=vx.length/3; key.set(k,id); vx.push(x,y,z); }
+    remap[i]=id;
+  }
+  const fn=[], fv=[], eMap=new Map(), ed=[];
+  const A=new THREE.Vector3(),B=new THREE.Vector3(),C=new THREE.Vector3(),
+        ab=new THREE.Vector3(),ac=new THREE.Vector3(),nr=new THREE.Vector3();
+  for(let i=0,f=0;i<n;i+=3,f++){
+    const a=remap[idx?idx.getX(i):i], b=remap[idx?idx.getX(i+1):i+1], c=remap[idx?idx.getX(i+2):i+2];
+    A.fromArray(vx,a*3); B.fromArray(vx,b*3); C.fromArray(vx,c*3);
+    nr.crossVectors(ab.subVectors(B,A), ac.subVectors(C,A));   // unnormalised: sign only
+    fn.push(nr.x,nr.y,nr.z); fv.push(a);
+    for(const [u,v] of [[a,b],[b,c],[c,a]]){
+      const k = u<v ? u*1e6+v : v*1e6+u;
+      const e = eMap.get(k);
+      if(e===undefined){ eMap.set(k, ed.length/4); ed.push(u,v,f,-1); }
+      else ed[e*4+3]=f;
+    }
+  }
+  const d={ vx:new Float32Array(vx), fn:new Float32Array(fn),
+            fv:new Int32Array(fv), ed:new Int32Array(ed), count:ed.length/4 };
+  EDGE_CACHE.set(geo.uuid,d); return d;
 }
-/* 1.0 = exactly one device pixel, the same weight a LineSegments draws */
-const OUTLINE = { simple: outlineMaterial(0xffffff, 1.0),
-                  tech  : outlineMaterial(0xf4f8f6, 1.0) };
+
+const _inv=new THREE.Matrix4(), _camObj=new THREE.Vector3();
+function updateSilhouette(m){
+  const d=m.userData.eData, out=m.userData.silArr, sil=m.userData.sil;
+  _inv.copy(m.matrixWorld).invert();
+  _camObj.copy(camera.position).applyMatrix4(_inv);
+  const {vx,fn,fv,ed,count}=d; let w=0;
+  const cx=_camObj.x, cy=_camObj.y, cz=_camObj.z;
+  for(let e=0;e<count;e++){
+    const o=e*4, f0=ed[o+2], f1=ed[o+3];
+    if(f1<0) continue;                                 // open border: EdgesGeometry has it
+    const p0=fv[f0]*3, p1=fv[f1]*3, n0=f0*3, n1=f1*3;
+    const s0=fn[n0]*(vx[p0]-cx)+fn[n0+1]*(vx[p0+1]-cy)+fn[n0+2]*(vx[p0+2]-cz);
+    const s1=fn[n1]*(vx[p1]-cx)+fn[n1+1]*(vx[p1+1]-cy)+fn[n1+2]*(vx[p1+2]-cz);
+    if((s0>0)===(s1>0)) continue;                      // both faces agree: not a silhouette
+    const a=ed[o]*3, b=ed[o+1]*3;
+    out[w++]=vx[a]; out[w++]=vx[a+1]; out[w++]=vx[a+2];
+    out[w++]=vx[b]; out[w++]=vx[b+1]; out[w++]=vx[b+2];
+  }
+  sil.geometry.setDrawRange(0, w/3);
+  sil.geometry.attributes.position.needsUpdate = true;
+}
 
 const EDGE = {
   solid : new THREE.LineBasicMaterial({ color:0xb9cbc6, transparent:true, opacity:0.42 }),
@@ -245,9 +290,15 @@ function part(geo, mat, parent, name, edgeAngle=26, detail=false, flat=false){
   e.renderOrder = 2;                       // lines resolve after every fill
   m.add(e); m.userData.edges = e;
   if(!flat){
-    const o = new THREE.Mesh(geo, OUTLINE.tech); // silhouette, back faces only
-    o.renderOrder = 1; o.visible = false;
-    m.add(o); m.userData.outline = o;
+    const d = edgeData(geo);
+    const arr = new Float32Array(d.count*6);
+    const sg = new THREE.BufferGeometry();
+    sg.setAttribute("position", new THREE.BufferAttribute(arr,3).setUsage(THREE.DynamicDrawUsage));
+    sg.setDrawRange(0,0);
+    const sil = new THREE.LineSegments(sg, EDGE.solid);
+    sil.frustumCulled = false; sil.renderOrder = 2; sil.visible = false;
+    m.add(sil);
+    m.userData.eData = d; m.userData.silArr = arr; m.userData.sil = sil;
   } m.userData.mat = mat;
   parent.add(m); parts.push(m); return m;
 }
@@ -554,12 +605,8 @@ addEventListener("pointerup",()=>{ drag=null; canvas.classList.remove("drag"); }
 canvas.addEventListener("wheel",e=>{ e.preventDefault();
   cam.dist = THREE.MathUtils.clamp(cam.dist*(1+Math.sign(e.deltaY)*0.08), RAD*1.15, RAD*7); },{passive:false});
 
-const _bufSize = new THREE.Vector2();
 function resize(){ const w=innerWidth,h=innerHeight;
-  renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix();
-  renderer.getDrawingBufferSize(_bufSize);           // keep the outline at 1 px
-  for(const u of OUTLINE_UNIFORMS) u.oTexel.value.set(2/_bufSize.x, 2/_bufSize.y);
-}
+  renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); }
 addEventListener("resize",resize); resize();
 
 /* ── the four visual languages off the board, plus a solid working mode ──
@@ -584,10 +631,10 @@ function setMode(m){
       e.material = simple ? EDGE.line : (solid ? EDGE.solid : EDGE.tech);
       e.visible  = !(p.name==="hull.beacon"||p.name==="gimbal.ring");
     }
-    const o = p.userData.outline;
-    if(o){                                   // contour only in the line languages
-      o.visible  = (simple || tech || fieldM) && !(p.name==="hull.beacon"||p.name==="gimbal.ring");
-      o.material = simple ? OUTLINE.simple : OUTLINE.tech;
+    const sil = p.userData.sil;
+    if(sil){                                 // silhouette only in the line languages
+      sil.visible  = (simple || tech || fieldM) && !(p.name==="hull.beacon"||p.name==="gimbal.ring");
+      sil.material = simple ? EDGE.line : EDGE.tech;
     }
   }
   /* the orange accents stay lit in every language but SIMPLE */
@@ -668,7 +715,15 @@ $("rTri").textContent = Math.round(tris).toLocaleString("en-US");
 $("rPart").textContent = parts.length;
 
 /* ---- frame ---------------------------------------------------- */
-function render(){ placeCamera(); renderer.render(scene,camera); }
+function render(){
+  placeCamera();
+  root.updateMatrixWorld(true);
+  for(const p of parts){                     // silhouettes are view-dependent
+    const sil = p.userData.sil;
+    if(sil && sil.visible && p.visible) updateSilhouette(p);
+  }
+  renderer.render(scene,camera);
+}
 let elapsed = 0;
 function frame(dt){ elapsed += dt; runSequence(dt); rig.advance(dt); animateField(elapsed); render(); }
 

@@ -91,14 +91,25 @@ contour holds the same weight at any scale and thin parts like blades
 don't balloon. `outlineMaterial(color, widthNDC)` in the source; width is
 in NDC units, so ~0.0013 is roughly a 1.5-device-pixel hairline.
 
-**One line weight.** Two systems draw lines: `LineSegments`, which the
-driver fixes at exactly one device pixel, and the silhouette pass, which
-is a filled expansion and therefore whatever width you ask for. They must
-agree or the contour reads heavier than the creases. The outline width is
-expressed in **pixels**, converted to NDC from the live drawing-buffer
-size (`oTexel` uniform, refreshed in `resize()`), and set to 1.0 — the
-same weight a `LineSegments` draws. A fixed NDC constant cannot do this:
-it changes weight with canvas size and device pixel ratio.
+**One line weight, by construction.** An inverted-hull outline cannot
+hold a single weight no matter what width you set: it is a *filled*
+expansion, so what you see is however much back face emerges past the
+front faces, and that grows wherever the surface curves away gently. A
+sharp edge yields the width you asked for; a motor can yields visibly
+more. Fills and lines also antialias differently.
+
+So there is no outline pass. Silhouettes are found as real edges — an
+edge whose two adjacent faces disagree about facing the camera — and
+drawn as `LineSegments` with the same material as the creases. Every line
+in the drawing is then one device pixel everywhere, because every line is
+the same kind of primitive.
+
+`edgeData()` welds vertices by position and caches edge→face adjacency per
+geometry; `updateSilhouette()` re-tests each edge against the camera in
+object space every frame and refills a preallocated buffer via
+`setDrawRange`. About 9,700 cached edges across the model, ~1,100
+silhouette segments in a typical view, 1.3 ms per frame under swiftshader
+with no GPU at all.
 
 **The arm joints are drawn.** Each pivot sits on the real hull flank, not
 inside it, so the joint is a visible element: a boss carried by the arm,
