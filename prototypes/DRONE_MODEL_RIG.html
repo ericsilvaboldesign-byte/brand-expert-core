@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DRONE MODEL — RIG</title>
+<!--
+  DRONE_MODEL_RIG
+  ------------------------------------------------------------------
+  The drone as an actual model, not a board illustration.
+  Lofted rotor blades, a shaped fuselage, a 3-axis gimbal, and a
+  named hierarchy with real pivots so it can be animated.
+
+  Rig                       Driver
+    root                      setAttitude(pitch,roll,yaw) / setAltitude()
+     └ hull                   (fixed to root)
+     └ arm.FL/FR/RL/RR        setFold(0..1)      real hinge axes
+        └ motor
+           └ hub              setRotor(rpm)
+     └ gimbal.yaw             setGimbal(pan,tilt)
+        └ gimbal.roll
+           └ gimbal.pitch     camera + lens
+
+  ?t=N  freeze at N seconds   ?shot=1 hide the UI for clean captures
+-->
+<script type="importmap">
+{ "imports": { "three": "./vendor/three.module.min.js" } }
+</script>
+<style>
+  :root{
+    --bg:#0a0c0b; --ink:#e8ece9; --dim:#7e8a86; --faint:#39423f; --rule:#222a27;
+    --c1:#3fd2e0; --c2:#a8e04a; --c3:#e055c0; --c4:#f5822e;
+    --mono: ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;background:var(--bg);color:var(--ink);overflow:hidden}
+  body{font-family:var(--mono)}
+  #gl{position:fixed;inset:0;width:100vw;height:100vh;display:block;cursor:grab}
+  #gl.drag{cursor:grabbing}
+
+  .hud{position:fixed;z-index:5;font-size:8.5px;letter-spacing:.24em;color:var(--dim)}
+  .hud.tl{top:22px;left:24px}
+  .hud.tr{top:22px;right:24px;text-align:right}
+  .hud .k{color:var(--ink);font-size:11px;letter-spacing:.34em;display:block;margin-bottom:9px}
+  .hud b{color:var(--ink);font-weight:400}
+
+  .panel{position:fixed;left:24px;bottom:22px;z-index:6;display:flex;gap:26px;
+         align-items:flex-end;flex-wrap:wrap;max-width:calc(100vw - 48px)}
+  .ctl{display:flex;flex-direction:column;gap:6px;min-width:126px}
+  .ctl label{font-size:7.5px;letter-spacing:.26em;color:var(--dim);
+             display:flex;justify-content:space-between;gap:10px}
+  .ctl label b{color:var(--ink);font-weight:400;font-variant-numeric:tabular-nums}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:14px;background:none;cursor:pointer}
+  input[type=range]::-webkit-slider-runnable-track{height:1px;background:var(--rule)}
+  input[type=range]::-moz-range-track{height:1px;background:var(--rule)}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:7px;height:7px;
+    border-radius:50%;background:var(--ink);margin-top:-3px}
+  input[type=range]::-moz-range-thumb{width:7px;height:7px;border:0;border-radius:50%;background:var(--ink)}
+
+  .btns{display:flex;gap:1px}
+  button{font-family:var(--mono);font-size:7.5px;letter-spacing:.2em;color:var(--dim);
+         background:none;border:1px solid var(--rule);padding:7px 11px;cursor:pointer}
+  button:hover{color:var(--ink);border-color:var(--faint)}
+  button.on{color:var(--bg);background:var(--ink);border-color:var(--ink)}
+  button.go{color:var(--c1);border-color:#1e4a4f}
+  button.go:hover{color:var(--bg);background:var(--c1);border-color:var(--c1)}
+  body.shot .hud,body.shot .panel{display:none}
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+
+<div class="hud tl">
+  <span class="k">DRONE MODEL</span>
+  RIGGED FOR ANIMATION<br>
+  <b id="rTri">—</b> TRIANGLES · <b id="rPart">—</b> PARTS
+</div>
+<div class="hud tr">
+  <span class="k">RIG STATE</span>
+  FOLD <b id="rFold">—</b> · ROTOR <b id="rRpm">—</b> RPM<br>
+  GIMBAL <b id="rGim">—</b> · ALT <b id="rAlt">—</b> M<br>
+  DRAG ORBIT · WHEEL ZOOM
+</div>
+
+<div class="panel">
+  <div class="ctl"><label>FOLD <b id="vFold">0.00</b></label>
+    <input type="range" id="sFold" min="0" max="1" step="0.001" value="0"></div>
+  <div class="ctl"><label>ROTOR RPM <b id="vRpm">0</b></label>
+    <input type="range" id="sRpm" min="0" max="7000" step="10" value="0"></div>
+  <div class="ctl"><label>GIMBAL PAN <b id="vPan">0°</b></label>
+    <input type="range" id="sPan" min="-70" max="70" step="1" value="0"></div>
+  <div class="ctl"><label>GIMBAL TILT <b id="vTilt">0°</b></label>
+    <input type="range" id="sTilt" min="-90" max="30" step="1" value="0"></div>
+  <div class="btns">
+    <button id="bShaded" class="on">SHADED</button>
+    <button id="bLine">LINE</button>
+    <button id="bPoints">POINTS</button>
+  </div>
+  <div class="btns">
+    <button id="bLaunch" class="go">▸ LAUNCH SEQUENCE</button>
+    <button id="bReset">RESET</button>
+  </div>
+</div>
+
+<script type="module">
+import * as THREE from "three";
+const Q = new URLSearchParams(location.search);
+if(Q.get("shot")) document.body.classList.add("shot");
+const REDUCE = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ════════════════════════════════════════════════════════════════
+   GEOMETRY TOOLING
+   ════════════════════════════════════════════════════════════════ */
+
+/* Loft a closed section along a span — this is what makes the rotor
+   blades and the arm tubes read as designed parts rather than boxes. */
+function loft(stations, sectionPts){
+  const M = sectionPts, N = stations.length;
+  const pos = [], idx = [];
+  for(const st of stations){
+    const { x, y, z, chord, thick, twist, ry=0 } = st;
+    const c = Math.cos(twist), s = Math.sin(twist);
+    for(let j=0;j<M;j++){
+      const a = (j/M)*Math.PI*2;
+      // flattened airfoil-ish section: chord along local Z, thickness along Y
+      let sz = Math.cos(a)*0.5*chord;
+      let sy = Math.sin(a)*0.5*thick*(0.62+0.38*Math.abs(Math.sin(a)));
+      const ty = sy*c - sz*s, tz = sy*s + sz*c;       // twist about the span axis
+      const cx = Math.cos(ry), sx = Math.sin(ry);      // optional yaw of the section
+      pos.push(x + tz*sx*0, y + ty, z + tz);
+    }
+  }
+  for(let i=0;i<N-1;i++) for(let j=0;j<M;j++){
+    const a=i*M+j, b=i*M+(j+1)%M, c=(i+1)*M+j, d=(i+1)*M+(j+1)%M;
+    idx.push(a,c,b, b,c,d);
+  }
+  const capS=pos.length/3, capE=capS+1;
+  const p0=stations[0], p1=stations[N-1];
+  pos.push(p0.x,p0.y,p0.z, p1.x,p1.y,p1.z);
+  for(let j=0;j<M;j++){ idx.push(capS,(j+1)%M,j); idx.push(capE,(N-1)*M+j,(N-1)*M+(j+1)%M); }
+  const g=new THREE.BufferGeometry();
+  g.setAttribute("position",new THREE.Float32BufferAttribute(pos,3));
+  g.setIndex(idx); g.computeVertexNormals(); return g;
+}
+
+/* Plan-view profiles. The hull is a wedge — squared tail, full-width
+   waist, and a nose that narrows down onto the gimbal. The deck is a
+   separate, smaller solid so the two meet on a real parting line. */
+function mirrorX(top){                       // top = [x,z] along +Z, nose-last
+  const s = new THREE.Shape();
+  s.moveTo(top[0][0], 0);
+  for(const [x,z] of top) s.lineTo(x,z);
+  for(let i=top.length-1;i>=0;i--) s.lineTo(top[i][0], -top[i][1]);
+  s.lineTo(top[0][0], 0);
+  return s;
+}
+function hullShape(){
+  return mirrorX([
+    [-1.18, 0.00],[-1.17, 0.20],[-1.12, 0.36],[-1.02, 0.47],
+    [-0.86, 0.545],[-0.50, 0.575],[ 0.00, 0.578],[ 0.28, 0.565],
+    [ 0.52, 0.527],[ 0.74, 0.470],[ 0.94, 0.392],[ 1.10, 0.296],
+    [ 1.22, 0.186],[ 1.30, 0.072],[ 1.33, 0.00],
+  ]);
+}
+function deckShape(){
+  return mirrorX([
+    [-1.04, 0.00],[-1.03, 0.16],[-0.97, 0.30],[-0.86, 0.395],
+    [-0.62, 0.448],[-0.20, 0.462],[ 0.14, 0.450],[ 0.40, 0.410],
+    [ 0.58, 0.352],[ 0.70, 0.282],[ 0.78, 0.180],[ 0.81, 0.00],
+  ]);
+}
+function extrude(shape, depth, bev){
+  const g = new THREE.ExtrudeGeometry(shape,{ depth:depth-bev*2, bevelEnabled:true,
+    bevelSize:bev, bevelThickness:bev, bevelSegments:3, curveSegments:18, steps:1 });
+  g.rotateX(-Math.PI/2); g.center(); g.computeVertexNormals(); return g;
+}
+function roundRect(w,h,r){
+  const s=new THREE.Shape(), x=w/2, y=h/2;
+  s.moveTo(-x+r,-y); s.lineTo(x-r,-y); s.quadraticCurveTo(x,-y,x,-y+r);
+  s.lineTo(x,y-r);   s.quadraticCurveTo(x,y,x-r,y);
+  s.lineTo(-x+r,y);  s.quadraticCurveTo(-x,y,-x,y-r);
+  s.lineTo(-x,-y+r); s.quadraticCurveTo(-x,-y,-x+r,-y);
+  return s;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   MATERIALS
+   ════════════════════════════════════════════════════════════════ */
+const MAT = {
+  shell : new THREE.MeshLambertMaterial({ color:0x36454c }),
+  dark  : new THREE.MeshLambertMaterial({ color:0x1e272b }),
+  trim  : new THREE.MeshLambertMaterial({ color:0x47585f }),
+  glass : new THREE.MeshLambertMaterial({ color:0x121c20 }),
+  accent: new THREE.MeshBasicMaterial ({ color:0xf5822e }),
+  hollow: new THREE.MeshBasicMaterial ({ color:0x0a0c0b }),
+};
+for(const m of Object.values(MAT)){ m.polygonOffset=true; m.polygonOffsetFactor=1.6; m.polygonOffsetUnits=1.6; }
+const EDGE = {
+  shaded: new THREE.LineBasicMaterial({ color:0xb9cbc6, transparent:true, opacity:0.46 }),
+  line  : new THREE.LineBasicMaterial({ color:0xe8ece9, transparent:true, opacity:0.95 }),
+};
+
+const parts = [];
+function part(geo, mat, parent, name, edgeAngle=32){
+  const m = new THREE.Mesh(geo, mat); m.name = name;
+  const e = new THREE.LineSegments(new THREE.EdgesGeometry(geo, edgeAngle), EDGE.shaded);
+  m.add(e); m.userData.edges = e; m.userData.mat = mat;
+  parent.add(m); parts.push(m); return m;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   THE MODEL
+   ════════════════════════════════════════════════════════════════ */
+const root = new THREE.Group();  root.name = "root";
+const hull = new THREE.Group();  hull.name = "hull";  root.add(hull);
+
+/* — fuselage: two shells meeting on a parting line at y=0 ————— */
+const lower = part(extrude(hullShape(), 0.26, 0.050), MAT.dark, hull, "hull.lowerShell", 26);
+lower.position.y = -0.10;
+
+const deck = part(extrude(deckShape(), 0.17, 0.045), MAT.shell, hull, "hull.deck", 26);
+deck.position.y = 0.090;
+
+/* small recessed canopy on the deck — a window, not a screen */
+const canopy = part(extrude(roundRect(0.66,0.34,0.14), 0.028, 0.008), MAT.glass, hull, "hull.canopy", 26);
+canopy.position.set(-0.22, 0.168, 0);
+const antenna = part(extrude(roundRect(0.26,0.20,0.07), 0.024, 0.007), MAT.trim, hull, "hull.antenna", 26);
+antenna.position.set(0.34, 0.170, 0);
+
+/* battery pack integrated into the tail underside */
+const battery = part(extrude(roundRect(0.78,0.72,0.16), 0.13, 0.022), MAT.dark, hull, "hull.battery", 26);
+battery.position.set(-0.62, -0.195, 0);
+const grip = part(extrude(roundRect(0.22,0.44,0.07), 0.028, 0.008), MAT.trim, hull, "hull.batteryGrip", 26);
+grip.position.set(-0.96, -0.195, 0);
+
+/* louvres — fine detail that gives the flanks scale */
+for(const side of [-1,1]) for(let i=0;i<6;i++){
+  const v = part(new THREE.BoxGeometry(0.22,0.028,0.020), MAT.trim, hull, `hull.louvre.${side>0?"L":"R"}${i}`);
+  v.position.set(-0.18 - i*0.090, -0.075, side*0.545);
+  v.rotation.y = side*0.06;
+}
+/* forward obstacle sensors */
+for(const z of [-0.30,0.30]){
+  const p = part(new THREE.BoxGeometry(0.045,0.075,0.075), MAT.glass, hull, "hull.sensor");
+  p.position.set(1.17, -0.04, z*0.62);
+}
+/* rear status beacon */
+const beacon = part(new THREE.SphereGeometry(0.030,12,12), MAT.accent, hull, "hull.beacon", 90);
+beacon.position.set(-1.03, 0.180, 0);
+beacon.userData.edges.visible = false;
+
+/* — 3-axis gimbal ————————————————————————————— */
+const gYaw = new THREE.Group(); gYaw.name="gimbal.yaw"; gYaw.position.set(1.14,-0.15,0); hull.add(gYaw);
+const arc = part(new THREE.TorusGeometry(0.19,0.026,8,26,Math.PI*1.15), MAT.trim, gYaw, "gimbal.arc", 40);
+arc.rotation.set(Math.PI/2,0,Math.PI*0.42);
+
+const gRoll = new THREE.Group(); gRoll.name="gimbal.roll"; gYaw.add(gRoll);
+const yoke = part(extrude(roundRect(0.30,0.11,0.045), 0.05, 0.012), MAT.trim, gRoll, "gimbal.yoke", 28);
+yoke.position.set(0.02,-0.15,0.15); yoke.rotation.x = Math.PI/2;
+
+const gPitch = new THREE.Group(); gPitch.name="gimbal.pitch"; gPitch.position.set(0.04,-0.20,0); gRoll.add(gPitch);
+part(extrude(roundRect(0.30,0.28,0.09), 0.26, 0.035), MAT.dark, gPitch, "gimbal.camera", 28);
+const barrel = part(new THREE.CylinderGeometry(0.105,0.115,0.10,24), MAT.trim, gPitch, "gimbal.barrel", 40);
+barrel.rotation.z = Math.PI/2; barrel.position.set(0.16,0,0);
+const glass = part(new THREE.CylinderGeometry(0.072,0.072,0.03,24), MAT.glass, gPitch, "gimbal.glass", 40);
+glass.rotation.z = Math.PI/2; glass.position.set(0.215,0,0);
+const ring = part(new THREE.TorusGeometry(0.079,0.007,6,26), MAT.accent, gPitch, "gimbal.ring", 90);
+ring.rotation.y = Math.PI/2; ring.position.set(0.222,0,0);
+ring.userData.edges.visible = false;
+
+/* — rotor blade: lofted, tapered, twisted ————————————— */
+function bladeGeometry(){
+  const N = 14, st = [];
+  for(let i=0;i<N;i++){
+    const u = i/(N-1);
+    const span  = 0.10 + u*0.86;
+    const bulge = Math.sin(Math.min(1,u*1.45)*Math.PI*0.62);
+    const chord = 0.085 + bulge*0.115 - u*u*0.075;
+    const thick = 0.030*(1-u*0.72);
+    const twist = THREE.MathUtils.degToRad(24 - u*17);
+    st.push({ x:0, y:u*u*0.055, z:span, chord, thick, twist,
+              // sweep the tip back a touch
+              });
+  }
+  // convert: span runs along +Z above; rebuild with span on +X
+  const g = loft(st.map(s=>({ x:s.z, y:s.y, z:-(s.z*s.z)*0.045,
+                              chord:s.chord, thick:s.thick, twist:s.twist })), 14);
+  return g;
+}
+const BLADE = bladeGeometry();
+
+/* — arms: real hinges, so folding is a rig operation ——————— */
+const ARM_DEF = [
+  { id:"FL", hinge:[ 0.42, 0.02,  0.50], tip:[ 1.46, 0.09,  1.30], foldAxis:[0,1,0], foldDeg:-137, foot:true  },
+  { id:"FR", hinge:[ 0.42, 0.02, -0.50], tip:[ 1.46, 0.09, -1.30], foldAxis:[0,1,0], foldDeg: 137, foot:true  },
+  { id:"RL", hinge:[-0.72,-0.10,  0.50], tip:[-1.72,-0.03,  1.32], foldAxis:[0,1,0], foldDeg: 136, foot:false },
+  { id:"RR", hinge:[-0.72,-0.10, -0.50], tip:[-1.72,-0.03, -1.32], foldAxis:[0,1,0], foldDeg:-136, foot:false },
+];
+const arms = {};
+for(const def of ARM_DEF){
+  const hinge = new THREE.Vector3(...def.hinge), tip = new THREE.Vector3(...def.tip);
+  const g = new THREE.Group(); g.name = `arm.${def.id}`; g.position.copy(hinge); hull.add(g);
+  const local = tip.clone().sub(hinge);
+  const len = local.length();
+
+  /* tapered arm tube, lofted along its own length */
+  const st = [];
+  for(let i=0;i<7;i++){
+    const u=i/6, w=0.150-u*0.052, h=0.112-u*0.034;
+    st.push({ x:u*len, y:0, z:0, chord:h, thick:w, twist:0 });
+  }
+  const tube = part(loft(st,10), MAT.shell, g, `arm.${def.id}.tube`, 24);
+  /* orient the tube onto the hinge→tip axis */
+  const o = new THREE.Object3D(); o.lookAt(local); o.rotateY(-Math.PI/2);  // +X → span
+  tube.quaternion.copy(o.quaternion);
+
+  const hz = part(new THREE.CylinderGeometry(0.098,0.098,0.185,20), MAT.trim, g, `arm.${def.id}.hinge`, 40);
+
+  const motor = new THREE.Group(); motor.name=`motor.${def.id}`;
+  motor.position.copy(local); hull.updateMatrixWorld();
+  g.add(motor);
+  const can = part(new THREE.CylinderGeometry(0.148,0.162,0.170,24), MAT.dark, motor, `motor.${def.id}.can`, 40);
+  can.position.y = 0.085;
+  for(let i=0;i<10;i++){                         // stator slots
+    const sl = part(new THREE.BoxGeometry(0.018,0.135,0.028), MAT.trim, motor, "motor.slot");
+    const a=i/10*Math.PI*2; sl.position.set(Math.cos(a)*0.150,0.085,Math.sin(a)*0.150); sl.rotation.y=-a;
+  }
+  const bell = part(new THREE.CylinderGeometry(0.060,0.068,0.058,20), MAT.trim, motor, `motor.${def.id}.bell`, 40);
+  bell.position.y = 0.198;
+
+  const hub = new THREE.Group(); hub.name=`hub.${def.id}`; hub.position.y=0.232; motor.add(hub);
+  const nut = part(new THREE.CylinderGeometry(0.046,0.052,0.052,16), MAT.trim, hub, "hub.nut", 40);
+  for(const a of [0, Math.PI]){
+    const b = part(BLADE, MAT.shell, hub, `blade.${def.id}`, 42);
+    b.rotation.y = a;
+  }
+
+  if(def.foot){
+    const strut = [];
+    for(let i=0;i<5;i++){ const u=i/4;
+      strut.push({ x:u*0.30, y:0, z:0, chord:0.058-u*0.012, thick:0.072-u*0.016, twist:0 }); }
+    const leg = part(loft(strut,10), MAT.trim, g, `leg.${def.id}`, 26);
+    leg.position.copy(local).setY(local.y - 0.02);
+    leg.rotation.z = -Math.PI/2;                       // strut runs straight down
+    const skid = part(loft([
+      { x:-0.19, y:0.020, z:0, chord:0.048, thick:0.060, twist:0 },
+      { x:-0.10, y:0.000, z:0, chord:0.062, thick:0.082, twist:0 },
+      { x: 0.08, y:0.000, z:0, chord:0.062, thick:0.082, twist:0 },
+      { x: 0.19, y:0.020, z:0, chord:0.046, thick:0.058, twist:0 },
+    ],10), MAT.dark, g, `skid.${def.id}`, 26);
+    skid.position.copy(local).setY(local.y - 0.335);
+  }
+
+  arms[def.id] = { group:g, motor, hub,
+    axis:new THREE.Vector3(...def.foldAxis).normalize(),
+    angle:THREE.MathUtils.degToRad(def.foldDeg),
+    dir:(def.id==="FL"||def.id==="RR") ? 1 : -1,     // counter-rotating pairs
+    rest:g.quaternion.clone() };
+}
+
+/* ════════════════════════════════════════════════════════════════
+   RIG API
+   ════════════════════════════════════════════════════════════════ */
+const state = { fold:0, rpm:0, pan:0, tilt:0, alt:0, pitch:0, roll:0, yaw:0, spin:0 };
+const _q = new THREE.Quaternion();
+
+/* hub rotation = spin + a fold-alignment offset that counter-rotates the
+   disc as the arm swings, so a stowed drone has its blades along the body */
+function applyHubs(){
+  const e = state.fold*state.fold*(3-2*state.fold);
+  for(const k in arms){ const a=arms[k];
+    a.hub.rotation.y = state.spin*a.dir - a.angle*e; }
+}
+
+const rig = {
+  setFold(t){
+    state.fold = THREE.MathUtils.clamp(t,0,1);
+    const e = state.fold*state.fold*(3-2*state.fold);         // smoothstep
+    for(const k in arms){ const a=arms[k];
+      a.group.quaternion.copy(a.rest).multiply(_q.setFromAxisAngle(a.axis, a.angle*e)); }
+    applyHubs();
+  },
+  setRotor(rpm){ state.rpm = Math.max(0,rpm); },
+  setGimbal(pan,tilt){
+    state.pan = pan; state.tilt = tilt;
+    gYaw.rotation.y   = THREE.MathUtils.degToRad(pan);
+    gPitch.rotation.z = THREE.MathUtils.degToRad(tilt);
+  },
+  setAttitude(pitch,roll,yaw){
+    state.pitch=pitch; state.roll=roll; state.yaw=yaw;
+    root.rotation.set(THREE.MathUtils.degToRad(roll),THREE.MathUtils.degToRad(yaw),
+                      THREE.MathUtils.degToRad(pitch),"YZX");
+  },
+  setAltitude(m){ state.alt = m; root.position.y = m; },
+  advance(dt){ state.spin += state.rpm/60*Math.PI*2*dt; applyHubs(); },
+  seek(t){ state.spin = state.rpm/60*Math.PI*2*t; applyHubs(); },
+  state, arms, root, hull, gimbal:{ yaw:gYaw, roll:gRoll, pitch:gPitch },
+};
+rig.setFold(0); rig.setGimbal(0,0);
+
+/* ════════════════════════════════════════════════════════════════
+   SCENE
+   ════════════════════════════════════════════════════════════════ */
+const scene = new THREE.Scene(); scene.add(root);
+scene.add(new THREE.AmbientLight(0x2b3940, 0.85));
+const key  = new THREE.DirectionalLight(0xffffff, 2.05); key.position.set( 3.4, 5.6, 3.4); scene.add(key);
+const fill = new THREE.DirectionalLight(0x9ec6d6, 0.75); fill.position.set(-4.4, 1.2,-3.6); scene.add(fill);
+/* two rims read the silhouette against the dark field without any gloss */
+const rimL = new THREE.DirectionalLight(0xbfe4f2, 1.35); rimL.position.set(-3.2, 2.6, 4.4); scene.add(rimL);
+const rimR = new THREE.DirectionalLight(0x9fb9c4, 1.05); rimR.position.set( 4.0, 1.4,-3.2); scene.add(rimR);
+const under= new THREE.DirectionalLight(0x3a5a68, 0.45); under.position.set( 0,  -4.0, 1.5); scene.add(under);
+
+root.updateMatrixWorld(true);
+const BOX = new THREE.Box3().setFromObject(root);
+const SIZE = BOX.getSize(new THREE.Vector3());
+const RAD  = BOX.getBoundingSphere(new THREE.Sphere()).radius;
+
+/* faint dotted ground ring — keeps the object inside the field language */
+const ringPos = [];
+{ let s=9; const rnd=()=> (s=(s*1664525+1013904223)>>>0)/4294967296;
+  for(let i=0;i<3000;i++){
+    const ray=Math.floor(rnd()*88), th=ray/88*Math.PI*2+(rnd()-0.5)*0.02;
+    const r=RAD*(0.42+Math.pow(rnd(),0.6)*1.05);
+    ringPos.push(Math.cos(th)*r, -0.98+(rnd()-0.5)*0.05, Math.sin(th)*r);
+  } }
+const ringGeo = new THREE.BufferGeometry();
+ringGeo.setAttribute("position", new THREE.Float32BufferAttribute(ringPos,3));
+const ground = new THREE.Points(ringGeo, new THREE.PointsMaterial({
+  size:0.019, color:0x7f8d88, transparent:true, opacity:0.5, depthWrite:false }));
+scene.add(ground);
+
+/* surface point cloud, area-weighted — the morph target handle */
+function sampleSurface(meshes,count,seed=7){
+  let s=seed>>>0; const rnd=()=>((s=(s*1664525+1013904223)>>>0)/4294967296);
+  const tri=[],cdf=[]; let total=0;
+  const A=new THREE.Vector3(),B=new THREE.Vector3(),C=new THREE.Vector3(),
+        ab=new THREE.Vector3(),ac=new THREE.Vector3();
+  for(const m of meshes){
+    m.updateWorldMatrix(true,false);
+    const p=m.geometry.attributes.position, ix=m.geometry.index;
+    const n=ix?ix.count:p.count;
+    for(let i=0;i<n;i+=3){
+      const a=ix?ix.getX(i):i,b=ix?ix.getX(i+1):i+1,c=ix?ix.getX(i+2):i+2;
+      A.fromBufferAttribute(p,a).applyMatrix4(m.matrixWorld);
+      B.fromBufferAttribute(p,b).applyMatrix4(m.matrixWorld);
+      C.fromBufferAttribute(p,c).applyMatrix4(m.matrixWorld);
+      const ar=ab.subVectors(B,A).cross(ac.subVectors(C,A)).length()*0.5;
+      if(ar<=0) continue; total+=ar; cdf.push(total);
+      tri.push(A.x,A.y,A.z,B.x,B.y,B.z,C.x,C.y,C.z);
+    }
+  }
+  const out=new Float32Array(count*3);
+  for(let k=0;k<count;k++){
+    const t=rnd()*total; let lo=0,hi=cdf.length-1;
+    while(lo<hi){const mid=(lo+hi)>>1; if(cdf[mid]<t) lo=mid+1; else hi=mid;}
+    const o=lo*9; let u=rnd(),v=rnd(); if(u+v>1){u=1-u;v=1-v;} const w=1-u-v;
+    out[k*3]  =tri[o]*w+tri[o+3]*u+tri[o+6]*v;
+    out[k*3+1]=tri[o+1]*w+tri[o+4]*u+tri[o+7]*v;
+    out[k*3+2]=tri[o+2]*w+tri[o+5]*u+tri[o+8]*v;
+  }
+  return out;
+}
+const CLOUD_N = 26000;
+const cloudGeo = new THREE.BufferGeometry();
+cloudGeo.setAttribute("position", new THREE.BufferAttribute(sampleSurface(parts,CLOUD_N),3));
+const cloud = new THREE.Points(cloudGeo, new THREE.PointsMaterial({
+  size:0.020, color:0xe4ebe7, transparent:true, opacity:0.9, depthWrite:false }));
+cloud.visible=false; scene.add(cloud);   // world-space snapshot, not rigged
+
+/* ════════════════════════════════════════════════════════════════
+   RENDER + ORBIT
+   ════════════════════════════════════════════════════════════════ */
+const canvas = document.getElementById("gl");
+const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true });
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setClearColor(0x000000,0);
+
+const camera = new THREE.PerspectiveCamera(30,1,0.1,200);
+const HOME = { az:128, el:19, dist:RAD*2.55 };
+const cam = { ...HOME };
+function placeCamera(){
+  const a=THREE.MathUtils.degToRad(cam.az), e=THREE.MathUtils.degToRad(cam.el);
+  camera.position.set(Math.cos(e)*Math.sin(a)*cam.dist, Math.sin(e)*cam.dist + 0.05,
+                      Math.cos(e)*Math.cos(a)*cam.dist);
+  camera.lookAt(0,0.05,0);
+}
+let drag=null;
+canvas.addEventListener("pointerdown",e=>{ drag={x:e.clientX,y:e.clientY}; canvas.classList.add("drag");
+  canvas.setPointerCapture(e.pointerId); });
+canvas.addEventListener("pointermove",e=>{ if(!drag) return;
+  cam.az -= (e.clientX-drag.x)*0.32;
+  cam.el  = THREE.MathUtils.clamp(cam.el + (e.clientY-drag.y)*0.24, -80, 85);
+  drag={x:e.clientX,y:e.clientY}; });
+addEventListener("pointerup",()=>{ drag=null; canvas.classList.remove("drag"); });
+canvas.addEventListener("wheel",e=>{ e.preventDefault();
+  cam.dist = THREE.MathUtils.clamp(cam.dist*(1+Math.sign(e.deltaY)*0.08), RAD*1.15, RAD*7); },{passive:false});
+
+function resize(){ const w=innerWidth,h=innerHeight;
+  renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); }
+addEventListener("resize",resize); resize();
+
+let mode="shaded";
+function setMode(m){
+  mode=m;
+  const wire = m==="line", pts = m==="points";
+  for(const p of parts){
+    p.visible = !pts;
+    p.material = wire ? MAT.hollow : p.userData.mat;
+    if(p.userData.edges){ p.userData.edges.material = wire?EDGE.line:EDGE.shaded;
+      p.userData.edges.visible = !(p.name==="hull.beacon"||p.name==="gimbal.ring"); }
+  }
+  cloud.visible = pts;
+  ground.material.opacity = pts?0.35:0.5;
+  for(const [id,el] of [["bShaded","shaded"],["bLine","line"],["bPoints","points"]])
+    document.getElementById(id).classList.toggle("on", el===m);
+}
+
+/* ---- launch sequence: proves the rig drives ------------------- */
+let seq = null;
+function launch(){ seq = { t:0 }; }
+function runSequence(dt){
+  if(!seq) return; const t = (seq.t += dt);
+  const k=(a,b,v)=>THREE.MathUtils.clamp((v-a)/(b-a),0,1);
+  const ease=v=>v*v*(3-2*v);
+  rig.setFold(1 - ease(k(0.3,2.2,t)));                    // arms deploy
+  rig.setRotor(ease(k(2.0,3.6,t))*5200);                  // spin up
+  rig.setAltitude(ease(k(3.2,5.4,t))*1.15);               // lift
+  rig.setAttitude(-ease(k(5.0,6.4,t))*9, Math.sin(t*1.2)*1.6*ease(k(3.4,5,t)), 0);
+  rig.setGimbal(Math.sin(t*0.55)*34*ease(k(4.4,6,t)), -ease(k(4.8,6.6,t))*38);
+  syncUI();
+  if(t>8){ seq=null; }
+}
+function reset(){ seq=null; rig.setFold(0); rig.setRotor(0); rig.setAltitude(0);
+  rig.setAttitude(0,0,0); rig.setGimbal(0,0); Object.assign(cam,HOME); syncUI(); }
+
+/* ---- UI ------------------------------------------------------- */
+const $ = id => document.getElementById(id);
+const S = { fold:$("sFold"), rpm:$("sRpm"), pan:$("sPan"), tilt:$("sTilt") };
+function syncUI(){
+  S.fold.value=state.fold; S.rpm.value=state.rpm; S.pan.value=state.pan; S.tilt.value=state.tilt;
+  $("vFold").textContent=state.fold.toFixed(2);
+  $("vRpm").textContent =Math.round(state.rpm);
+  $("vPan").textContent =Math.round(state.pan)+"°";
+  $("vTilt").textContent=Math.round(state.tilt)+"°";
+  $("rFold").textContent=state.fold.toFixed(2);
+  $("rRpm").textContent =Math.round(state.rpm);
+  $("rGim").textContent =`${Math.round(state.pan)}° / ${Math.round(state.tilt)}°`;
+  $("rAlt").textContent =state.alt.toFixed(2);
+}
+S.fold.oninput=e=>{ seq=null; rig.setFold(+e.target.value); syncUI(); };
+S.rpm.oninput =e=>{ seq=null; rig.setRotor(+e.target.value); syncUI(); };
+S.pan.oninput =e=>{ seq=null; rig.setGimbal(+e.target.value, state.tilt); syncUI(); };
+S.tilt.oninput=e=>{ seq=null; rig.setGimbal(state.pan, +e.target.value); syncUI(); };
+$("bShaded").onclick=()=>setMode("shaded");
+$("bLine").onclick  =()=>setMode("line");
+$("bPoints").onclick=()=>setMode("points");
+$("bLaunch").onclick=launch;
+$("bReset").onclick =reset;
+
+let tris=0; for(const p of parts){ const g=p.geometry; tris += (g.index?g.index.count:g.attributes.position.count)/3; }
+$("rTri").textContent = Math.round(tris).toLocaleString("en-US");
+$("rPart").textContent = parts.length;
+
+/* ---- frame ---------------------------------------------------- */
+function render(){ placeCamera(); renderer.render(scene,camera); }
+function frame(dt){ runSequence(dt); rig.advance(dt); render(); }
+
+window.__DRONE = {
+  THREE, scene, root, rig, parts, camera, cam, renderer,
+  setMode, launch, reset, render,
+  seek(t){ rig.seek(t); render(); },
+  cloudTargets : cloudGeo.attributes.position.array,
+  resample     : (n,seed)=>sampleSurface(parts,n,seed),
+  bounds       : BOX, size:SIZE, radius:RAD,
+};
+
+setMode("shaded"); syncUI();
+const T = Q.get("t");
+if(T!==null){ const t=parseFloat(T); rig.setRotor(4200); rig.seek(t); render(); }
+else if(REDUCE){ render(); }
+else { const clock=new THREE.Clock(); renderer.setAnimationLoop(()=>frame(Math.min(clock.getDelta(),0.05))); }
+window.__ready = true; document.title="ready";
+console.log("DRONE_MODEL_RIG ready ·", parts.length, "parts ·", Math.round(tris), "tris");
+</script>
+</body>
+</html>

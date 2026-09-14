@@ -2,6 +2,51 @@
 
 Visual-direction prototypes. Working material — not approved output.
 
+| File | What it is |
+|---|---|
+| `DRONE_MODEL_RIG.html` | The drone as a built, rigged 3D model — named hierarchy, real pivots, ready to animate |
+| `DRONE_CONCEPT_BOARD_TARGET_MATCH.html` | Earlier study: the five-view technical concept board |
+
+Both serve from the same vendored `vendor/three.module.min.js`.
+
+---
+
+## DRONE_MODEL_RIG
+
+The object itself rather than a board illustration. Wedge fuselage split
+into a lower shell and a stepped deck meeting on a parting line, a
+nose-mounted 3-axis gimbal, tapered folding arms, lofted rotor blades,
+and landing skids. 99 parts.
+
+### Rig
+
+| Node | Driver |
+|---|---|
+| `root` | `setAttitude(pitch,roll,yaw)` · `setAltitude(m)` |
+| `arm.FL/FR/RL/RR` | `setFold(0..1)` — real hinges; front arms swing back, rear arms swing forward, blades counter-rotate to lie along the body |
+| `hub.*` | `setRotor(rpm)` — counter-rotating pairs |
+| `gimbal.yaw > roll > pitch` | `setGimbal(pan,tilt)` |
+
+Deployed span **5.10 × 2.96**; stowed **3.38 × 1.71**.
+
+```js
+const { rig } = window.__DRONE;
+rig.setFold(0); rig.setRotor(5200); rig.setGimbal(30,-38);
+rig.advance(dt);        // realtime
+rig.seek(t);            // deterministic — blade phase from absolute time
+```
+
+`▸ LAUNCH SEQUENCE` in the UI runs deploy → spin-up → lift → gimbal
+sweep, which is the rig driving itself end to end.
+
+Display modes: `SHADED` (default), `LINE` (hidden-line), `POINTS`
+(26,000 area-weighted surface samples, the morph-target handle). Drag to
+orbit, wheel to zoom. `?shot=1` hides the UI; `?t=N` freezes a frame.
+
+---
+
+## DRONE_CONCEPT_BOARD_TARGET_MATCH
+
 ## DRONE_CONCEPT_BOARD_TARGET_MATCH
 
 Target-match study against the generated drone concept board: a dark
